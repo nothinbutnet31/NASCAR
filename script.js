@@ -240,12 +240,20 @@ function populateTeamDropdown() {
 
   const teams = Object.keys(standingsData.teams);
   console.log("Teams:", teams); // Debugging
-  teams.forEach(team => {
-    const option = document.createElement("option");
-    option.value = team;
-    option.textContent = team;
-    teamSelect.appendChild(option);
-  });
+
+  if (teams.length > 0) {
+    teams.forEach((team, index) => {
+      const option = document.createElement("option");
+      option.value = team;
+      option.textContent = team;
+      teamSelect.appendChild(option);
+
+      // Set the first team as the default selection
+      if (index === 0) {
+        teamSelect.value = team;
+      }
+    });
+  }
 }
 
 // Open Tabs
@@ -261,12 +269,9 @@ function openTab(tabName) {
 
   if (tabName === "teams") {
     populateTeamDropdown();
-    
-    // ✅ Ensure team page loads immediately when opening
-    loadTeamPage();  
+    loadTeamPage(); // Call loadTeamPage after populating the team dropdown
   }
 }
-
 
 // Initialize the Page
 function init() {
