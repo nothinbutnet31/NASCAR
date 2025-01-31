@@ -1,22 +1,28 @@
 const sheetId = "19LbY1UwCkPXyVMMnvdu_KrYpyi6WhNcfuC6wjzxeBLI";
 const apiKey = "AIzaSyDWBrtpo54AUuVClU49k0FdrLl-IFPpMdY";
-const range = "Sheet1!A1:G27"; // Adjust the range to match your data
-
+const range = "Sheet1!A1:G27";
 let standingsData = { weeks: [] };
 
 async function fetchDataFromGoogleSheets() {
   const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
-
+  
   try {
-    const response = await fetch(sheetUrl);
-    const data = await response.json();
+    let response = await fetch(sheetUrl);
     
-    if (!data.values) {
-      console.error("No data received from Google Sheets.");
-      return;
+    // If CORS error, use a proxy
+    if (!response.ok) {
+      console.warn("Direct fetch failed, trying proxy...");
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(sheetUrl)}`;
+      response = await fetch(proxyUrl);
+      
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+      const json = await response.json();
+      processSheetData(JSON.parse(json.contents).values);
+    } else {
+      const data = await response.json();
+      processSheetData(data.values);
     }
-    
-    processSheetData(data.values);
   } catch (error) {
     console.error("Error fetching data from Google Sheets:", error);
   }
@@ -24,16 +30,21 @@ async function fetchDataFromGoogleSheets() {
 
 // Process Google Sheets data
 function processSheetData(data) {
+  if (!data) {
+    console.error("No data received.");
+    return;
+  }
+
   standingsData.weeks = data.map((row, index) => ({
     week: index + 1,
-    track: row[0],
+    track: row[0] || "Unknown",
     standings: {
       Emilia: Number(row[1]) || 0,
       Grace: Number(row[2]) || 0,
       Heather: Number(row[3]) || 0,
       Edmund: Number(row[4]) || 0,
       Dan: Number(row[5]) || 0,
-      Midge: Number(row[6]) || 0
+      Midge: Number(row[6]) || 0,
     }
   }));
 
