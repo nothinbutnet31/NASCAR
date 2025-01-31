@@ -1,61 +1,78 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  background-color: #1c1c1e;
+  color: white;
+  text-align: center;
   margin: 0;
   padding: 0;
 }
 
 .container {
+  width: 90%;
   max-width: 800px;
-  margin: 20px auto;
+  margin: auto;
   padding: 20px;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
-  text-align: center;
-  color: #333;
+  font-size: 28px;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  color: #ffcc00; /* NASCAR yellow */
 }
 
-.tabs {
-  margin-bottom: 20px;
-}
-
-.tablink {
-  background-color: #ddd;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
+select {
+  padding: 10px;
   font-size: 16px;
-}
-
-.tablink.active {
-  background-color: #bbb;
-}
-
-.tabcontent {
-  display: none;
-  padding: 20px;
-  border-top: 1px solid #ddd;
-}
-
-.tabcontent h2 {
-  margin-top: 0;
+  margin-bottom: 15px;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
+  margin-top: 15px;
 }
 
 th, td {
-  padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
 }
 
 th {
-  background-color: #f2f2f2;
+  background-color: #ffcc00; /* NASCAR yellow */
+  color: black;
+}
+
+td {
+  background-color: #333;
+}
+
+tr:nth-child(odd) td {
+  background-color: #444;
+}
+
+tr:first-child td {
+  background-color: #ff4500; /* Highlight Leader */
+  font-weight: bold;
+  color: white;
+}
+
+.tabcontent {
+  display: none;
+}
+
+.tablink {
+  background-color: #222;
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
+  border: none;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+.tablink.active {
+  background-color: #ffcc00;
+  color: black;
 }
