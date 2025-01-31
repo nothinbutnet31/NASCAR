@@ -5,17 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fantasy NASCAR Standings</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>Fantasy NASCAR Standings</h1>
+
+    <!-- Dark Mode Toggle -->
+    <button id="dark-mode-toggle">Toggle Dark Mode</button>
+
+    <!-- Search Bar -->
+    <input type="text" id="search" placeholder="Search teams..." oninput="filterTeams()">
+
+    <!-- Tabs -->
     <div class="tabs">
       <button class="tablink active" onclick="openTab('overall')">Overall Standings</button>
       <button class="tablink" onclick="openTab('weekly')">Weekly Standings</button>
     </div>
 
+    <!-- Overall Standings -->
     <div id="overall" class="tabcontent">
       <h2>Overall Standings</h2>
+      <canvas id="overallChart"></canvas>
       <table id="overall-standings">
         <thead>
           <tr>
@@ -29,6 +40,7 @@
       </table>
     </div>
 
+    <!-- Weekly Standings -->
     <div id="weekly" class="tabcontent" style="display:none;">
       <h2>Weekly Standings</h2>
       <label for="week-select">Select Week:</label>
@@ -47,6 +59,11 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>Created by [Your Name]. Data sourced from Google Sheets.</p>
+    </footer>
   </div>
 
   <script src="script.js"></script>
