@@ -1,117 +1,116 @@
 const sheetId = "19LbY1UwCkPXyVMMnvdu_KrYpyi6WhNcfuC6wjzxeBLI";
 const apiKey = "AIzaSyDWBrtpo54AUuVClU49k0FdrLl-IFPpMdY";
-const totalsRange = "Totals!A1:G27"; // Range for team totals (adjust as needed)
-const driversRange = "Drivers!A1:AB43"; // Range for driver data (adjust as needed)
+const totalsRange = "Totals!A1:G27"; 
+const driversRange = "Drivers!A1:AB43";
 
 let standingsData = { weeks: [], teams: {} };
-let driversData = []; // Store driver data
 
 // Fetch data from Google Sheets
 async function fetchDataFromGoogleSheets() {
-  const totalsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalsRange}?key=${apiKey}`;
-  const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
-
   try {
-    // Fetch team totals
-    const totalsResponse = await fetch(totalsUrl);
+    const totalsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalsRange}?key=${apiKey}`;
+    const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
+
+    const [totalsResponse, driversResponse] = await Promise.all([
+      fetch(totalsUrl),
+      fetch(driversUrl)
+    ]);
+
     const totalsData = await totalsResponse.json();
-    console.log("Totals Data:", totalsData.values); // Debugging
+    const driversDataResponse = await driversResponse.json();
+
+    if (!totalsData.values || !driversDataResponse.values) {
+      throw new Error("Missing data from Google Sheets API.");
+    }
+
+    console.log("Totals Data:", totalsData.values);
     processTotalsData(totalsData.values);
 
-    // Fetch driver data
-    const driversResponse = await fetch(driversUrl);
-    const driversDataResponse = await driversResponse.json();
-    console.log("Drivers Data:", driversDataResponse.values); // Debugging
+    console.log("Drivers Data:", driversDataResponse.values);
     processDriversData(driversDataResponse.values);
+
   } catch (error) {
-    console.error("Error fetching data from Google Sheets:", error);
+    console.error("Error fetching data:", error);
   }
 }
 
-// Process team totals data (opposite structure)
+// Process team totals data
 function processTotalsData(data) {
-  const headerRow = data[0]; // Team names are in the header row
-  const trackRows = data.slice(1); // Skip the header row
+  if (!data.length) return;
+
+  const headerRow = data[0]; 
+  const trackRows = data.slice(1); 
 
   standingsData.weeks = trackRows.map((row, index) => ({
     week: index + 1,
-    track: row[0], // Track name is in the first column
+    track: row[0], 
     standings: {}
   }));
 
   headerRow.slice(1).forEach((team, teamIndex) => {
     trackRows.forEach((row, trackIndex) => {
-      standingsData.weeks[trackIndex].standings[team] = parseInt(row[teamIndex + 1]);
+      standingsData.weeks[trackIndex].standings[team] = Number(row[teamIndex + 1]) || 0;
     });
   });
 
-  console.log("Processed Totals Data:", standingsData); // Debugging
+  console.log("Processed Totals Data:", standingsData);
   init();
 }
 
 // Process driver data
 function processDriversData(data) {
-  const headerRow = data[0]; // Track names are in the header row
-  const driverRows = data.slice(1); // Skip the header row
+  if (!data.length) return;
 
-  let currentTeam = null;
-  const teams = {};
+  const headerRow = data[0]; 
+  const driverRows = data.slice(1); 
+
+  let teams = {};
 
   driverRows.forEach(row => {
-    const driver = row[0]; // Driver name is in the first column
-    const team = row[1];   // Team name is in the second column
+    const driver = row[0]?.trim();
+    const team = row[1]?.trim();
 
     if (driver && team) {
-      // New team detected
       if (!teams[team]) {
         teams[team] = {
           drivers: [],
-          totals: new Array(headerRow.length - 2).fill(0) // Initialize totals for each track
+          totals: new Array(headerRow.length - 2).fill(0) 
         };
       }
-      currentTeam = team;
 
-      // Add driver to the team
-      const points = row.slice(2).map(points => parseInt(points));
+      const points = row.slice(2).map(points => Number(points) || 0);
       teams[team].drivers.push({ driver, points });
 
-      // Update team totals
       points.forEach((points, index) => {
         teams[team].totals[index] += points;
       });
-    } else if (driver === "Total") {
-      // Handle total row (optional)
-      console.log(`Total for ${currentTeam}: ${row.slice(2).join(", ")}`);
     }
   });
 
-  // Store team rosters
   standingsData.teams = teams;
-  console.log("Processed Drivers Data:", standingsData.teams); // Debugging
+  console.log("Processed Drivers Data:", standingsData.teams);
 }
 
 // Load Overall Standings
 function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
+  if (!overallTable) return;
+
   overallTable.innerHTML = "";
 
-  const totalPoints = {};
+  let totalPoints = {};
 
   standingsData.weeks.forEach((week) => {
-    for (const [team, points] of Object.entries(week.standings)) {
-      if (!totalPoints[team]) totalPoints[team] = 0;
-      totalPoints[team] += points;
-    }
+    Object.entries(week.standings).forEach(([team, points]) => {
+      totalPoints[team] = (totalPoints[team] || 0) + points;
+    });
   });
 
   const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
 
   sortedTeams.forEach(([team, points]) => {
     const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${team}</td>
-      <td>${points}</td>
-    `;
+    row.innerHTML = `<td>${team}</td><td>${points}</td>`;
     overallTable.appendChild(row);
   });
 
@@ -122,37 +121,35 @@ function loadOverallStandings() {
 function highlightLeader() {
   const overallTable = document.querySelector("#overall-standings tbody");
   const firstRow = overallTable.querySelector("tr");
-  if (firstRow) {
-    firstRow.classList.add("leader");
-  }
+  if (firstRow) firstRow.classList.add("leader");
 }
 
 // Load Weekly Standings
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
-  const selectedWeek = weekSelect.value;
   const weeklyTable = document.querySelector("#weekly-standings tbody");
+
+  if (!weekSelect || !weeklyTable) return;
+
   weeklyTable.innerHTML = "";
 
-  const weekData = standingsData.weeks.find((week) => week.week == selectedWeek);
+  const weekData = standingsData.weeks.find((week) => week.week == weekSelect.value);
+  if (!weekData) return;
 
-  if (weekData) {
-    const sortedStandings = Object.entries(weekData.standings).sort((a, b) => b[1] - a[1]);
+  const sortedStandings = Object.entries(weekData.standings).sort((a, b) => b[1] - a[1]);
 
-    sortedStandings.forEach(([team, points]) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${team}</td>
-        <td>${points}</td>
-      `;
-      weeklyTable.appendChild(row);
-    });
-  }
+  sortedStandings.forEach(([team, points]) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${team}</td><td>${points}</td>`;
+    weeklyTable.appendChild(row);
+  });
 }
 
 // Populate Week Dropdown
 function populateWeekDropdown() {
   const weekSelect = document.getElementById("week-select");
+  if (!weekSelect) return;
+
   weekSelect.innerHTML = "";
 
   standingsData.weeks.forEach((week) => {
@@ -163,55 +160,14 @@ function populateWeekDropdown() {
   });
 }
 
-// Load Team Pages
-function loadTeamPage() {
-  const teamSelect = document.getElementById("team-select");
-  const selectedTeam = teamSelect.value;
-  const teamDetails = document.getElementById("team-details");
-  teamDetails.innerHTML = "";
-
-  const teamData = standingsData.teams[selectedTeam];
-
-  if (teamData && teamData.drivers.length > 0) {
-    const table = document.createElement("table");
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>Driver</th>
-          ${standingsData.weeks.map(week => `<th>${week.track}</th>`).join("")}
-          <th>Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${teamData.drivers.map(driver => `
-          <tr>
-            <td>${driver.driver}</td>
-            ${driver.points.map(points => `<td>${points}</td>`).join("")}
-            <td>${driver.points.reduce((sum, points) => sum + points, 0)}</td>
-          </tr>
-        `).join("")}
-        <!-- Total Row -->
-        <tr class="total-row">
-          <td><strong>Total</strong></td>
-          ${teamData.totals.map(total => `<td><strong>${total}</strong></td>`).join("")}
-          <td><strong>${teamData.totals.reduce((sum, total) => sum + total, 0)}</strong></td>
-        </tr>
-      </tbody>
-    `;
-    teamDetails.appendChild(table);
-  } else {
-    teamDetails.innerHTML = "<p>No drivers found for this team.</p>";
-  }
-}
-
 // Populate Team Dropdown
 function populateTeamDropdown() {
   const teamSelect = document.getElementById("team-select");
+  if (!teamSelect) return;
+
   teamSelect.innerHTML = "";
 
-  const teams = Object.keys(standingsData.teams);
-  console.log("Teams:", teams); // Debugging
-  teams.forEach(team => {
+  Object.keys(standingsData.teams).forEach(team => {
     const option = document.createElement("option");
     option.value = team;
     option.textContent = team;
@@ -221,14 +177,14 @@ function populateTeamDropdown() {
 
 // Open Tabs
 function openTab(tabName) {
-  const tabcontents = document.querySelectorAll(".tabcontent");
-  const tablinks = document.querySelectorAll(".tablink");
+  document.querySelectorAll(".tabcontent").forEach(tab => tab.style.display = "none");
+  document.querySelectorAll(".tablink").forEach(link => link.classList.remove("active"));
 
-  tabcontents.forEach((tab) => (tab.style.display = "none"));
-  tablinks.forEach((link) => link.classList.remove("active"));
+  const tab = document.getElementById(tabName);
+  if (tab) tab.style.display = "block";
 
-  document.getElementById(tabName).style.display = "block";
-  document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
+  const link = document.querySelector(`[onclick="openTab('${tabName}')"]`);
+  if (link) link.classList.add("active");
 
   if (tabName === "teams") {
     populateTeamDropdown();
@@ -243,5 +199,5 @@ function init() {
   loadWeeklyStandings();
 }
 
-// Fetch Data and Initialize
-fetchDataFromGoogleSheets();
+// Fetch Data and Initialize After Page Load
+window.onload = fetchDataFromGoogleSheets;
