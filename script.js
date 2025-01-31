@@ -118,8 +118,8 @@ function loadOverallStandings() {
 
   sortedTeams.forEach(([team, points], index) => {
     const row = document.createElement("tr");
-    // Add trophy emoji for first place
-    const trophy = index === 0 ? "🏆 " : "";
+    // Add trophy icon for first place
+    const trophy = index === 0 ? '<i class="fas fa-trophy"></i> ' : "";
     row.innerHTML = `
       <td>${trophy}${team}</td>
       <td>${points}</td>
@@ -153,8 +153,8 @@ function loadWeeklyStandings() {
 
     sortedStandings.forEach(([team, points], index) => {
       const row = document.createElement("tr");
-      // Add checkered flag emoji for first place if points > 0
-      const flag = index === 0 && points > 0 ? "🏁 " : "";
+      // Add checkered flag icon for first place if points > 0
+      const flag = index === 0 && points > 0 ? '<i class="fas fa-flag-checkered"></i> ' : "";
       row.innerHTML = `
         <td>${flag}${team}</td>
         <td>${points}</td>
