@@ -54,20 +54,41 @@ function processDriversData(data) {
   const headerRow = data[0]; // Track names are in the header row
   const driverRows = data.slice(1); // Skip the header row
 
-  driversData = driverRows.map(row => ({
-    driver: row[0], // Driver name is in the first column
-    team: row[1],   // Team name is in the second column
-    points: row.slice(2).map(points => parseInt(points)) // Points for each track
-  }));
-
-  // Group drivers by team
+  let currentTeam = null;
   const teams = {};
-  driversData.forEach(driver => {
-    if (!teams[driver.team]) {
-      teams[driver.team] = [];
+
+  driverRows.forEach(row => {
+    const driver = row[0]; // Driver name is in the first column
+    const team = row[1];   // Team name is in the second column
+
+    if (driver && team) {
+      // New team detected
+      if (!teams[team]) {
+        teams[team] = {
+          drivers: [],
+          totals: new Array(headerRow.length - 2).fill(0) // Initialize totals for each track
+        };
+      }
+      currentTeam = team;
+
+      // Add driver to the team
+      const points = row.slice(2).map(points => parseInt(points));
+      teams[team].drivers.push({ driver, points });
+
+      // Update team totals
+      points.forEach((points, index) => {
+        teams[team].totals[index] += points;
+      });
+    } else if (driver === "Total") {
+      // Handle total row (optional)
+      console.log(`Total for ${currentTeam}: ${row.slice(2).join(", ")}`);
     }
-    teams[driver.team].push(driver);
   });
+
+  // Store team rosters
+  standingsData.teams = teams;
+  console.log("Processed Drivers Data:", standingsData.teams); // Debugging
+}
 
   // Store team rosters
   standingsData.teams = teams;
@@ -154,9 +175,9 @@ function loadTeamPage() {
   const teamDetails = document.getElementById("team-details");
   teamDetails.innerHTML = "";
 
-  const teamDrivers = standingsData.teams[selectedTeam];
+  const teamData = standingsData.teams[selectedTeam];
 
-  if (teamDrivers && teamDrivers.length > 0) {
+  if (teamData && teamData.drivers.length > 0) {
     const table = document.createElement("table");
     table.innerHTML = `
       <thead>
@@ -167,13 +188,19 @@ function loadTeamPage() {
         </tr>
       </thead>
       <tbody>
-        ${teamDrivers.map(driver => `
+        ${teamData.drivers.map(driver => `
           <tr>
             <td>${driver.driver}</td>
             ${driver.points.map(points => `<td>${points}</td>`).join("")}
             <td>${driver.points.reduce((sum, points) => sum + points, 0)}</td>
           </tr>
         `).join("")}
+        <!-- Total Row -->
+        <tr class="total-row">
+          <td><strong>Total</strong></td>
+          ${teamData.totals.map(total => `<td><strong>${total}</strong></td>`).join("")}
+          <td><strong>${teamData.totals.reduce((sum, total) => sum + total, 0)}</strong></td>
+        </tr>
       </tbody>
     `;
     teamDetails.appendChild(table);
