@@ -261,9 +261,12 @@ function openTab(tabName) {
 
   if (tabName === "teams") {
     populateTeamDropdown();
-    loadTeamPage();
+    
+    // ✅ Ensure team page loads immediately when opening
+    loadTeamPage();  
   }
 }
+
 
 // Initialize the Page
 function init() {
