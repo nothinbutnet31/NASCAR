@@ -197,14 +197,23 @@ function loadTeamPage() {
 
   console.log("Team Data:", teamData);
 
-  // Populate track dropdown
+  // Populate track dropdown (only show tracks with data)
   trackSelect.innerHTML = "";
   standingsData.weeks.forEach((week, index) => {
-    const option = document.createElement("option");
-    option.value = index; // Use track index as value
-    option.textContent = week.track;
-    trackSelect.appendChild(option);
+    // Check if the team has data for this track
+    if (teamData.totals[index] > 0) {
+      const option = document.createElement("option");
+      option.value = index; // Use track index as value
+      option.textContent = week.track;
+      trackSelect.appendChild(option);
+    }
   });
+
+  // If no tracks have data, show a message
+  if (trackSelect.options.length === 0) {
+    teamRoster.innerHTML = "<tr><td colspan='2'>No data available for any track.</td></tr>";
+    return;
+  }
 
   // Load driver points for the selected track
   const trackIndex = parseInt(selectedTrack);
