@@ -1,53 +1,74 @@
 const sheetId = "19LbY1UwCkPXyVMMnvdu_KrYpyi6WhNcfuC6wjzxeBLI";
 const apiKey = "AIzaSyDWBrtpo54AUuVClU49k0FdrLl-IFPpMdY";
-const range = "Sheet1!A1:G27";
-let standingsData = { weeks: [] };
+const totalsRange = "Totals!A1:G27"; // Range for team totals (adjust as needed)
+const driversRange = "Drivers!A1:AB43"; // Range for driver data (adjust as needed)
 
+let standingsData = { weeks: [], teams: {} };
+let driversData = []; // Store driver data
+
+// Fetch data from Google Sheets
 async function fetchDataFromGoogleSheets() {
-  const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
-  
-  try {
-    let response = await fetch(sheetUrl);
-    
-    // If CORS error, use a proxy
-    if (!response.ok) {
-      console.warn("Direct fetch failed, trying proxy...");
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(sheetUrl)}`;
-      response = await fetch(proxyUrl);
-      
-      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+  const totalsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalsRange}?key=${apiKey}`;
+  const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
 
-      const json = await response.json();
-      processSheetData(JSON.parse(json.contents).values);
-    } else {
-      const data = await response.json();
-      processSheetData(data.values);
-    }
+  try {
+    // Fetch team totals
+    const totalsResponse = await fetch(totalsUrl);
+    const totalsData = await totalsResponse.json();
+    processTotalsData(totalsData.values);
+
+    // Fetch driver data
+    const driversResponse = await fetch(driversUrl);
+    const driversDataResponse = await driversResponse.json();
+    processDriversData(driversDataResponse.values);
   } catch (error) {
     console.error("Error fetching data from Google Sheets:", error);
   }
 }
 
-// Process Google Sheets data
-function processSheetData(data) {
-  const rows = data.slice(1); // Skip the header row
-  standingsData.weeks = rows.map((row, index) => ({
+// Process team totals data (opposite structure)
+function processTotalsData(data) {
+  const headerRow = data[0]; // Team names are in the header row
+  const trackRows = data.slice(1); // Skip the header row
+
+  standingsData.weeks = trackRows.map((row, index) => ({
     week: index + 1,
-    track: row[0],
-    standings: {
-      Emilia: parseInt(row[1]),
-      Grace: parseInt(row[2]),
-      Heather: parseInt(row[3]),
-      Edmund: parseInt(row[4]),
-      Dan: parseInt(row[5]),
-      Midge: parseInt(row[6])
-    }
+    track: row[0], // Track name is in the first column
+    standings: {}
   }));
+
+  headerRow.slice(1).forEach((team, teamIndex) => {
+    trackRows.forEach((row, trackIndex) => {
+      standingsData.weeks[trackIndex].standings[team] = parseInt(row[teamIndex + 1]);
+    });
+  });
 
   init();
 }
 
+// Process driver data
+function processDriversData(data) {
+  const headerRow = data[0]; // Track names are in the header row
+  const driverRows = data.slice(1); // Skip the header row
 
+  driversData = driverRows.map(row => ({
+    driver: row[0], // Driver name is in the first column
+    team: row[1],   // Team name is in the second column
+    points: row.slice(2).map(points => parseInt(points)) // Points for each track
+  }));
+
+  // Group drivers by team
+  const teams = {};
+  driversData.forEach(driver => {
+    if (!teams[driver.team]) {
+      teams[driver.team] = [];
+    }
+    teams[driver.team].push(driver);
+  });
+
+  // Store team rosters
+  standingsData.teams = teams;
+}
 
 // Load Overall Standings
 function loadOverallStandings() {
@@ -109,8 +130,7 @@ function loadWeeklyStandings() {
   }
 }
 
-
-// Populate week dropdown
+// Populate Week Dropdown
 function populateWeekDropdown() {
   const weekSelect = document.getElementById("week-select");
   weekSelect.innerHTML = "";
@@ -123,21 +143,78 @@ function populateWeekDropdown() {
   });
 }
 
-// Open tabs
-function openTab(tabName) {
-  document.querySelectorAll(".tabcontent").forEach((tab) => (tab.style.display = "none"));
-  document.querySelectorAll(".tablink").forEach((link) => link.classList.remove("active"));
+// Load Team Pages
+function loadTeamPage() {
+  const teamSelect = document.getElementById("team-select");
+  const selectedTeam = teamSelect.value;
+  const teamDetails = document.getElementById("team-details");
+  teamDetails.innerHTML = "";
 
-  document.getElementById(tabName).style.display = "block";
-  document.querySelector(`.tablink[data-tab="${tabName}"]`)?.classList.add("active");
+  const teamDrivers = standingsData.teams[selectedTeam];
+
+  if (teamDrivers && teamDrivers.length > 0) {
+    const table = document.createElement("table");
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>Driver</th>
+          ${standingsData.weeks.map(week => `<th>${week.track}</th>`).join("")}
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${teamDrivers.map(driver => `
+          <tr>
+            <td>${driver.driver}</td>
+            ${driver.points.map(points => `<td>${points}</td>`).join("")}
+            <td>${driver.points.reduce((sum, points) => sum + points, 0)}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    `;
+    teamDetails.appendChild(table);
+  } else {
+    teamDetails.innerHTML = "<p>No drivers found for this team.</p>";
+  }
 }
 
-// Initialize the page
+// Populate Team Dropdown
+function populateTeamDropdown() {
+  const teamSelect = document.getElementById("team-select");
+  teamSelect.innerHTML = "";
+
+  const teams = Object.keys(standingsData.teams);
+  teams.forEach(team => {
+    const option = document.createElement("option");
+    option.value = team;
+    option.textContent = team;
+    teamSelect.appendChild(option);
+  });
+}
+
+// Open Tabs
+function openTab(tabName) {
+  const tabcontents = document.querySelectorAll(".tabcontent");
+  const tablinks = document.querySelectorAll(".tablink");
+
+  tabcontents.forEach((tab) => (tab.style.display = "none"));
+  tablinks.forEach((link) => link.classList.remove("active"));
+
+  document.getElementById(tabName).style.display = "block";
+  document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
+
+  if (tabName === "teams") {
+    populateTeamDropdown();
+    loadTeamPage();
+  }
+}
+
+// Initialize the Page
 function init() {
   populateWeekDropdown();
   loadOverallStandings();
   loadWeeklyStandings();
 }
 
-// Fetch data and initialize
+// Fetch Data and Initialize
 fetchDataFromGoogleSheets();
