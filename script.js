@@ -48,75 +48,6 @@ function processSheetData(data) {
 }
 
 
-// Dark Mode Toggle
-const darkModeToggle = document.getElementById("dark-mode-toggle");
-darkModeToggle.addEventListener("click", () => {
-  document.body.classList.toggle("dark-mode");
-  localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
-});
-
-// Load Dark Mode Preference
-if (localStorage.getItem("darkMode") === "true") {
-  document.body.classList.add("dark-mode");
-}
-
-// Search and Filter Teams
-function filterTeams() {
-  const searchTerm = document.getElementById("search").value.toLowerCase();
-  const rows = document.querySelectorAll("#overall-standings tbody tr");
-
-  rows.forEach(row => {
-    const teamName = row.cells[0].textContent.toLowerCase();
-    if (teamName.includes(searchTerm)) {
-      row.style.display = "";
-    } else {
-      row.style.display = "none";
-    }
-  });
-}
-
-// Create Overall Chart
-function createOverallChart() {
-  const overallTable = document.querySelector("#overall-standings tbody");
-  const teams = [];
-  const points = [];
-
-  overallTable.querySelectorAll("tr").forEach(row => {
-    teams.push(row.cells[0].textContent);
-    points.push(parseInt(row.cells[1].textContent));
-  });
-
-  const ctx = document.getElementById("overallChart").getContext("2d");
-  new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels: teams,
-      datasets: [{
-        label: "Total Points",
-        data: points,
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 1
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
-        }
-      }
-    }
-  });
-}
-
-// Highlight Leader
-function highlightLeader() {
-  const overallTable = document.querySelector("#overall-standings tbody");
-  const firstRow = overallTable.querySelector("tr");
-  if (firstRow) {
-    firstRow.classList.add("leader");
-  }
-}
 
 // Load Overall Standings
 function loadOverallStandings() {
@@ -137,15 +68,22 @@ function loadOverallStandings() {
   sortedTeams.forEach(([team, points]) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td><img src="logos/${team.toLowerCase()}-logo.png" alt="${team}" class="team-logo"></td>
       <td>${team}</td>
       <td>${points}</td>
     `;
     overallTable.appendChild(row);
   });
 
-  createOverallChart();
   highlightLeader();
+}
+
+// Highlight Leader
+function highlightLeader() {
+  const overallTable = document.querySelector("#overall-standings tbody");
+  const firstRow = overallTable.querySelector("tr");
+  if (firstRow) {
+    firstRow.classList.add("leader");
+  }
 }
 
 // Load Weekly Standings
@@ -163,7 +101,6 @@ function loadWeeklyStandings() {
     sortedStandings.forEach(([team, points]) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td><img src="logos/${team.toLowerCase()}-logo.png" alt="${team}" class="team-logo"></td>
         <td>${team}</td>
         <td>${points}</td>
       `;
@@ -171,6 +108,8 @@ function loadWeeklyStandings() {
     });
   }
 }
+
+
 // Populate week dropdown
 function populateWeekDropdown() {
   const weekSelect = document.getElementById("week-select");
