@@ -90,11 +90,6 @@ function processDriversData(data) {
   console.log("Processed Drivers Data:", standingsData.teams); // Debugging
 }
 
-  // Store team rosters
-  standingsData.teams = teams;
-  console.log("Processed Drivers Data:", standingsData.teams); // Debugging
-
-
 // Load Overall Standings
 function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
