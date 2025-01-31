@@ -35,8 +35,8 @@ function processSheetData(data) {
     return;
   }
 
-  standingsData.weeks = data.map((row, index) => ({
-    week: index,
+  standingsData.weeks = data.slice(1).map((row, index) => ({
+    week: index + 1,
     track: row[0] || "Unknown",
     standings: {
       Emilia: Number(row[1]) || 0,
