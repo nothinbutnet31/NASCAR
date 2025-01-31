@@ -42,7 +42,7 @@ function loadOverallStandings() {
 
   const totalPoints = {};
 
-  standingsData.weeks.forEach(week => {
+  standingsData.weeks.forEach((week) => {
     for (const [team, points] of Object.entries(week.standings)) {
       if (!totalPoints[team]) totalPoints[team] = 0;
       totalPoints[team] += points;
@@ -65,7 +65,7 @@ function loadWeeklyStandings() {
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   weeklyTable.innerHTML = "";
 
-  const weekData = standingsData.weeks.find(week => week.week == selectedWeek);
+  const weekData = standingsData.weeks.find((week) => week.week == selectedWeek);
 
   if (weekData) {
     const sortedStandings = Object.entries(weekData.standings).sort((a, b) => b[1] - a[1]);
@@ -83,7 +83,7 @@ function populateWeekDropdown() {
   const weekSelect = document.getElementById("week-select");
   weekSelect.innerHTML = "";
 
-  standingsData.weeks.forEach(week => {
+  standingsData.weeks.forEach((week) => {
     const option = document.createElement("option");
     option.value = week.week;
     option.textContent = `Week ${week.week} - ${week.track}`;
@@ -96,8 +96,8 @@ function openTab(tabName) {
   const tabcontents = document.querySelectorAll(".tabcontent");
   const tablinks = document.querySelectorAll(".tablink");
 
-  tabcontents.forEach(tab => tab.style.display = "none");
-  tablinks.forEach(link => link.classList.remove("active"));
+  tabcontents.forEach((tab) => (tab.style.display = "none"));
+  tablinks.forEach((link) => link.classList.remove("active"));
 
   document.getElementById(tabName).style.display = "block";
   document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
