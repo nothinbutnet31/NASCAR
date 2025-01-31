@@ -48,7 +48,6 @@ function processSheetData(data) {
 }
 
 
-// Load overall standings
 function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
   overallTable.innerHTML = "";
@@ -61,16 +60,17 @@ function loadOverallStandings() {
     }
   });
 
-  Object.entries(totalPoints)
-    .sort((a, b) => b[1] - a[1])
-    .forEach(([team, points]) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `<td>${team}</td><td>${points}</td>`;
-      overallTable.appendChild(row);
-    });
+  const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
+
+  sortedTeams.forEach(([team, points], index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${team}</td><td>${points}</td>`;
+
+    if (index === 0) row.style.backgroundColor = "#ff4500"; // Highlight leader
+    overallTable.appendChild(row);
+  });
 }
 
-// Load weekly standings
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
   const selectedWeek = weekSelect.value;
@@ -80,15 +80,17 @@ function loadWeeklyStandings() {
   const weekData = standingsData.weeks.find((week) => week.week == selectedWeek);
 
   if (weekData) {
-    Object.entries(weekData.standings)
-      .sort((a, b) => b[1] - a[1])
-      .forEach(([team, points]) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `<td>${team}</td><td>${points}</td>`;
-        weeklyTable.appendChild(row);
-      });
+    const sortedStandings = Object.entries(weekData.standings).sort((a, b) => b[1] - a[1]);
+
+    sortedStandings.forEach(([team, points], index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${team}</td><td>${points}</td>`;
+      if (index === 0) row.style.backgroundColor = "#ff4500"; // Highlight leader
+      weeklyTable.appendChild(row);
+    });
   }
 }
+
 
 // Populate week dropdown
 function populateWeekDropdown() {
