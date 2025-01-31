@@ -15,11 +15,13 @@ async function fetchDataFromGoogleSheets() {
     // Fetch team totals
     const totalsResponse = await fetch(totalsUrl);
     const totalsData = await totalsResponse.json();
+    console.log("Totals Data:", totalsData.values); // Debugging
     processTotalsData(totalsData.values);
 
     // Fetch driver data
     const driversResponse = await fetch(driversUrl);
     const driversDataResponse = await driversResponse.json();
+    console.log("Drivers Data:", driversDataResponse.values); // Debugging
     processDriversData(driversDataResponse.values);
   } catch (error) {
     console.error("Error fetching data from Google Sheets:", error);
@@ -43,6 +45,7 @@ function processTotalsData(data) {
     });
   });
 
+  console.log("Processed Totals Data:", standingsData); // Debugging
   init();
 }
 
@@ -68,6 +71,7 @@ function processDriversData(data) {
 
   // Store team rosters
   standingsData.teams = teams;
+  console.log("Processed Drivers Data:", standingsData.teams); // Debugging
 }
 
 // Load Overall Standings
@@ -184,6 +188,7 @@ function populateTeamDropdown() {
   teamSelect.innerHTML = "";
 
   const teams = Object.keys(standingsData.teams);
+  console.log("Teams:", teams); // Debugging
   teams.forEach(team => {
     const option = document.createElement("option");
     option.value = team;
