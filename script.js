@@ -93,7 +93,7 @@ function processDriversData(data) {
   // Store team rosters
   standingsData.teams = teams;
   console.log("Processed Drivers Data:", standingsData.teams); // Debugging
-}
+
 
 // Load Overall Standings
 function loadOverallStandings() {
