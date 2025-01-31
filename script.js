@@ -4,9 +4,10 @@ const range = "Sheet1!A1:G27"; // Adjust the range to match your data
 
 let standingsData = { weeks: [] };
 
-// Fetch data from Google Sheets
 async function fetchDataFromGoogleSheets() {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+  const proxyUrl = "https://cors-anywhere.herokuapp.com/"; // Public CORS proxy
+  const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+  const url = proxyUrl + sheetUrl; // Use the proxy URL
 
   try {
     const response = await fetch(url);
