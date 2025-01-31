@@ -145,10 +145,14 @@ function loadWeeklyStandings() {
   });
 }
 
+
 // Populate Week Dropdown
 function populateWeekDropdown() {
   const weekSelect = document.getElementById("week-select");
-  if (!weekSelect) return;
+  if (!weekSelect) {
+    console.error("Element #week-select not found.");
+    return;
+  }
 
   weekSelect.innerHTML = "";
 
@@ -159,6 +163,7 @@ function populateWeekDropdown() {
     weekSelect.appendChild(option);
   });
 }
+
 
 // Populate Team Dropdown
 function populateTeamDropdown() {
