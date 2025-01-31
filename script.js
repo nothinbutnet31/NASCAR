@@ -1,17 +1,21 @@
-const sheetId = "https://docs.google.com/spreadsheets/d/19LbY1UwCkPXyVMMnvdu_KrYpyi6WhNcfuC6wjzxeBLI/edit";
+const sheetId = "19LbY1UwCkPXyVMMnvdu_KrYpyi6WhNcfuC6wjzxeBLI";
 const apiKey = "AIzaSyDWBrtpo54AUuVClU49k0FdrLl-IFPpMdY";
 const range = "Sheet1!A1:G27"; // Adjust the range to match your data
 
 let standingsData = { weeks: [] };
 
 async function fetchDataFromGoogleSheets() {
-  const proxyUrl = "https://cors-anywhere.herokuapp.com/"; // Public CORS proxy
   const sheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
-  const url = proxyUrl + sheetUrl; // Use the proxy URL
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(sheetUrl);
     const data = await response.json();
+    
+    if (!data.values) {
+      console.error("No data received from Google Sheets.");
+      return;
+    }
+    
     processSheetData(data.values);
   } catch (error) {
     console.error("Error fetching data from Google Sheets:", error);
@@ -24,12 +28,12 @@ function processSheetData(data) {
     week: index + 1,
     track: row[0],
     standings: {
-      Emilia: parseInt(row[1]),
-      Grace: parseInt(row[2]),
-      Heather: parseInt(row[3]),
-      Edmund: parseInt(row[4]),
-      Dan: parseInt(row[5]),
-      Midge: parseInt(row[6])
+      Emilia: Number(row[1]) || 0,
+      Grace: Number(row[2]) || 0,
+      Heather: Number(row[3]) || 0,
+      Edmund: Number(row[4]) || 0,
+      Dan: Number(row[5]) || 0,
+      Midge: Number(row[6]) || 0
     }
   }));
 
@@ -45,18 +49,17 @@ function loadOverallStandings() {
 
   standingsData.weeks.forEach((week) => {
     for (const [team, points] of Object.entries(week.standings)) {
-      if (!totalPoints[team]) totalPoints[team] = 0;
-      totalPoints[team] += points;
+      totalPoints[team] = (totalPoints[team] || 0) + points;
     }
   });
 
-  const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
-
-  sortedTeams.forEach(([team, points]) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `<td>${team}</td><td>${points}</td>`;
-    overallTable.appendChild(row);
-  });
+  Object.entries(totalPoints)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([team, points]) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${team}</td><td>${points}</td>`;
+      overallTable.appendChild(row);
+    });
 }
 
 // Load weekly standings
@@ -69,13 +72,13 @@ function loadWeeklyStandings() {
   const weekData = standingsData.weeks.find((week) => week.week == selectedWeek);
 
   if (weekData) {
-    const sortedStandings = Object.entries(weekData.standings).sort((a, b) => b[1] - a[1]);
-
-    sortedStandings.forEach(([team, points]) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `<td>${team}</td><td>${points}</td>`;
-      weeklyTable.appendChild(row);
-    });
+    Object.entries(weekData.standings)
+      .sort((a, b) => b[1] - a[1])
+      .forEach(([team, points]) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${team}</td><td>${points}</td>`;
+        weeklyTable.appendChild(row);
+      });
   }
 }
 
@@ -94,14 +97,11 @@ function populateWeekDropdown() {
 
 // Open tabs
 function openTab(tabName) {
-  const tabcontents = document.querySelectorAll(".tabcontent");
-  const tablinks = document.querySelectorAll(".tablink");
-
-  tabcontents.forEach((tab) => (tab.style.display = "none"));
-  tablinks.forEach((link) => link.classList.remove("active"));
+  document.querySelectorAll(".tabcontent").forEach((tab) => (tab.style.display = "none"));
+  document.querySelectorAll(".tablink").forEach((link) => link.classList.remove("active"));
 
   document.getElementById(tabName).style.display = "block";
-  document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
+  document.querySelector(`.tablink[data-tab="${tabName}"]`)?.classList.add("active");
 }
 
 // Initialize the page
