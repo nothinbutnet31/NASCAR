@@ -5,6 +5,7 @@ const driversRange = "Drivers!A1:AB43";
 
 let standingsData = { weeks: [], teams: {} };
 let driversData = []; // Store driver data
+let isDataLoaded = false; // Track if data is fully loaded
 
 // Fetch data from Google Sheets
 async function fetchDataFromGoogleSheets() {
@@ -12,17 +13,27 @@ async function fetchDataFromGoogleSheets() {
   const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
 
   try {
-    // Fetch team totals
-    const totalsResponse = await fetch(totalsUrl);
-    const totalsData = await totalsResponse.json();
-    console.log("Totals Data:", totalsData.values); // Debugging
-    processTotalsData(totalsData.values);
+    // Fetch both team totals and driver data simultaneously
+    const [totalsResponse, driversResponse] = await Promise.all([
+      fetch(totalsUrl),
+      fetch(driversUrl),
+    ]);
 
-    // Fetch driver data
-    const driversResponse = await fetch(driversUrl);
+    const totalsData = await totalsResponse.json();
     const driversDataResponse = await driversResponse.json();
+
+    console.log("Totals Data:", totalsData.values); // Debugging
     console.log("Drivers Data:", driversDataResponse.values); // Debugging
+
+    // Process both datasets
+    processTotalsData(totalsData.values);
     processDriversData(driversDataResponse.values);
+
+    // Mark data as loaded
+    isDataLoaded = true;
+
+    // Initialize the UI after data is fully processed
+    init();
   } catch (error) {
     console.error("Error fetching data from Google Sheets:", error);
   }
@@ -46,7 +57,6 @@ function processTotalsData(data) {
   });
 
   console.log("Processed Totals Data:", standingsData); // Debugging
-  init();
 }
 
 // Process driver data
@@ -165,6 +175,11 @@ function populateWeekDropdown() {
 
 // Load Team Pages
 function loadTeamPage() {
+  if (!isDataLoaded) {
+    console.warn("Data not fully loaded yet.");
+    return;
+  }
+
   const teamSelect = document.getElementById("team-select");
   const trackSelect = document.getElementById("track-select");
   const teamRoster = document.querySelector("#team-roster tbody");
@@ -287,6 +302,11 @@ function openTab(tabName) {
 
 // Initialize the Page
 function init() {
+  if (!isDataLoaded) {
+    console.warn("Data not fully loaded yet.");
+    return;
+  }
+
   populateWeekDropdown();
   loadOverallStandings();
   loadWeeklyStandings();
