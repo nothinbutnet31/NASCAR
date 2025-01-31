@@ -1,6 +1,6 @@
 const sheetId = "19LbY1UwCkPXyVMMnvdu_KrYpyi6WhNcfuC6wjzxeBLI";
 const apiKey = "AIzaSyDWBrtpo54AUuVClU49k0FdrLl-IFPpMdY";
-const totalsRange = "Totals!A1:G27"; 
+const totalsRange = "Totals!A1:G27";
 const driversRange = "Drivers!A1:AB43";
 
 let standingsData = { weeks: [], teams: {} };
@@ -36,7 +36,7 @@ function processTotalsData(data) {
   standingsData.weeks = trackRows.map((row, index) => ({
     week: index + 1,
     track: row[0], // Track name is in the first column
-    standings: {}
+    standings: {},
   }));
 
   headerRow.slice(1).forEach((team, teamIndex) => {
@@ -57,22 +57,22 @@ function processDriversData(data) {
   let currentTeam = null;
   const teams = {};
 
-  driverRows.forEach(row => {
+  driverRows.forEach((row) => {
     const driver = row[0]; // Driver name is in the first column
-    const team = row[1];   // Team name is in the second column
+    const team = row[1]; // Team name is in the second column
 
     if (driver && team) {
       // New team detected
       if (!teams[team]) {
         teams[team] = {
           drivers: [],
-          totals: new Array(headerRow.length - 2).fill(0) // Initialize totals for each track
+          totals: new Array(headerRow.length - 2).fill(0), // Initialize totals for each track
         };
       }
       currentTeam = team;
 
       // Add driver to the team
-      const points = row.slice(2).map(points => parseInt(points));
+      const points = row.slice(2).map((points) => parseInt(points));
       teams[team].drivers.push({ driver, points });
 
       // Update team totals
@@ -215,14 +215,23 @@ function loadTeamPage() {
     return;
   }
 
+  // Set the default track selection to the first available track
+  if (trackSelect.options.length > 0) {
+    trackSelect.value = trackSelect.options[0].value;
+  }
+
   // Load driver points for the selected track
   const trackIndex = parseInt(selectedTrack);
-  teamRoster.innerHTML = teamData.drivers.map(driver => `
+  teamRoster.innerHTML = teamData.drivers
+    .map(
+      (driver) => `
     <tr>
       <td>${driver.driver}</td>
       <td>${driver.points[trackIndex] || 0}</td> <!-- Default to 0 if undefined -->
     </tr>
-  `).join("");
+  `
+    )
+    .join("");
 
   // Add total row
   teamRoster.innerHTML += `
@@ -253,6 +262,9 @@ function populateTeamDropdown() {
         teamSelect.value = team;
       }
     });
+
+    // Call loadTeamPage after populating the dropdown
+    loadTeamPage();
   }
 }
 
