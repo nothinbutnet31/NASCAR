@@ -116,10 +116,12 @@ function loadOverallStandings() {
 
   const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
 
-  sortedTeams.forEach(([team, points]) => {
+  sortedTeams.forEach(([team, points], index) => {
     const row = document.createElement("tr");
+    // Add trophy emoji for first place
+    const trophy = index === 0 ? "🏆 " : "";
     row.innerHTML = `
-      <td>${team}</td>
+      <td>${trophy}${team}</td>
       <td>${points}</td>
     `;
     overallTable.appendChild(row);
@@ -149,10 +151,12 @@ function loadWeeklyStandings() {
   if (weekData) {
     const sortedStandings = Object.entries(weekData.standings).sort((a, b) => b[1] - a[1]);
 
-    sortedStandings.forEach(([team, points]) => {
+    sortedStandings.forEach(([team, points], index) => {
       const row = document.createElement("tr");
+      // Add checkered flag emoji for first place if points > 0
+      const flag = index === 0 && points > 0 ? "🏁 " : "";
       row.innerHTML = `
-        <td>${team}</td>
+        <td>${flag}${team}</td>
         <td>${points}</td>
       `;
       weeklyTable.appendChild(row);
