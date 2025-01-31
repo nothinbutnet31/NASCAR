@@ -118,7 +118,7 @@ function highlightLeader() {
   }
 }
 
-// Update loadOverallStandings to include chart and leader highlight
+// Load Overall Standings
 function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
   overallTable.innerHTML = "";
@@ -136,13 +136,19 @@ function loadOverallStandings() {
 
   sortedTeams.forEach(([team, points]) => {
     const row = document.createElement("tr");
-    row.innerHTML = `<td><img src="${team.toLowerCase()}-logo.png" alt="${team}" class="team-logo"> ${team}</td><td>${points}</td>`;
+    row.innerHTML = `
+      <td><img src="logos/${team.toLowerCase()}-logo.png" alt="${team}" class="team-logo"></td>
+      <td>${team}</td>
+      <td>${points}</td>
+    `;
     overallTable.appendChild(row);
   });
 
   createOverallChart();
   highlightLeader();
 }
+
+// Load Weekly Standings
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
   const selectedWeek = weekSelect.value;
@@ -154,16 +160,17 @@ function loadWeeklyStandings() {
   if (weekData) {
     const sortedStandings = Object.entries(weekData.standings).sort((a, b) => b[1] - a[1]);
 
-    sortedStandings.forEach(([team, points], index) => {
+    sortedStandings.forEach(([team, points]) => {
       const row = document.createElement("tr");
-      row.innerHTML = `<td>${team}</td><td>${points}</td>`;
-      if (index === 0) row.style.backgroundColor = "#ff4500"; // Highlight leader
+      row.innerHTML = `
+        <td><img src="logos/${team.toLowerCase()}-logo.png" alt="${team}" class="team-logo"></td>
+        <td>${team}</td>
+        <td>${points}</td>
+      `;
       weeklyTable.appendChild(row);
     });
   }
 }
-
-
 // Populate week dropdown
 function populateWeekDropdown() {
   const weekSelect = document.getElementById("week-select");
