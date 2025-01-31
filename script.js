@@ -166,20 +166,24 @@ function populateWeekDropdown() {
 // Load Team Pages
 function loadTeamPage() {
   const teamSelect = document.getElementById("team-select");
-  const teamDetails = document.getElementById("team-details");
+  const trackSelect = document.getElementById("track-select");
+  const teamRoster = document.querySelector("#team-roster tbody");
 
-  if (!teamSelect || !teamDetails) {
-    console.error("Missing team dropdown or team details element.");
+  if (!teamSelect || !trackSelect || !teamRoster) {
+    console.error("Missing team dropdown, track dropdown, or team roster element.");
     return;
   }
 
   const selectedTeam = teamSelect.value;
+  const selectedTrack = trackSelect.value;
+
   console.log("Selected Team:", selectedTeam);
+  console.log("Selected Track:", selectedTrack);
 
   // Ensure selected team exists
   if (!standingsData.teams[selectedTeam]) {
     console.warn("No data found for selected team:", selectedTeam);
-    teamDetails.innerHTML = "<p>No data found for this team.</p>";
+    teamRoster.innerHTML = "<tr><td colspan='2'>No data found for this team.</td></tr>";
     return;
   }
 
@@ -187,41 +191,37 @@ function loadTeamPage() {
 
   if (!teamData.drivers || teamData.drivers.length === 0) {
     console.warn("No drivers found for team:", selectedTeam);
-    teamDetails.innerHTML = "<p>No drivers found for this team.</p>";
+    teamRoster.innerHTML = "<tr><td colspan='2'>No drivers found for this team.</td></tr>";
     return;
   }
 
   console.log("Team Data:", teamData);
 
-  // Build table
-  const table = document.createElement("table");
-  table.innerHTML = `
-    <thead>
-      <tr>
-        <th>Driver</th>
-        ${standingsData.weeks.map(week => `<th>${week.track}</th>`).join("")}
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${teamData.drivers.map(driver => `
-        <tr>
-          <td>${driver.driver}</td>
-          ${driver.points.map(points => `<td>${points}</td>`).join("")}
-          <td>${driver.points.reduce((sum, points) => sum + points, 0)}</td>
-        </tr>
-      `).join("")}
-      <!-- Total Row -->
-      <tr class="total-row">
-        <td><strong>Total</strong></td>
-        ${teamData.totals.map(total => `<td><strong>${total}</strong></td>`).join("")}
-        <td><strong>${teamData.totals.reduce((sum, total) => sum + total, 0)}</strong></td>
-      </tr>
-    </tbody>
-  `;
+  // Populate track dropdown
+  trackSelect.innerHTML = "";
+  standingsData.weeks.forEach((week, index) => {
+    const option = document.createElement("option");
+    option.value = index; // Use track index as value
+    option.textContent = week.track;
+    trackSelect.appendChild(option);
+  });
 
-  teamDetails.innerHTML = ""; // Clear previous content
-  teamDetails.appendChild(table);
+  // Load driver points for the selected track
+  const trackIndex = parseInt(selectedTrack);
+  teamRoster.innerHTML = teamData.drivers.map(driver => `
+    <tr>
+      <td>${driver.driver}</td>
+      <td>${driver.points[trackIndex]}</td>
+    </tr>
+  `).join("");
+
+  // Add total row
+  teamRoster.innerHTML += `
+    <tr class="total-row">
+      <td><strong>Total</strong></td>
+      <td><strong>${teamData.totals[trackIndex]}</strong></td>
+    </tr>
+  `;
 }
 
 // Populate Team Dropdown
