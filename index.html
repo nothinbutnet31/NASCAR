@@ -54,17 +54,32 @@
     </div>
 
     <!-- Team Pages -->
-    <div id="teams" class="tabcontent" style="display:none;">
-      <h2>Team Pages</h2>
-      <label for="team-select">Select Team:</label>
-      <select id="team-select" onchange="loadTeamPage()">
-        <!-- Teams will be populated dynamically -->
-      </select>
-      <div id="team-details">
-        <!-- Team details will be populated here -->
-      </div>
-    </div>
+<div id="teams" class="tabcontent" style="display:none;">
+  <h2>Team Pages</h2>
+  <label for="team-select">Select Team:</label>
+  <select id="team-select" onchange="loadTeamPage()">
+    <!-- Teams will be populated dynamically -->
+  </select>
 
+  <div id="team-details">
+    <label for="track-select">Select Track:</label>
+    <select id="track-select" onchange="loadTeamPage()">
+      <!-- Tracks will be populated dynamically -->
+    </select>
+
+    <table id="team-roster">
+      <thead>
+        <tr>
+          <th>Driver</th>
+          <th>Points</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Driver points will be populated here -->
+      </tbody>
+    </table>
+  </div>
+</div>
     <!-- Footer -->
     <footer>
       <p>Created by Punkin. Data sourced from Google Sheets.</p>
