@@ -36,11 +36,11 @@ function processSheetData(data) {
     track: row[0],
     standings: {
       Emilia: parseInt(row[1]),
-      Heather: parseInt(row[2]),
-      Dan: parseInt(row[3]),
-      Midge: parseInt(row[4]),
-      Grace: parseInt(row[5]),
-      Edmund: parseInt(row[6])
+      Grace: parseInt(row[2]),
+      Heather: parseInt(row[3]),
+      Edmund: parseInt(row[4]),
+      Dan: parseInt(row[5]),
+      Midge: parseInt(row[6])
     }
   }));
 
