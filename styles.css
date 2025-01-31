@@ -76,3 +76,32 @@ footer {
   background-color: #f2f2f2;
   font-weight: bold;
 }
+/* Dropdown Styling */
+select {
+  padding: 8px;
+  font-size: 16px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+/* Table Styling */
+#team-roster {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+#team-roster th, #team-roster td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+#team-roster th {
+  background-color: #f2f2f2;
+}
+
+#team-roster tr:hover {
+  background-color: #f9f9f9;
+}
