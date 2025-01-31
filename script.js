@@ -30,26 +30,23 @@ async function fetchDataFromGoogleSheets() {
 
 // Process Google Sheets data
 function processSheetData(data) {
-  if (!data) {
-    console.error("No data received.");
-    return;
-  }
-
-  standingsData.weeks = data.slice(1).map((row, index) => ({
+  const rows = data.slice(1); // Skip the header row
+  standingsData.weeks = rows.map((row, index) => ({
     week: index + 1,
-    track: row[0] || "Unknown",
+    track: row[0],
     standings: {
-      Emilia: Number(row[1]) || 0,
-      Grace: Number(row[2]) || 0,
-      Heather: Number(row[3]) || 0,
-      Edmund: Number(row[4]) || 0,
-      Dan: Number(row[5]) || 0,
-      Midge: Number(row[6]) || 0,
+      Emilia: parseInt(row[1]),
+      Grace: parseInt(row[2]),
+      Heather: parseInt(row[3]),
+      Edmund: parseInt(row[4]),
+      Dan: parseInt(row[5]),
+      Midge: parseInt(row[6])
     }
   }));
 
   init();
 }
+
 
 // Load overall standings
 function loadOverallStandings() {
