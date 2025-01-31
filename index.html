@@ -5,17 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fantasy NASCAR Standings</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>Fantasy NASCAR Standings</h1>
-
-    <!-- Dark Mode Toggle -->
-    <button id="dark-mode-toggle">Toggle Dark Mode</button>
-
-    <!-- Search Bar -->
-    <input type="text" id="search" placeholder="Search teams..." oninput="filterTeams()">
 
     <!-- Tabs -->
     <div class="tabs">
@@ -26,7 +19,6 @@
     <!-- Overall Standings -->
     <div id="overall" class="tabcontent">
       <h2>Overall Standings</h2>
-      <canvas id="overallChart"></canvas>
       <table id="overall-standings">
         <thead>
           <tr>
