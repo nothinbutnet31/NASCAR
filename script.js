@@ -197,11 +197,11 @@ function loadTeamPage() {
 
   console.log("Team Data:", teamData);
 
-  // Populate track dropdown (only show tracks with data)
+  // Populate track dropdown (only show tracks with valid data)
   trackSelect.innerHTML = "";
   standingsData.weeks.forEach((week, index) => {
-    // Check if the team has data for this track
-    if (teamData.totals[index] > 0) {
+    // Check if the team has valid data for this track
+    if (teamData.totals[index] !== undefined && teamData.totals[index] > 0) {
       const option = document.createElement("option");
       option.value = index; // Use track index as value
       option.textContent = week.track;
@@ -220,7 +220,7 @@ function loadTeamPage() {
   teamRoster.innerHTML = teamData.drivers.map(driver => `
     <tr>
       <td>${driver.driver}</td>
-      <td>${driver.points[trackIndex]}</td>
+      <td>${driver.points[trackIndex] || 0}</td> <!-- Default to 0 if undefined -->
     </tr>
   `).join("");
 
@@ -228,7 +228,7 @@ function loadTeamPage() {
   teamRoster.innerHTML += `
     <tr class="total-row">
       <td><strong>Total</strong></td>
-      <td><strong>${teamData.totals[trackIndex]}</strong></td>
+      <td><strong>${teamData.totals[trackIndex] || 0}</strong></td> <!-- Default to 0 if undefined -->
     </tr>
   `;
 }
