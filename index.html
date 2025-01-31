@@ -1,31 +1,54 @@
-<div class="container">
-  <h1>Fantasy NASCAR Standings</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fantasy NASCAR Standings</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Fantasy NASCAR Standings</h1>
+    <div class="tabs">
+      <button class="tablink active" onclick="openTab('overall')">Overall Standings</button>
+      <button class="tablink" onclick="openTab('weekly')">Weekly Standings</button>
+    </div>
 
-  <div>
-    <button class="tablink active" data-tab="weekly" onclick="openTab('weekly')">Weekly Standings</button>
-    <button class="tablink" data-tab="overall" onclick="openTab('overall')">Overall Standings</button>
+    <div id="overall" class="tabcontent">
+      <h2>Overall Standings</h2>
+      <table id="overall-standings">
+        <thead>
+          <tr>
+            <th>Team</th>
+            <th>Total Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Overall standings will be populated here -->
+        </tbody>
+      </table>
+    </div>
+
+    <div id="weekly" class="tabcontent" style="display:none;">
+      <h2>Weekly Standings</h2>
+      <label for="week-select">Select Week:</label>
+      <select id="week-select" onchange="loadWeeklyStandings()">
+        <!-- Weeks will be populated dynamically -->
+      </select>
+      <table id="weekly-standings">
+        <thead>
+          <tr>
+            <th>Team</th>
+            <th>Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Weekly standings will be populated here -->
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <!-- Weekly Standings -->
-  <div id="weekly" class="tabcontent" style="display: block;">
-    <h2>Weekly Standings</h2>
-    <select id="week-select" onchange="loadWeeklyStandings()"></select>
-    <table id="weekly-standings">
-      <thead>
-        <tr><th>Driver</th><th>Points</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-
-  <!-- Overall Standings -->
-  <div id="overall" class="tabcontent">
-    <h2>Overall Standings</h2>
-    <table id="overall-standings">
-      <thead>
-        <tr><th>Driver</th><th>Total Points</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-</div>
+  <script src="script.js"></script>
+</body>
+</html>
