@@ -59,20 +59,23 @@
   <h2>Team Pages</h2>
   
   <!-- Team selection dropdown -->
+  <div id="team-details">
   <label for="team-select">Select Team:</label>
   <select id="team-select" onchange="loadTeamPage()">
     <!-- Teams will be populated dynamically -->
   </select>
 
-  <!-- Display Team Image -->
-    <div id="team-image-container">
-      <img id="team-image" src="" alt="Team Logo" style="width: 150px; height: auto;">
-    </div>
-  <div id="team-details">
-    <label for="track-select">Select Track:</label>
-    <select id="track-select" onchange="loadTeamPage()">
-      <!-- Tracks will be populated dynamically -->
-    </select>
+  <!-- Team Image Next to the Dropdown -->
+  <div id="team-image-container">
+    <img id="team-image" src="" alt="Team Image" width="50"> <!-- Adjust size as needed -->
+  </div>
+
+  <label for="track-select">Select Track:</label>
+  <select id="track-select" onchange="loadTeamPage()">
+    <!-- Tracks will be populated dynamically -->
+  </select>
+</div>
+
 
     
 
