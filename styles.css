@@ -103,10 +103,7 @@ select {
   gap: 10px; /* Add spacing between label and dropdown */
 }
 
-#team-image-container img {
-  width: 150px; /* Adjust image size as needed */
-  height: auto; /* Maintain aspect ratio */
-}
+
 
 /* Table Styling */
 #team-roster {
