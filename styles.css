@@ -84,6 +84,20 @@ select {
   border: 1px solid #ddd;
   border-radius: 5px;
 }
+#team-details {
+  display: flex;
+  align-items: center; /* Vertically center the items */
+  gap: 10px; /* Add some spacing between elements */
+}
+
+#team-image-container {
+  margin-left: 10px; /* Add some space between the dropdown and the image */
+}
+
+#team-image {
+  height: 40px; /* Adjust size as needed */
+  width: auto;
+}
 
 /* Table Styling */
 #team-roster {
