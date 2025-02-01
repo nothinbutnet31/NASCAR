@@ -103,6 +103,11 @@ select {
   gap: 10px; /* Add spacing between label and dropdown */
 }
 
+#team-image, #track-image {
+  width: 100%;
+  max-width: 200px; /* Set a max width to prevent them from growing too large */
+  height: auto;
+}
 
 
 /* Table Styling */
