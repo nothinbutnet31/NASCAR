@@ -5,12 +5,11 @@ body {
   padding: 0;
 }
 
-.container {
-  max-width: 800px;
-  margin: 20px auto;
+.container  {
   padding: 20px;
-  background-color: #fff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 1000px;  /* Ensure the content doesn't get too wide on large screens */
+  margin: 0 auto;  /* Center the container */
 }
 
 h1 {
@@ -19,17 +18,16 @@ h1 {
 }
 
 .tabs {
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;  /* Distribute tabs evenly */
+  flex-wrap: wrap;  /* Allow tabs to wrap on smaller screens */
 }
 
 .tablink {
-  background-color: #ddd;
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  font-size: 16px;
+  flex: 1 1 30%;  /* Allow the tabs to grow/shrink */
+  padding: 10px;
+  margin: 5px;
 }
-
 .tablink.active {
   background-color: #bbb;
 }
@@ -103,13 +101,32 @@ select {
   gap: 10px; /* Add spacing between label and dropdown */
 }
 
-#team-image {
-  width: 200px;          /* Set the desired width */
-  height: 200px;         /* Set the desired height for a square image */
-  border-radius: 100%;    /* Makes the image circular */
-  object-fit: cover;     /* Ensures the image covers the circle without distortion */
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); /* Vignette effect around the image */
+/* Default styles for images */
+#team-image, #track-image {
+  width: 100%;  /* Make the image responsive */
+  max-width: 200px;  /* Limit the size on larger screens */
+  height: auto;  /* Maintain aspect ratio */
+  object-fit: cover;  /* Ensure image fills the container without distortion */
 }
+
+/* Mobile styles */
+@media screen and (max-width: 768px) {
+  #team-image, #track-image {
+    width: 100%;  /* Use full width on smaller screens */
+    max-width: 150px;  /* Adjust max width for smaller screens */
+    height: auto;
+  }
+  
+  /* Optionally, you can adjust other layout elements for mobile as well */
+  .team-selection, .track-selection {
+    font-size: 14px;  /* Adjust font size for smaller screens */
+  }
+  
+  .tabs button {
+    padding: 10px 5px;  /* Adjust button sizes */
+  }
+}
+
 
 
 /* Table Styling */
