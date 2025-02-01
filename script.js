@@ -107,6 +107,7 @@ function loadOverallStandings() {
 
   const totalPoints = {};
 
+  // Sum points across all weeks for each team
   standingsData.weeks.forEach((week) => {
     for (const [team, points] of Object.entries(week.standings)) {
       if (!totalPoints[team]) totalPoints[team] = 0;
@@ -114,21 +115,29 @@ function loadOverallStandings() {
     }
   });
 
+  // Sort teams based on their total points
   const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
 
+  // Get the points of the team in the first place (leader)
+  const leaderPoints = sortedTeams[0][1];
+
+  // Loop through the sorted teams and calculate the points difference
   sortedTeams.forEach(([team, points], index) => {
+    const pointsDifference = leaderPoints - points;  // Calculate how many points behind the leader the team is
+
     const row = document.createElement("tr");
-    // Add trophy icon for first place
+    // Add trophy icon for the first place team
     const trophy = index === 0 ? '<i class="fas fa-trophy"></i> ' : "";
     row.innerHTML = `
       <td>${trophy}${team}</td>
-      <td>${points}</td>
+      <td>${points} (${pointsDifference >= 0 ? `+${pointsDifference}` : pointsDifference})</td>
     `;
     overallTable.appendChild(row);
   });
 
   highlightLeader();
 }
+
 
 // Highlight Leader
 function highlightLeader() {
