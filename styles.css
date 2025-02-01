@@ -103,10 +103,12 @@ select {
   gap: 10px; /* Add spacing between label and dropdown */
 }
 
-#team-image, #track-image {
-  width: 100%;
-  max-width: 200px; /* Set a max width to prevent them from growing too large */
-  height: auto;
+#team-image {
+  width: 200px;          /* Set the desired width */
+  height: 200px;         /* Set the desired height for a square image */
+  border-radius: 50%;    /* Makes the image circular */
+  object-fit: cover;     /* Ensures the image covers the circle without distortion */
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); /* Vignette effect around the image */
 }
 
 
