@@ -103,29 +103,44 @@ select {
 
 /* Default styles for images */
 #team-image, #track-image {
-  width: 100%;  /* Make the image responsive */
-  max-width: 200px;  /* Limit the size on larger screens */
-  height: auto;  /* Maintain aspect ratio */
-  object-fit: cover;  /* Ensure image fills the container without distortion */
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  object-fit: cover;
 }
 
 /* Mobile styles */
 @media screen and (max-width: 768px) {
+  /* Increase image size on mobile */
   #team-image, #track-image {
-    width: 100%;  /* Use full width on smaller screens */
-    max-width: 150px;  /* Adjust max width for smaller screens */
+    width: 100%;
+    max-width: 250px;
     height: auto;
   }
-  
-  /* Optionally, you can adjust other layout elements for mobile as well */
+
+  /* Make team and track selection stack vertically on mobile */
   .team-selection, .track-selection {
-    font-size: 14px;  /* Adjust font size for smaller screens */
+    display: block;
+    margin-bottom: 15px; /* Adds space between dropdowns */
   }
-  
+
+  /* Move the track dropdown and image further down */
+  .track-selection {
+    margin-top: 20px;
+  }
+
+  /* Adjust tab button padding for mobile */
   .tabs button {
-    padding: 10px 5px;  /* Adjust button sizes */
+    padding: 10px 5px;
+  }
+
+  /* Optional: Adjust font size for team and track dropdown */
+  .team-selection select, .track-selection select {
+    font-size: 16px;
+    padding: 5px;
   }
 }
+
 
 
 
