@@ -59,12 +59,14 @@
   <h2>Team Pages</h2>
   <label for="team-select">Select Team:</label>
   <select id="team-select" onchange="loadTeamPage()">
+    <img id="team-image" src="" alt="Team Logo" style="width: 150px; height: auto;">
     <!-- Teams will be populated dynamically -->
   </select>
 
   <div id="team-details">
     <label for="track-select">Select Track:</label>
     <select id="track-select" onchange="loadTeamPage()">
+      <img id="track-image" src="" alt="Track Image" style="width: 200px; height: auto;">
       <!-- Tracks will be populated dynamically -->
     </select>
 
@@ -86,8 +88,7 @@
       <p>Created by Punkin. Data sourced from Google Sheets.</p>
     </footer>
   </div>
-<img id="team-image" src="" alt="Team Logo" style="width: 150px; height: auto;">
-<img id="track-image" src="" alt="Track Image" style="width: 200px; height: auto;">
+
 
   <script src="script.js"></script>
 </body>
