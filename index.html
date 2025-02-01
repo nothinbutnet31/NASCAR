@@ -58,26 +58,27 @@
     <div id="teams" class="tabcontent" style="display:none;">
       <h2>Team Pages</h2>
       
+      <!-- Team and Track Selection -->
       <div id="team-details">
-  <!-- Team selection and image -->
-  <div class="team-selection">
-    <label for="team-select">Select Team:</label>
-    <select id="team-select" onchange="loadTeamPage()">
-      <!-- Teams will be populated dynamically -->
-    </select>
-    <div id="team-image-container">
-      <img id="team-image" src="" alt="Team Image" width="50">
-    </div>
-  </div>
+        <!-- Team selection and image -->
+        <div class="team-selection">
+          <label for="team-select">Select Team:</label>
+          <select id="team-select" onchange="loadTeamPage()">
+            <!-- Teams will be populated dynamically -->
+          </select>
+          <div id="team-image-container">
+            <img id="team-image" src="" alt="Team Image" width="50">
+          </div>
+        </div>
 
-  <!-- Track selection -->
-  <div class="track-selection">
-    <label for="track-select">Select Track:</label>
-    <select id="track-select" onchange="loadTeamPage()">
-      <!-- Tracks will be populated dynamically -->
-    </select>
-  </div>
-
+        <!-- Track selection -->
+        <div class="track-selection">
+          <label for="track-select">Select Track:</label>
+          <select id="track-select" onchange="loadTeamPage()">
+            <!-- Tracks will be populated dynamically -->
+          </select>
+        </div>
+      </div>
 
       <!-- Table for Team Roster -->
       <table id="team-roster">
