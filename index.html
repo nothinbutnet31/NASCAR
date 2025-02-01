@@ -5,7 +5,69 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <title>Fantasy NASCAR Standings</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .tablink {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      background-color: #f4f4f4;
+      margin-right: 5px;
+    }
+    .tablink.active {
+      background-color: #ddd;
+    }
+    .tabcontent {
+      display: none;
+      padding: 20px;
+      border: 1px solid #ddd;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    img {
+      vertical-align: middle;
+      margin-left: 10px;
+    }
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -55,38 +117,255 @@
     </div>
 
     <!-- Team Pages -->
-<div id="teams" class="tabcontent" style="display:none;">
-  <h2>Team Pages</h2>
-  <label for="team-select">Select Team:</label>
-  <select id="team-select" onchange="loadTeamPage()">
-    <!-- Teams will be populated dynamically -->
-  </select>
+    <div id="teams" class="tabcontent" style="display:none;">
+      <h2>Team Pages</h2>
+      <div>
+        <label for="team-select">Select Team:</label>
+        <select id="team-select" onchange="loadTeamPage()">
+          <!-- Teams will be populated dynamically -->
+        </select>
+        <img id="team-picture" src="" alt="Team Picture" width="100" height="100">
+      </div>
 
-  <div id="team-details">
-    <label for="track-select">Select Track:</label>
-    <select id="track-select" onchange="loadTeamPage()">
-      <!-- Tracks will be populated dynamically -->
-    </select>
+      <div>
+        <label for="track-select">Select Track:</label>
+        <select id="track-select" onchange="loadTeamPage()">
+          <!-- Tracks will be populated dynamically -->
+        </select>
+        <img id="track-picture" src="" alt="Track Picture" width="100" height="100">
+      </div>
 
-    <table id="team-roster">
-      <thead>
-        <tr>
-          <th>Driver</th>
-          <th>Points</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Driver points will be populated here -->
-      </tbody>
-    </table>
-  </div>
-</div>
+      <table id="team-roster">
+        <thead>
+          <tr>
+            <th>Driver</th>
+            <th>Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Driver points will be populated here -->
+        </tbody>
+      </table>
+    </div>
+
     <!-- Footer -->
     <footer>
       <p>Created by Punkin. Data sourced from Google Sheets.</p>
     </footer>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    const standingsData = {
+      teams: {
+        "Emilia": {
+          logo: "images/teams/emilia.png", // Path to team picture
+          drivers: [
+            { driver: "Driver 1", points: [10, 20, 30] },
+            { driver: "Driver 2", points: [15, 25, 35] },
+          ],
+          totals: [25, 45, 65],
+        },
+        "Heather": {
+          logo: "images/teams/heather.png", // Path to team picture
+          drivers: [
+            { driver: "Driver 3", points: [5, 10, 15] },
+            { driver: "Driver 4", points: [20, 30, 40] },
+          ],
+          totals: [25, 40, 55],
+        },
+        "Dan": {
+          logo: "images/teams/dan.png", // Path to team picture
+          drivers: [
+            { driver: "Driver 5", points: [8, 12, 18] },
+            { driver: "Driver 6", points: [22, 28, 34] },
+          ],
+          totals: [30, 40, 52],
+        },
+        "Midge": {
+          logo: "images/teams/midge.png", // Path to team picture
+          drivers: [
+            { driver: "Driver 7", points: [7, 14, 21] },
+            { driver: "Driver 8", points: [16, 24, 32] },
+          ],
+          totals: [23, 38, 53],
+        },
+        "Grace": {
+          logo: "images/teams/grace.png", // Path to team picture
+          drivers: [
+            { driver: "Driver 9", points: [9, 18, 27] },
+            { driver: "Driver 10", points: [19, 29, 39] },
+          ],
+          totals: [28, 47, 66],
+        },
+        "Edmund": {
+          logo: "images/teams/edmund.png", // Path to team picture
+          drivers: [
+            { driver: "Driver 11", points: [11, 22, 33] },
+            { driver: "Driver 12", points: [17, 26, 35] },
+          ],
+          totals: [28, 48, 68],
+        },
+      },
+      weeks: [
+        { week: 1, track: "Daytona", trackImage: "images/tracks/daytona.png" },
+        { week: 2, track: "Atlanta", trackImage: "images/tracks/atlanta.png" },
+        { week: 3, track: "Austin", trackImage: "images/tracks/austin.png" },
+        { week: 4, track: "Phoenix", trackImage: "images/tracks/phoenix.png" },
+        { week: 5, track: "Las Vegas", trackImage: "images/tracks/las-vegas.png" },
+        { week: 6, track: "Homestead", trackImage: "images/tracks/homestead.png" },
+        { week: 7, track: "Martinsville", trackImage: "images/tracks/martinsville.png" },
+        { week: 8, track: "Darlington", trackImage: "images/tracks/darlington.png" },
+        { week: 9, track: "Bristol", trackImage: "images/tracks/bristol.png" },
+        { week: 10, track: "Talladega", trackImage: "images/tracks/talladega.png" },
+        { week: 11, track: "Texas", trackImage: "images/tracks/texas.png" },
+        { week: 12, track: "Kansas", trackImage: "images/tracks/kansas.png" },
+        { week: 13, track: "Charlotte", trackImage: "images/tracks/charlotte.png" },
+        { week: 14, track: "Nashville", trackImage: "images/tracks/nashville.png" },
+        { week: 15, track: "Michigan", trackImage: "images/tracks/michigan.png" },
+        { week: 16, track: "Mexico City", trackImage: "images/tracks/mexico-city.png" },
+        { week: 17, track: "Pocono", trackImage: "images/tracks/pocono.png" },
+        { week: 18, track: "Atlanta 2", trackImage: "images/tracks/atlanta-2.png" },
+        { week: 19, track: "Chicago", trackImage: "images/tracks/chicago.png" },
+        { week: 20, track: "Sonoma", trackImage: "images/tracks/sonoma.png" },
+        { week: 21, track: "Dover", trackImage: "images/tracks/dover.png" },
+        { week: 22, track: "Indianapolis", trackImage: "images/tracks/indianapolis.png" },
+        { week: 23, track: "Iowa", trackImage: "images/tracks/iowa.png" },
+        { week: 24, track: "Watkins Glen", trackImage: "images/tracks/watkins-glen.png" },
+        { week: 25, track: "Richmond", trackImage: "images/tracks/richmond.png" },
+        { week: 26, track: "Daytona 2", trackImage: "images/tracks/daytona-2.png" },
+      ],
+    };
+
+    // Function to update team picture
+    function updateTeamPicture(team) {
+      const teamPicture = document.getElementById("team-picture");
+      if (standingsData.teams[team]) {
+        teamPicture.src = standingsData.teams[team].logo;
+        teamPicture.style.display = "inline"; // Show the image
+      } else {
+        teamPicture.style.display = "none"; // Hide the image if no team is selected
+      }
+    }
+
+    // Function to update track picture
+    function updateTrackPicture(trackIndex) {
+      const trackPicture = document.getElementById("track-picture");
+      if (standingsData.weeks[trackIndex]) {
+        trackPicture.src = standingsData.weeks[trackIndex].trackImage;
+        trackPicture.style.display = "inline"; // Show the image
+      } else {
+        trackPicture.style.display = "none"; // Hide the image if no track is selected
+      }
+    }
+
+    // Populate team dropdown
+    function populateTeamDropdown() {
+      const teamSelect = document.getElementById("team-select");
+      teamSelect.innerHTML = "";
+
+      const teams = Object.keys(standingsData.teams);
+      teams.forEach((team) => {
+        const option = document.createElement("option");
+        option.value = team;
+        option.textContent = team;
+        teamSelect.appendChild(option);
+      });
+
+      // Set the first team as the default selection
+      if (teams.length > 0) {
+        teamSelect.value = teams[0];
+        updateTeamPicture(teams[0]); // Update team picture
+      }
+    }
+
+    // Populate track dropdown
+    function populateTrackDropdown() {
+      const trackSelect = document.getElementById("track-select");
+      trackSelect.innerHTML = "";
+
+      standingsData.weeks.forEach((week, index) => {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = week.track;
+        trackSelect.appendChild(option);
+      });
+
+      // Set the first track as the default selection
+      if (standingsData.weeks.length > 0) {
+        trackSelect.value = 0;
+        updateTrackPicture(0); // Update track picture
+      }
+    }
+
+    // Load team roster
+    function loadTeamPage() {
+      const teamSelect = document.getElementById("team-select");
+      const trackSelect = document.getElementById("track-select");
+      const teamRoster = document.querySelector("#team-roster tbody");
+
+      if (!teamSelect || !trackSelect || !teamRoster) {
+        console.error("Missing team dropdown, track dropdown, or team roster element.");
+        return;
+      }
+
+      const selectedTeam = teamSelect.value;
+      const selectedTrack = trackSelect.value;
+
+      // Ensure selected team exists
+      if (!standingsData.teams[selectedTeam]) {
+        teamRoster.innerHTML = "<tr><td colspan='2'>No data found for this team.</td></tr>";
+        return;
+      }
+
+      const teamData = standingsData.teams[selectedTeam];
+
+      if (!teamData.drivers || teamData.drivers.length === 0) {
+        teamRoster.innerHTML = "<tr><td colspan='2'>No drivers found for this team.</td></tr>";
+        return;
+      }
+
+      // Load driver points for the selected track
+      const trackIndex = parseInt(selectedTrack);
+      teamRoster.innerHTML = teamData.drivers
+        .map(
+          (driver) => `
+        <tr>
+          <td>${driver.driver}</td>
+          <td>${driver.points[trackIndex] || 0}</td> <!-- Default to 0 if undefined -->
+        </tr>
+      `
+        )
+        .join("");
+
+      // Add total row
+      teamRoster.innerHTML += `
+        <tr class="total-row">
+          <td><strong>Total</strong></td>
+          <td><strong>${teamData.totals[trackIndex] || 0}</strong></td> <!-- Default to 0 if undefined -->
+        </tr>
+      `;
+    }
+
+    // Initialize the page
+    function init() {
+      populateTeamDropdown();
+      populateTrackDropdown();
+      loadTeamPage();
+    }
+
+    // Event listeners for dropdown changes
+    document.getElementById("team-select").addEventListener("change", function () {
+      updateTeamPicture(this.value);
+      loadTeamPage();
+    });
+
+    document.getElementById("track-select").addEventListener("change", function () {
+      updateTrackPicture(this.value);
+      loadTeamPage();
+    });
+
+    // Initialize the page
+    init();
+  </script>
 </body>
 </html>
