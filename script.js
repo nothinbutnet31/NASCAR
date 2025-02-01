@@ -187,25 +187,12 @@ function loadTeamPage() {
   const teamSelect = document.getElementById("team-select");
   const trackSelect = document.getElementById("track-select");
   const teamRoster = document.querySelector("#team-roster tbody");
+  const teamImage = document.getElementById("team-image"); // Get the image element
 
   if (!teamSelect || !trackSelect || !teamRoster) {
     console.error("Missing team dropdown, track dropdown, or team roster element.");
     return;
   }
-function updateTrackImage() {
-  const trackSelect = document.getElementById("track-select");
-  const selectedTrack = trackSelect.options[trackSelect.selectedIndex].textContent;
-  const trackImage = document.getElementById("track-image");
-
-  // Construct the GitHub image URL
-  const imageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${selectedTrack.replace(/\s+/g, '_')}.png`;
-
-  trackImage.src = imageUrl;
-  trackImage.alt = `${selectedTrack} Image`;
-}
-
-// Attach event listener
-document.getElementById("track-select").addEventListener("change", updateTrackImage);
 
   const selectedTeam = teamSelect.value;
   const selectedTrack = trackSelect.value;
@@ -230,10 +217,13 @@ document.getElementById("track-select").addEventListener("change", updateTrackIm
 
   console.log("Team Data:", teamData);
 
+  // Set the team image based on the team name (ensure the image filenames match the team names)
+  const imagePath = `images/teams/${selectedTeam.toLowerCase().replace(/\s+/g, '-')}.png`;
+  teamImage.src = imagePath;  // Dynamically set the image src
+
   // Populate track dropdown (only show tracks with valid data)
   trackSelect.innerHTML = "";
   standingsData.weeks.forEach((week, index) => {
-    // Check if the team has valid data for this track
     if (teamData.totals[index] !== undefined && teamData.totals[index] > 0) {
       const option = document.createElement("option");
       option.value = index; // Use track index as value
@@ -274,6 +264,7 @@ document.getElementById("track-select").addEventListener("change", updateTrackIm
     </tr>
   `;
 }
+
 
 // Populate Team Dropdown
 function populateTeamDropdown() {
