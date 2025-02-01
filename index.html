@@ -54,22 +54,35 @@
       </table>
     </div>
 
-    <!-- Team Pages -->
+   <!-- Team Pages -->
 <div id="teams" class="tabcontent" style="display:none;">
   <h2>Team Pages</h2>
+  
+  <!-- Team selection dropdown -->
   <label for="team-select">Select Team:</label>
   <select id="team-select" onchange="loadTeamPage()">
-    <img id="team-image" src="" alt="Team Logo" style="width: 150px; height: auto;">
     <!-- Teams will be populated dynamically -->
   </select>
 
   <div id="team-details">
     <label for="track-select">Select Track:</label>
     <select id="track-select" onchange="loadTeamPage()">
-      <img id="track-image" src="" alt="Track Image" style="width: 200px; height: auto;">
       <!-- Tracks will be populated dynamically -->
     </select>
 
+    <!-- Display Team Image -->
+    <div id="team-image-container">
+      <h3>Team Logo:</h3>
+      <img id="team-image" src="" alt="Team Logo" style="width: 150px; height: auto;">
+    </div>
+
+    <!-- Display Track Image -->
+    <div id="track-image-container">
+      <h3>Track Image:</h3>
+      <img id="track-image" src="" alt="Track Image" style="width: 200px; height: auto;">
+    </div>
+
+    <!-- Table for Team Roster -->
     <table id="team-roster">
       <thead>
         <tr>
@@ -83,6 +96,7 @@
     </table>
   </div>
 </div>
+
     <!-- Footer -->
     <footer>
       <p>Created by Punkin. Data sourced from Google Sheets.</p>
