@@ -187,9 +187,10 @@ function loadTeamPage() {
   const teamSelect = document.getElementById("team-select");
   const trackSelect = document.getElementById("track-select");
   const teamRoster = document.querySelector("#team-roster tbody");
-  const teamImage = document.getElementById("team-image"); // Get the image element
+  const teamImage = document.getElementById("team-image"); // Get the team image element
+  const trackImage = document.getElementById("track-image"); // Get the track image element
 
-  if (!teamSelect || !trackSelect || !teamRoster || !teamImage) {
+  if (!teamSelect || !trackSelect || !teamRoster || !teamImage || !trackImage) {
     console.error("Missing dropdowns or team roster element.");
     return;
   }
@@ -217,9 +218,21 @@ function loadTeamPage() {
 
   console.log("Team Data:", teamData);
 
-  // Set the team image based on the team name (ensure the image filenames match the team names)
-  const imagePath = `images/teams/${selectedTeam.toLowerCase().replace(/\s+/g, '-')}.png`;
-  teamImage.src = imagePath;  // Dynamically set the image src
+  // Set the team image based on the team name
+  const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${selectedTeam.replace(/\s+/g, '_')}.png`;
+  teamImage.src = teamImageUrl;
+  teamImage.alt = `${selectedTeam} Logo`;
+  teamImage.onerror = function () {
+    this.src = "https://via.placeholder.com/100"; // Fallback image if team image fails to load
+  };
+
+  // Set the track image based on the selected track
+  const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${selectedTrack.replace(/\s+/g, '_')}.png`;
+  trackImage.src = trackImageUrl;
+  trackImage.alt = `${selectedTrack} Image`;
+  trackImage.onerror = function () {
+    this.src = "https://via.placeholder.com/200"; // Fallback image if track image fails to load
+  };
 
   // Repopulate the track dropdown (only show tracks with valid data)
   trackSelect.innerHTML = ""; // Clear the track options
@@ -227,7 +240,7 @@ function loadTeamPage() {
   standingsData.weeks.forEach((week, index) => {
     if (teamData.totals[index] !== undefined && teamData.totals[index] > 0) {
       const option = document.createElement("option");
-      option.value = index; // Use track index as value
+      option.value = week.track; // Use track name as value
       option.textContent = week.track;
       trackSelect.appendChild(option);
     }
@@ -245,7 +258,7 @@ function loadTeamPage() {
   }
 
   // Load driver points for the selected track
-  const trackIndex = parseInt(selectedTrack);
+  const trackIndex = standingsData.weeks.findIndex((week) => week.track === selectedTrack);
   teamRoster.innerHTML = teamData.drivers
     .map(
       (driver) => `
@@ -266,8 +279,6 @@ function loadTeamPage() {
   `;
 }
 
-
-
 // Populate Team Dropdown
 function populateTeamDropdown() {
   const teamSelect = document.getElementById("team-select");
@@ -276,7 +287,7 @@ function populateTeamDropdown() {
   const teams = Object.keys(standingsData.teams);
 
   if (teams.length > 0) {
-    teams.forEach((team, index) => {
+    teams.forEach((team) => {
       const option = document.createElement("option");
       option.value = team;
       option.textContent = team;
@@ -284,23 +295,10 @@ function populateTeamDropdown() {
     });
 
     // Display the image for the first selected team
-    teamSelect.addEventListener("change", updateTeamImage);
-    updateTeamImage();
+    teamSelect.addEventListener("change", loadTeamPage);
+    loadTeamPage(); // Initialize the team page with the first team
   }
 }
-
-function updateTeamImage() {
-  const teamSelect = document.getElementById("team-select");
-  const selectedTeam = teamSelect.value;
-  const teamImage = document.getElementById("team-image");
-
-  // Construct the GitHub image URL
-  const imageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${selectedTeam.replace(/\s+/g, '_')}.png`;
-
-  teamImage.src = imageUrl;
-  teamImage.alt = `${selectedTeam} Logo`;
-}
-
 
 // Open Tabs
 function openTab(tabName) {
