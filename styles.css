@@ -104,7 +104,7 @@ select {
 }
 
 #team-image-container img {
-  width: 50px; /* Adjust image size as needed */
+  width: 150px; /* Adjust image size as needed */
   height: auto; /* Maintain aspect ratio */
 }
 
