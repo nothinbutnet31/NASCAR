@@ -101,13 +101,12 @@ select {
   gap: 10px; /* Add spacing between label and dropdown */
 }
 
-/* Default styles for images */
-#team-image, #track-image {
-  width: 100%;
-  max-width: 200px;
-  height: auto;
-  object-fit: cover;
+.team-image, .track-image {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;  /* Ensures the image covers the space without stretching */
 }
+
 
 /* Mobile styles */
 @media screen and (max-width: 768px) {
