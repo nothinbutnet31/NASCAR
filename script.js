@@ -192,6 +192,20 @@ function loadTeamPage() {
     console.error("Missing team dropdown, track dropdown, or team roster element.");
     return;
   }
+function updateTrackImage() {
+  const trackSelect = document.getElementById("track-select");
+  const selectedTrack = trackSelect.options[trackSelect.selectedIndex].textContent;
+  const trackImage = document.getElementById("track-image");
+
+  // Construct the GitHub image URL
+  const imageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${selectedTrack.replace(/\s+/g, '_')}.png`;
+
+  trackImage.src = imageUrl;
+  trackImage.alt = `${selectedTrack} Image`;
+}
+
+// Attach event listener
+document.getElementById("track-select").addEventListener("change", updateTrackImage);
 
   const selectedTeam = teamSelect.value;
   const selectedTrack = trackSelect.value;
@@ -267,7 +281,6 @@ function populateTeamDropdown() {
   teamSelect.innerHTML = "";
 
   const teams = Object.keys(standingsData.teams);
-  console.log("Teams:", teams); // Debugging
 
   if (teams.length > 0) {
     teams.forEach((team, index) => {
@@ -275,17 +288,26 @@ function populateTeamDropdown() {
       option.value = team;
       option.textContent = team;
       teamSelect.appendChild(option);
-
-      // Set the first team as the default selection
-      if (index === 0) {
-        teamSelect.value = team;
-      }
     });
 
-    // Call loadTeamPage after populating the dropdown
-    loadTeamPage();
+    // Display the image for the first selected team
+    teamSelect.addEventListener("change", updateTeamImage);
+    updateTeamImage();
   }
 }
+
+function updateTeamImage() {
+  const teamSelect = document.getElementById("team-select");
+  const selectedTeam = teamSelect.value;
+  const teamImage = document.getElementById("team-image");
+
+  // Construct the GitHub image URL
+  const imageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${selectedTeam.replace(/\s+/g, '_')}.png`;
+
+  teamImage.src = imageUrl;
+  teamImage.alt = `${selectedTeam} Logo`;
+}
+
 
 // Open Tabs
 function openTab(tabName) {
