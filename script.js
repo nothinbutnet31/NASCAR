@@ -189,8 +189,8 @@ function loadTeamPage() {
   const teamRoster = document.querySelector("#team-roster tbody");
   const teamImage = document.getElementById("team-image"); // Get the image element
 
-  if (!teamSelect || !trackSelect || !teamRoster) {
-    console.error("Missing team dropdown, track dropdown, or team roster element.");
+  if (!teamSelect || !trackSelect || !teamRoster || !teamImage) {
+    console.error("Missing dropdowns or team roster element.");
     return;
   }
 
@@ -221,8 +221,9 @@ function loadTeamPage() {
   const imagePath = `images/teams/${selectedTeam.toLowerCase().replace(/\s+/g, '-')}.png`;
   teamImage.src = imagePath;  // Dynamically set the image src
 
-  // Populate track dropdown (only show tracks with valid data)
-  trackSelect.innerHTML = "";
+  // Repopulate the track dropdown (only show tracks with valid data)
+  trackSelect.innerHTML = ""; // Clear the track options
+
   standingsData.weeks.forEach((week, index) => {
     if (teamData.totals[index] !== undefined && teamData.totals[index] > 0) {
       const option = document.createElement("option");
@@ -238,7 +239,7 @@ function loadTeamPage() {
     return;
   }
 
-  // Set the default track selection to the first available track
+  // Set the default track selection to the first available track if there are tracks
   if (trackSelect.options.length > 0) {
     trackSelect.value = trackSelect.options[0].value;
   }
@@ -264,6 +265,7 @@ function loadTeamPage() {
     </tr>
   `;
 }
+
 
 
 // Populate Team Dropdown
