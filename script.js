@@ -119,7 +119,7 @@ function loadOverallStandings() {
 
   sortedTeams.forEach(([team, points], index) => {
     // Calculate points difference
-    const pointsDifference = leaderPoints - points;
+    const pointsDifference = points - leaderPoints;
 
     // Format the points difference with a plus or minus sign
     const formattedDifference = pointsDifference === 0 ? "(0)" : pointsDifference > 0 ? `(+${pointsDifference})` : `(${pointsDifference})`;
