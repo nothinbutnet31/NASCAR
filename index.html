@@ -11,12 +11,13 @@
   <div class="container">
     <h1>Fantasy NASCAR Standings</h1>
 
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tablink active" onclick="openTab('overall')">Overall Standings</button>
-      <button class="tablink" onclick="openTab('weekly')">Weekly Standings</button>
-      <button class="tablink" onclick="openTab('teams')">Team Pages</button>
-    </div>
+   <!-- Tabs -->
+<div class="tabs">
+  <button class="tablink active" onclick="openTab('overall')">Overall Standings</button>
+  <button class="tablink" onclick="openTab('weekly')">Weekly Standings</button>
+  <button class="tablink" onclick="openTab('teams')">Team Pages</button>
+  <button class="tablink" onclick="openTab('scoring-rules')">Scoring Rules</button>
+</div>
 
     <!-- Overall Standings -->
     <div id="overall" class="tabcontent">
@@ -97,7 +98,54 @@
         </tbody>
       </table>
     </div>
-
+<!-- Scoring Rules -->
+<div id="scoring-rules" class="tabcontent" style="display:none;">
+  <h2>Scoring Rules</h2>
+  <p>Here’s how points are calculated:</p>
+  <ul>
+    <li><strong>1st Place:</strong> 38 points</li>
+    <li><strong>2nd Place:</strong> 34 points</li>
+    <li><strong>3rd Place:</strong> 33 points</li>
+    <li><strong>4th Place:</strong> 32 points</li>
+    <li><strong>5th Place:</strong> 31 points</li>
+    <li><strong>6th Place:</strong> 30 points</li>
+    <li><strong>7th Place:</strong> 29 points</li>
+    <li><strong>8th Place:</strong> 28 points</li>
+    <li><strong>9th Place:</strong> 27 points</li>
+    <li><strong>10th Place:</strong> 26 points</li>
+    <li><strong>11th Place:</strong> 25 points</li>
+    <li><strong>12th Place:</strong> 24 points</li>
+    <li><strong>13th Place:</strong> 23 points</li>
+    <li><strong>14th Place:</strong> 22 points</li>
+    <li><strong>15th Place:</strong> 21 points</li>
+    <li><strong>16th Place:</strong> 20 points</li>
+    <li><strong>17th Place:</strong> 19 points</li>
+    <li><strong>18th Place:</strong> 18 points</li>
+    <li><strong>19th Place:</strong> 17 points</li>
+    <li><strong>20th Place:</strong> 16 points</li>
+    <li><strong>21st Place:</strong> 15 points</li>
+    <li><strong>22nd Place:</strong> 14 points</li>
+    <li><strong>23rd Place:</strong> 13 points</li>
+    <li><strong>24th Place:</strong> 12 points</li>
+    <li><strong>25th Place:</strong> 11 points</li>
+    <li><strong>26th Place:</strong> 10 points</li>
+    <li><strong>27th Place:</strong>  9 points</li>
+    <li><strong>28th Place:</strong>  8 points</li>
+    <li><strong>29th Place:</strong>  7 points</li>
+    <li><strong>30th Place:</strong>  6 points</li>
+    <li><strong>31st Place:</strong>  5 points</li>
+    <li><strong>32nd Place:</strong>  4 points</li>
+    <li><strong>33rd Place:</strong>  3 points</li>
+    <li><strong>34th Place:</strong>  2 points</li>
+    <li><strong>35th Place:</strong>  1 points</li>
+    <li><strong>36th+ Place:</strong>  0 points</li>
+  </ul>
+  <p>Additional points:</p>
+  <ul>
+    <li><strong>Stage Win:</strong> 2 points</li>
+    <li><strong>Pole Position:</strong> 2 points</li>
+     </ul>
+</div>
     <!-- Footer -->
     <footer>
       <p>Created by Punkin. Data sourced from Google Sheets.</p>
