@@ -324,7 +324,6 @@ function openTab(tabName) {
     loadTeamPage(); // Call loadTeamPage after populating the team dropdown
   }
 }
-
 // Initialize the Page
 function init() {
   if (!isDataLoaded) {
