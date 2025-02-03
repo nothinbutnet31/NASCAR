@@ -196,8 +196,9 @@ function loadTeamPage() {
   const trackSelect = document.getElementById("track-select");
   const teamRoster = document.querySelector("#team-roster tbody");
   const teamImage = document.getElementById("team-image");
+  const trackImage = document.getElementById("track-image"); // Get the track image element
 
-  if (!teamSelect || !trackSelect || !teamRoster || !teamImage) {
+  if (!teamSelect || !trackSelect || !teamRoster || !teamImage || !trackImage) {
     console.error("Missing dropdowns or team roster element.");
     return;
   }
@@ -233,13 +234,21 @@ function loadTeamPage() {
     this.src = "https://via.placeholder.com/100"; // Fallback image
   };
 
+  // Set the track image based on the selected track
+  const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${selectedTrack.replace(/\s+/g, '_')}.png`;
+  trackImage.src = trackImageUrl;
+  trackImage.alt = `${selectedTrack} Image`;
+  trackImage.onerror = function () {
+    this.src = "https://via.placeholder.com/200"; // Fallback image
+  };
+
   // Repopulate the track dropdown (only show tracks with valid data)
   trackSelect.innerHTML = ""; // Clear the track options
 
   standingsData.weeks.forEach((week, index) => {
     if (teamData.totals[index] !== undefined && teamData.totals[index] > 0) {
       const option = document.createElement("option");
-      option.value = index; // Use track index as value
+      option.value = week.track; // Use track name as value
       option.textContent = week.track;
       trackSelect.appendChild(option);
     }
@@ -257,7 +266,7 @@ function loadTeamPage() {
   }
 
   // Load driver points for the selected track and overall points
-  const trackIndex = parseInt(selectedTrack);
+  const trackIndex = standingsData.weeks.findIndex((week) => week.track === selectedTrack);
   teamRoster.innerHTML = teamData.drivers
     .map(
       (driver) => `
@@ -280,7 +289,6 @@ function loadTeamPage() {
     </tr>
   `;
 }
-
 // Populate Team Dropdown
 function populateTeamDropdown() {
   const teamSelect = document.getElementById("team-select");
