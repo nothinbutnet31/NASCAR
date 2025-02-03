@@ -139,6 +139,46 @@ footer p {
 .fas {
   color: #FFC107; /* Yellow for icons */
 }
+.fas.fa-flag-checkered {
+    color: black;
+}
+
+/* Scoring Rules Section */
+#scoring-rules {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Scoring Grid for Position Scoring (Two Columns) */
+.scoring-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Two equal columns */
+  gap: 10px; /* Spacing between items */
+  margin-bottom: 20px; /* Spacing before additional scoring */
+}
+
+.scoring-item {
+  padding: 10px;
+  background-color: #f9f9f9; /* Light background for each item */
+  border: 1px solid #ddd; /* Border for separation */
+  border-radius: 5px; /* Rounded corners */
+  text-align: center;
+}
+
+/* Additional Scoring Section */
+.additional-scoring {
+  margin-top: 20px;
+}
+
+.additional-scoring ul {
+  list-style-type: none; /* Remove bullet points */
+  padding: 0;
+}
+
+.additional-scoring li {
+  padding: 5px 0; /* Spacing between list items */
+}
 
 /* Responsive Design */
 @media (max-width: 600px) {
