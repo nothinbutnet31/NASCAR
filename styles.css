@@ -120,6 +120,10 @@ tr:hover {
 #team-image:hover, #track-image:hover {
   transform: scale(1.05); /* Slight zoom on hover */
 }
+.leader {
+    background-color: gold !important; /* Highlight in gold */
+    font-weight: bold;
+}
 
 /* Footer */
 footer {
