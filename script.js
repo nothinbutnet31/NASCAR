@@ -83,7 +83,8 @@ function processDriversData(data) {
 
       // Add driver to the team
       const points = row.slice(2).map((points) => parseInt(points));
-      teams[team].drivers.push({ driver, points });
+      const totalPoints = points.reduce((sum, point) => sum + point, 0); // Calculate total points for the driver
+      teams[team].drivers.push({ driver, points, totalPoints });
 
       // Update team totals
       points.forEach((points, index) => {
@@ -185,7 +186,6 @@ function populateWeekDropdown() {
   });
 }
 
-// Load Team Pages
 function loadTeamPage() {
   if (!isDataLoaded) {
     console.warn("Data not fully loaded yet.");
@@ -195,10 +195,9 @@ function loadTeamPage() {
   const teamSelect = document.getElementById("team-select");
   const trackSelect = document.getElementById("track-select");
   const teamRoster = document.querySelector("#team-roster tbody");
-  const teamImage = document.getElementById("team-image"); // Get the team image element
-  const trackImage = document.getElementById("track-image"); // Get the track image element
+  const teamImage = document.getElementById("team-image");
 
-  if (!teamSelect || !trackSelect || !teamRoster || !teamImage || !trackImage) {
+  if (!teamSelect || !trackSelect || !teamRoster || !teamImage) {
     console.error("Missing dropdowns or team roster element.");
     return;
   }
@@ -212,7 +211,7 @@ function loadTeamPage() {
   // Ensure selected team exists
   if (!standingsData.teams[selectedTeam]) {
     console.warn("No data found for selected team:", selectedTeam);
-    teamRoster.innerHTML = "<tr><td colspan='2'>No data found for this team.</td></tr>";
+    teamRoster.innerHTML = "<tr><td colspan='3'>No data found for this team.</td></tr>";
     return;
   }
 
@@ -220,7 +219,7 @@ function loadTeamPage() {
 
   if (!teamData.drivers || teamData.drivers.length === 0) {
     console.warn("No drivers found for team:", selectedTeam);
-    teamRoster.innerHTML = "<tr><td colspan='2'>No drivers found for this team.</td></tr>";
+    teamRoster.innerHTML = "<tr><td colspan='3'>No drivers found for this team.</td></tr>";
     return;
   }
 
@@ -231,15 +230,7 @@ function loadTeamPage() {
   teamImage.src = teamImageUrl;
   teamImage.alt = `${selectedTeam} Logo`;
   teamImage.onerror = function () {
-    this.src = "https://via.placeholder.com/100"; // Fallback image if team image fails to load
-  };
-
-  // Set the track image based on the selected track
-  const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${selectedTrack.replace(/\s+/g, '_')}.png`;
-  trackImage.src = trackImageUrl;
-  trackImage.alt = `${selectedTrack} Image`;
-  trackImage.onerror = function () {
-    this.src = "https://via.placeholder.com/200"; // Fallback image if track image fails to load
+    this.src = "https://via.placeholder.com/100"; // Fallback image
   };
 
   // Repopulate the track dropdown (only show tracks with valid data)
@@ -248,7 +239,7 @@ function loadTeamPage() {
   standingsData.weeks.forEach((week, index) => {
     if (teamData.totals[index] !== undefined && teamData.totals[index] > 0) {
       const option = document.createElement("option");
-      option.value = week.track; // Use track name as value
+      option.value = index; // Use track index as value
       option.textContent = week.track;
       trackSelect.appendChild(option);
     }
@@ -256,7 +247,7 @@ function loadTeamPage() {
 
   // If no tracks have data, show a message
   if (trackSelect.options.length === 0) {
-    teamRoster.innerHTML = "<tr><td colspan='2'>No data available for any track.</td></tr>";
+    teamRoster.innerHTML = "<tr><td colspan='3'>No data available for any track.</td></tr>";
     return;
   }
 
@@ -265,24 +256,27 @@ function loadTeamPage() {
     trackSelect.value = trackSelect.options[0].value;
   }
 
-  // Load driver points for the selected track
-  const trackIndex = standingsData.weeks.findIndex((week) => week.track === selectedTrack);
+  // Load driver points for the selected track and overall points
+  const trackIndex = parseInt(selectedTrack);
   teamRoster.innerHTML = teamData.drivers
     .map(
       (driver) => `
     <tr>
       <td>${driver.driver}</td>
-      <td>${driver.points[trackIndex] || 0}</td> <!-- Default to 0 if undefined -->
+      <td>${driver.points[trackIndex] || 0}</td> <!-- Points for the selected track -->
+      <td>${driver.totalPoints || 0}</td> <!-- Total points for the season -->
     </tr>
   `
     )
     .join("");
 
   // Add total row
+  const teamTotalPoints = teamData.drivers.reduce((sum, driver) => sum + driver.totalPoints, 0);
   teamRoster.innerHTML += `
     <tr class="total-row">
       <td><strong>Total</strong></td>
-      <td><strong>${teamData.totals[trackIndex] || 0}</strong></td> <!-- Default to 0 if undefined -->
+      <td><strong>${teamData.totals[trackIndex] || 0}</strong></td> <!-- Total points for the selected track -->
+      <td><strong>${teamTotalPoints || 0}</strong></td> <!-- Total points for the season -->
     </tr>
   `;
 }
