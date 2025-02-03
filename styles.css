@@ -182,19 +182,22 @@ select {
 #team-roster {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 
-#team-roster th, #team-roster td {
+#team-roster th,
+#team-roster td {
   padding: 10px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+  border: 1px solid #ddd;
+  text-align: center;
 }
 
 #team-roster th {
-  background-color: #f2f2f2;
+  background-color: #f9f9f9;
+  font-weight: bold;
 }
 
-#team-roster tr:hover {
-  background-color: #f9f9f9;
+.total-row {
+  background-color: #f1f1f1;
+  font-weight: bold;
 }
