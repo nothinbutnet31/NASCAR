@@ -116,20 +116,14 @@ function loadOverallStandings() {
   });
 
   const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
-  const leaderPoints = sortedTeams[0][1];
 
   sortedTeams.forEach(([team, points], index) => {
-    // Calculate points difference
-    const pointsDifference = points - leaderPoints;
-
-    // Format the points difference with a plus or minus sign
-    const formattedDifference = pointsDifference === 0 ? "(0)" : pointsDifference > 0 ? `(+${pointsDifference})` : `(${pointsDifference})`;
-
     const row = document.createElement("tr");
+    // Add trophy icon for first place
     const trophy = index === 0 ? '<i class="fas fa-trophy"></i> ' : "";
     row.innerHTML = `
       <td>${trophy}${team}</td>
-      <td>${points} ${formattedDifference}</td>
+      <td>${points}</td>
     `;
     overallTable.appendChild(row);
   });
@@ -327,9 +321,16 @@ function init() {
     return;
   }
 
-  populateWeekDropdown();
+// Load Overall Standings
   loadOverallStandings();
+
+  // Populate Week Dropdown and Load Weekly Standings
+  populateWeekDropdown();
   loadWeeklyStandings();
+
+  // Populate Team Dropdown and Load Team Page
+  populateTeamDropdown();
+  loadTeamPage();
 }
 
 // Fetch Data and Initialize
