@@ -174,18 +174,6 @@ function loadWeeklyStandings() {
 }
 
 // Populate Week Dropdown
-function populateWeekDropdown() {
-  const weekSelect = document.getElementById("week-select");
-  weekSelect.innerHTML = "";
-
-  standingsData.weeks.forEach((week) => {
-    const option = document.createElement("option");
-    option.value = week.week;
-    option.textContent = `Week ${week.week} - ${week.track}`;
-    weekSelect.appendChild(option);
-  });
-}
-
 function loadTeamPage() {
   if (!isDataLoaded) {
     console.warn("Data not fully loaded yet.");
@@ -196,7 +184,7 @@ function loadTeamPage() {
   const trackSelect = document.getElementById("track-select");
   const teamRoster = document.querySelector("#team-roster tbody");
   const teamImage = document.getElementById("team-image");
-  const trackImage = document.getElementById("track-image"); // Get the track image element
+  const trackImage = document.getElementById("track-image");
 
   if (!teamSelect || !trackSelect || !teamRoster || !teamImage || !trackImage) {
     console.error("Missing dropdowns or team roster element.");
@@ -263,6 +251,12 @@ function loadTeamPage() {
   // Set the default track selection to the first available track if there are tracks
   if (trackSelect.options.length > 0) {
     trackSelect.value = trackSelect.options[0].value;
+  }
+
+  // Update the table header with the selected track name
+  const trackHeader = document.querySelector("#team-roster th:nth-child(2)");
+  if (trackHeader) {
+    trackHeader.textContent = `Points (${selectedTrack})`;
   }
 
   // Load driver points for the selected track and overall points
