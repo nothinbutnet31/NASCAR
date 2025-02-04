@@ -141,11 +141,9 @@ footer p {
 
 /* Icons */
 .fas {
-  color: #FFC107; /* Yellow for icons */
+  color: black; /* Yellow for icons */
 }
-.fas.fa-flag-checkered {
-    color: black;
-}
+
 
 /* Scoring Rules Section */
 #scoring-rules {
