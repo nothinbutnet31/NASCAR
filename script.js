@@ -297,6 +297,27 @@ function populateTeamDropdown() {
     loadTeamPage(); // Initialize the team page with the first team
   }
 }
+function populateWeekDropdown() {
+  const weekSelect = document.getElementById("week-select");
+  if (!weekSelect) {
+    console.error("Week select dropdown not found.");
+    return;
+  }
+
+  weekSelect.innerHTML = ""; // Clear dropdown before repopulating
+
+  standingsData.weeks.forEach((week) => {
+    const option = document.createElement("option");
+    option.value = week.week;
+    option.textContent = `Week ${week.week} - ${week.track}`;
+    weekSelect.appendChild(option);
+  });
+
+  if (standingsData.weeks.length > 0) {
+    weekSelect.value = standingsData.weeks[0].week; // Select the first week by default
+    loadWeeklyStandings(); // Load standings for the first week
+  }
+}
 
 // Open Tabs
 function openTab(tabName) {
