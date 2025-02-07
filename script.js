@@ -221,10 +221,13 @@ function generateWeeklyRecap() {
     let storylines = "";
     let helpedWinner = "";
     let hurtLoser = "";
+    let topDriverNames = []; // ✅ Define before use
 
     // Identify top team
-    const sortedTeams = Object.entries(currentStandings)
-        .sort((a, b) => b[1] - a[1]); 
+    const sortedTeams = Object.entries(currentStandings).sort((a, b) => b[1] - a[1]); 
+
+    console.log("Sorted Teams:", sortedTeams);
+    console.log("Teams Object Keys:", Object.keys(teams));
 
     if (sortedTeams.length === 0) {
         console.warn("No teams found in standings.");
@@ -234,14 +237,15 @@ function generateWeeklyRecap() {
     const topTeam = sortedTeams[0]; // Highest points team
     console.log("Top Team:", topTeam);
 
-    if (topTeam && teams[topTeam[0]]) {
+    // Check if topTeam exists in teams object
+    if (topTeam && teams.hasOwnProperty(topTeam[0])) {
         teams[topTeam[0]].drivers.forEach(driver => {
             if (driver.totalPoints > 30) {
                 topDriverNames.push(`${driver.driver} earned ${driver.totalPoints} points.`);
             }
         });
     } else {
-        console.warn("Top team is undefined in teams object.");
+        console.warn(`Top team (${topTeam[0]}) is undefined in teams object.`);
     }
 
     topPerformers = topDriverNames.length > 0 ? topDriverNames.join('<br>') : "No standout drivers this week.";
@@ -258,6 +262,7 @@ function generateWeeklyRecap() {
 
     document.getElementById('race-recap').innerHTML = recapHTML;
 }
+
 
 // Load Team Page (Roster, Images, etc.)
 function loadTeamPage() {
