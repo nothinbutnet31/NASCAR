@@ -345,7 +345,7 @@ function loadTeamPage() {
 
   // Default to the first available track if no track is selected
   if (!selectedTrack) {
-    trackSelect.selectedIndex = 1;
+    trackSelect.selectedIndex = 0;
     let selectedTrack = trackSelect.value;
   }
 
