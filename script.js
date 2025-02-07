@@ -205,9 +205,9 @@ function generateWeeklyRecap() {
     return;
   }
 
-  const weekSelect = document.getElementById("week-select");
-  const selectedWeekNumber = parseInt(weekSelect.value, 10);
-  const selectedWeek = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
+  let weekSelect = document.getElementById("week-select");
+  let selectedWeekNumber = parseInt(weekSelect.value, 10);
+  let selectedWeek = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
 
   // If no data is available for the week, or there are no standings, exit early.
   if (!selectedWeek || Object.keys(selectedWeek.standings).length === 0) {
@@ -280,19 +280,19 @@ function loadTeamPage() {
     return;
   }
 
-  const teamSelect = document.getElementById("team-select");
-  const trackSelect = document.getElementById("track-select");
-  const teamRoster = document.querySelector("#team-roster tbody");
-  const teamImage = document.getElementById("team-image");
-  const trackImage = document.getElementById("track-image");
+  let teamSelect = document.getElementById("team-select");
+  let trackSelect = document.getElementById("track-select");
+  let teamRoster = document.querySelector("#team-roster tbody");
+  let teamImage = document.getElementById("team-image");
+  let trackImage = document.getElementById("track-image");
 
   if (!teamSelect || !trackSelect || !teamRoster || !teamImage || !trackImage) {
     console.error("Missing dropdowns or team roster element.");
     return;
   }
 
-  const selectedTeam = teamSelect.value;
-  const selectedTrack = trackSelect.value;
+  let selectedTeam = teamSelect.value;
+  let selectedTrack = trackSelect.value;
 
   console.log("Selected Team:", selectedTeam);
   console.log("Selected Track:", selectedTrack);
