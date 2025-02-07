@@ -99,6 +99,39 @@ function processDriversData(data) {
   console.log("Processed Drivers Data:", standingsData.teams);
 }
 
+// Populate Week Dropdown
+function populateWeekDropdown() {
+  const weekSelect = document.getElementById("week-select");
+  if (!weekSelect) {
+    console.error("Week select dropdown not found.");
+    return;
+  }
+
+  standingsData.weeks.forEach((week) => {
+    const option = document.createElement("option");
+    option.value = week.week;
+    option.textContent = `Week ${week.week}: ${week.track}`;
+    weekSelect.appendChild(option);
+  });
+}
+
+// Populate Team Dropdown
+function populateTeamDropdown() {
+  const teamSelect = document.getElementById("team-select");
+  if (!teamSelect) {
+    console.error("Team select dropdown not found.");
+    return;
+  }
+
+  // Populate the dropdown with team names
+  Object.keys(standingsData.teams).forEach((team) => {
+    const option = document.createElement("option");
+    option.value = team;
+    option.textContent = team;
+    teamSelect.appendChild(option);
+  });
+}
+
 // Load Overall Standings
 function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
@@ -310,19 +343,28 @@ function loadTeamPage() {
     return;
   }
 
-  // Default to the first available track
-  trackSelect.value = trackSelect.options[0].value;
-
-  // Update table header to reflect the selected track
-  const trackHeader = document.querySelector("#team-roster th:nth-child(2)");
-  if (trackHeader) {
-    trackHeader.textContent = `Points (${selectedTrack})`;
+  // Default to the first available track if no track is selected
+  if (!selectedTrack) {
+    trackSelect.selectedIndex = 0;
+    selectedTrack = trackSelect.value;
   }
 
-  // Determine the index of the selected track in the weeks array
-  const trackIndex = standingsData.weeks.findIndex((week) => week.track === selectedTrack);
+  // Load team roster for the selected track
+  loadTeamRoster(selectedTeam, selectedTrack);
+}
 
-  // Populate the team roster table with driver data for the selected track
+// Load team roster for the selected team and track
+function loadTeamRoster(teamName, trackName) {
+  const teamRoster = document.querySelector("#team-roster tbody");
+  const teamData = standingsData.teams[teamName];
+  const trackIndex = standingsData.weeks.findIndex((week) => week.track === trackName);
+
+  if (trackIndex === -1) {
+    teamRoster.innerHTML = "<tr><td colspan='3'>No track data available.</td></tr>";
+    return;
+  }
+
+  // Populate team roster with drivers' points for the selected track
   teamRoster.innerHTML = "";
   teamData.drivers.forEach((driver) => {
     const row = document.createElement("tr");
