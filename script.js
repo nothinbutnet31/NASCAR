@@ -345,7 +345,7 @@ function loadTeamPage() {
       <td><strong>${teamTotalPoints || 0}</strong></td>
     </tr>
   `;
-}
+
 
 // Populate Team Dropdown
 function populateTeamDropdown() {
@@ -405,6 +405,9 @@ function openTab(tabName) {
   if (tabName === "teams") {
     populateTeamDropdown();
     loadTeamPage();
+
+    if (tabName === "scoring-rules") {
+    loadScoringRules();
   }
 }
 
