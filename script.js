@@ -198,7 +198,7 @@ function loadWeeklyStandings() {
 }
 
 // Generate AI Recap for the Selected Week
-function generateRaceRecap(raceData, teamsData) {
+function generateWeeklyRecap(raceData, teamsData) {
     // Get standings and points for both current and previous week
     const previousStandings = getPreviousStandings();  // Example function to fetch previous standings
     const currentStandings = raceData.standings; // Example from raceData (this would be your fetched data)
