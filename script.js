@@ -346,7 +346,7 @@ function loadTeamPage() {
   // Default to the first available track if no track is selected
   if (!selectedTrack) {
     trackSelect.selectedIndex = 1;
-    selectedTrack = trackSelect.value;
+    let selectedTrack = trackSelect.value;
   }
 
   // Load team roster for the selected track
