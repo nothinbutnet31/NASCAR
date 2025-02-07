@@ -176,52 +176,69 @@ function generateWeeklyRecap() {
   const selectedWeekNumber = parseInt(weekSelect.value, 10);
   const selectedWeek = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
 
+  // If no data is available for the week, or there are no standings, exit early.
   if (!selectedWeek || Object.keys(selectedWeek.standings).length === 0) {
     recapContainer.innerHTML = "<p>No race data available for this week.</p>";
+    return;
+  }
+
+  // Calculate the total points scored in the week.
+  const weekTotal = Object.values(selectedWeek.standings).reduce((sum, points) => sum + points, 0);
+  if (weekTotal === 0) {
+    recapContainer.innerHTML = "<p>No points were scored in this race.</p>";
     return;
   }
 
   let recapText = `<h3>Race Recap: ${selectedWeek.track}</h3>`;
   const sortedTeams = Object.entries(selectedWeek.standings).sort((a, b) => b[1] - a[1]);
 
-  if (sortedTeams.length === 0) {
-    recapContainer.innerHTML = "<p>No race results to display.</p>";
+  // Winner highlight: only if the winning team scored more than 0 points.
+  const [winningTeam, winningPoints] = sortedTeams[0];
+  if (winningPoints > 0) {
+    recapText += `<p>🏆 <strong>${winningTeam}</strong> dominated the race at <strong>${selectedWeek.track}</strong>, scoring ${winningPoints} points!</p>`;
+  } else {
+    recapContainer.innerHTML = "<p>No team scored any points this week.</p>";
     return;
   }
 
-  // Winner highlight
-  const [winningTeam, winningPoints] = sortedTeams[0];
-  recapText += `<p>🏆 <strong>${winningTeam}</strong> dominated the race at <strong>${selectedWeek.track}</strong>, scoring ${winningPoints} points!</p>`;
-
-  // Biggest mover compared to previous week
+  // Biggest mover compared to the previous week.
   if (selectedWeek.week > 1) {
     const previousWeek = standingsData.weeks.find((week) => week.week === (selectedWeek.week - 1));
     if (previousWeek && Object.keys(previousWeek.standings).length > 0) {
       let biggestMover = null;
       let biggestChange = 0;
 
+      // Calculate the change in points for each team.
       for (const [team, points] of Object.entries(selectedWeek.standings)) {
         const prevPoints = previousWeek.standings[team] || 0;
         const change = points - prevPoints;
-
+        // Update biggest mover only if the change is nonzero and larger than the current biggest change.
         if (Math.abs(change) > Math.abs(biggestChange)) {
           biggestMover = team;
           biggestChange = change;
         }
       }
 
-      if (biggestMover) {
-        recapText += `<p>📈 <strong>${biggestMover}</strong> was the biggest mover, improving by ${biggestChange} points compared to last week!</p>`;
+      // Only include the biggest mover if the change is nonzero.
+      if (biggestMover && biggestChange !== 0) {
+        if (biggestChange > 0) {
+          recapText += `<p>📈 <strong>${biggestMover}</strong> surged ahead by ${biggestChange} points compared to last week!</p>`;
+        } else {
+          recapText += `<p>📉 <strong>${biggestMover}</strong> fell behind by ${Math.abs(biggestChange)} points compared to last week!</p>`;
+        }
       }
     }
   }
 
-  // Lowest scoring team
+  // Lowest scoring team: only display if it is different from the winner.
   const [lowestTeam, lowestPoints] = sortedTeams[sortedTeams.length - 1];
-  recapText += `<p>📉 <strong>${lowestTeam}</strong> had a tough week, managing only ${lowestPoints} points.</p>`;
+  if (lowestTeam !== winningTeam) {
+    recapText += `<p>📉 <strong>${lowestTeam}</strong> struggled, scoring only ${lowestPoints} points.</p>`;
+  }
 
   recapContainer.innerHTML = recapText;
 }
+
 
 // Load Team Page (Roster, Images, etc.)
 function loadTeamPage() {
