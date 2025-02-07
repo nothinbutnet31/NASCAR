@@ -318,6 +318,59 @@ function populateWeekDropdown() {
     loadWeeklyStandings(); // Load standings for the first week
   }
 }
+function generateRaceRecap(standingsData) {
+    if (!standingsData || !standingsData.weeks.length) {
+        return "No race data available for this week.";
+    }
+    
+    const currentWeekIndex = standingsData.weeks.length - 1;
+    const currentWeek = standingsData.weeks[currentWeekIndex];
+    const previousWeek = standingsData.weeks[currentWeekIndex - 1] || null;
+    
+    let recap = `🏁 **Fantasy NASCAR Week ${currentWeek.week} Recap** 🏁\n\n`;
+    recap += `This week's race at **${currentWeek.track}** shook up the standings! Here’s what went down:\n\n`;
+    
+    // Sort teams by points for the week
+    const sortedStandings = Object.entries(currentWeek.standings).sort((a, b) => b[1] - a[1]);
+    
+    // Top performer
+    const topTeam = sortedStandings[0];
+    recap += `🔥 **${topTeam[0]}** dominated this week, scoring **${topTeam[1]} points**!\n`;
+    
+    // Biggest movers (if previous week exists)
+    if (previousWeek) {
+        const previousRankings = Object.fromEntries(Object.entries(previousWeek.standings).sort((a, b) => b[1] - a[1]));
+        let biggestMover = null;
+        let biggestChange = 0;
+        
+        sortedStandings.forEach(([team, points], index) => {
+            const prevRank = Object.keys(previousRankings).indexOf(team);
+            const change = prevRank - index;
+            
+            if (change > biggestChange) {
+                biggestChange = change;
+                biggestMover = team;
+            }
+        });
+        
+        if (biggestMover) {
+            recap += `🚀 **${biggestMover}** made the biggest move, climbing **${biggestChange} spots**!\n`;
+        }
+    }
+    
+    // Notable struggles
+    const lowestTeam = sortedStandings[sortedStandings.length - 1];
+    recap += `😞 Tough week for **${lowestTeam[0]}**, finishing last with only **${lowestTeam[1]} points**.\n`;
+    
+    recap += `\n🔜 Next up: Can teams bounce back at the upcoming **[NEXT TRACK]**? Stay tuned!`;
+    
+    return recap;
+}
+
+// Example usage
+const recapText = generateRaceRecap(standingsData);
+console.log(recapText);
+// Inject recapText into the website (e.g., a div or modal)
 
 // Open Tabs
 function openTab(tabName) {
@@ -348,6 +401,8 @@ function init() {
   // Populate Week Dropdown and Load Weekly Standings
   populateWeekDropdown();
   loadWeeklyStandings();
+// Generate AI Recap
+  generateWeeklyRecap(); // Call the recap function here
 
   // Populate Team Dropdown and Load Team Page
   populateTeamDropdown();
