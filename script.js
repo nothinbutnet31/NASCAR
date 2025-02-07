@@ -168,57 +168,64 @@ function loadWeeklyStandings() {
 }
 // Recap
 function generateWeeklyRecap() {
-  const recapContainer = document.getElementById("weekly-recap"); // Ensure there's a container for the recap
+  const recapContainer = document.getElementById("weekly-recap");
   if (!recapContainer) {
     console.error("Weekly recap container not found.");
     return;
   }
 
-  const lastWeek = standingsData.weeks[standingsData.weeks.length - 1];
-  if (!lastWeek) {
-    recapContainer.innerHTML = "<p>No race data available yet.</p>";
+  const weekSelect = document.getElementById("week-dropdown");
+  const selectedWeekIndex = parseInt(weekSelect.value, 10);
+  const selectedWeek = standingsData.weeks[selectedWeekIndex];
+
+  if (!selectedWeek || Object.keys(selectedWeek.standings).length === 0) {
+    recapContainer.innerHTML = "<p>No race data available for this week.</p>";
     return;
   }
 
-  let recapText = `<h3>Race Recap: ${lastWeek.track}</h3>`;
-  const sortedTeams = Object.entries(lastWeek.standings).sort((a, b) => b[1] - a[1]);
+  let recapText = `<h3>Race Recap: ${selectedWeek.track}</h3>`;
+  const sortedTeams = Object.entries(selectedWeek.standings).sort((a, b) => b[1] - a[1]);
 
   if (sortedTeams.length === 0) {
     recapContainer.innerHTML = "<p>No race results to display.</p>";
     return;
   }
 
-  // Highlight the winner
+  // Winner highlight
   const [winningTeam, winningPoints] = sortedTeams[0];
-  recapText += `<p>🏆 <strong>${winningTeam}</strong> dominated the race at <strong>${lastWeek.track}</strong>, scoring ${winningPoints} points!</p>`;
+  recapText += `<p>🏆 <strong>${winningTeam}</strong> dominated the race at <strong>${selectedWeek.track}</strong>, scoring ${winningPoints} points!</p>`;
 
-  // Biggest mover (if possible)
-  if (standingsData.weeks.length > 1) {
-    const previousWeek = standingsData.weeks[standingsData.weeks.length - 2];
-    let biggestMover = null;
-    let biggestChange = 0;
+  // Find the biggest mover compared to the previous week
+  if (selectedWeekIndex > 0) {
+    const previousWeek = standingsData.weeks[selectedWeekIndex - 1];
 
-    for (const [team, points] of Object.entries(lastWeek.standings)) {
-      const prevPoints = previousWeek.standings[team] || 0;
-      const change = points - prevPoints;
+    if (previousWeek && Object.keys(previousWeek.standings).length > 0) {
+      let biggestMover = null;
+      let biggestChange = 0;
 
-      if (Math.abs(change) > Math.abs(biggestChange)) {
-        biggestMover = team;
-        biggestChange = change;
+      for (const [team, points] of Object.entries(selectedWeek.standings)) {
+        const prevPoints = previousWeek.standings[team] || 0;
+        const change = points - prevPoints;
+
+        if (Math.abs(change) > Math.abs(biggestChange)) {
+          biggestMover = team;
+          biggestChange = change;
+        }
       }
-    }
 
-    if (biggestMover) {
-      recapText += `<p>📈 <strong>${biggestMover}</strong> was the biggest mover, improving by ${biggestChange} points compared to last week!</p>`;
+      if (biggestMover) {
+        recapText += `<p>📈 <strong>${biggestMover}</strong> was the biggest mover, improving by ${biggestChange} points compared to last week!</p>`;
+      }
     }
   }
 
-  // Highlight lowest-scoring team
+  // Lowest scoring team
   const [lowestTeam, lowestPoints] = sortedTeams[sortedTeams.length - 1];
   recapText += `<p>📉 <strong>${lowestTeam}</strong> had a tough week, managing only ${lowestPoints} points.</p>`;
 
   recapContainer.innerHTML = recapText;
 }
+
 
 // Populate Week Dropdown
 function loadTeamPage() {
@@ -404,6 +411,7 @@ function init() {
   loadWeeklyStandings();
 // Generate AI Recap
   generateWeeklyRecap(); // Call the recap function here
+  document.getElementById("week-dropdown").addEventListener("change", generateWeeklyRecap);
 
   // Populate Team Dropdown and Load Team Page
   populateTeamDropdown();
