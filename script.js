@@ -218,61 +218,42 @@ function generateWeeklyRecap() {
 
     let standingsChanges = "";
     let topPerformers = "";
-    let storylines = "";
-    let helpedWinner = "";
-    let hurtLoser = "";
     
-    // ✅ Declare topDriverNames before using it
-    let topDriverNames = []; 
+    // ✅ Remove duplicate declaration
+    let topDriverNames = [];
 
     // Identify top team
     const sortedTeams = Object.entries(currentStandings).sort((a, b) => b[1] - a[1]);
 
     console.log("Sorted Teams:", sortedTeams);
-    console.log("Teams Object Keys:", Object.keys(teams));
+    console.log("Teams Object Keys:", Object.keys(standingsData.teams));
 
     if (sortedTeams.length === 0) {
         console.warn("No teams found in standings.");
         return;
     }
 
-    const topTeam = sortedTeams[0]; // Highest points team
+    const topTeam = sortedTeams[0][0]; // Extract team name from sorted array
     console.log("Top Team:", topTeam);
 
-    // Check if topTeam exists in teams object
-   if (!teams || Object.keys(teams).length === 0) {
-    console.warn("Teams object is empty or not loaded yet.");
-    return;
-}
+    if (!standingsData.teams.hasOwnProperty(topTeam)) {
+        console.warn(`Top team (${topTeam}) is not found in teams object.`);
+        return;
+    }
 
-const sortedTeams = Object.entries(currentStandings).sort((a, b) => b[1] - a[1]);
+    // ✅ Proceed only if the team exists
+    const topDrivers = standingsData.teams[topTeam].drivers.filter(driver => driver.totalPoints > 30);
+    topDriverNames = topDrivers.map(driver => `${driver.driver} earned ${driver.totalPoints} points.`);
 
-if (sortedTeams.length === 0) {
-    console.warn("No teams found in standings.");
-    return;
-}
+    console.log("Top Performers:", topDriverNames);
 
-const topTeam = sortedTeams[0][0]; // Extract team name from sorted array
-console.log("Top Team:", topTeam);
+    topPerformers = topDriverNames.length > 0 ? topDriverNames.join('<br>') : "No standout drivers this week.";
 
-if (!teams.hasOwnProperty(topTeam)) {
-    console.warn(`Top team (${topTeam}) is not found in teams object.`);
-    return;
-}
-
-// ✅ Proceed only if the team exists
-const topDrivers = teams[topTeam].drivers.filter(driver => driver.totalPoints > 30);
-const topDriverNames = topDrivers.map(driver => `${driver.driver} earned ${driver.totalPoints} points.`);
-
-console.log("Top Performers:", topDriverNames);
-
-const topPerformers = topDriverNames.length > 0 ? topDriverNames.join('<br>') : "No standout drivers this week.";
-
-document.getElementById('race-recap').innerHTML = `
-    <h2>Race Recap</h2>
-    <h3>Top Performers:</h3>
-    <p>${topPerformers}</p>
-`;
+    document.getElementById('race-recap').innerHTML = `
+        <h2>Race Recap</h2>
+        <h3>Top Performers:</h3>
+        <p>${topPerformers}</p>
+    `;
 
     // Recap output
     const recapHTML = `
@@ -286,7 +267,6 @@ document.getElementById('race-recap').innerHTML = `
 
     document.getElementById('race-recap').innerHTML = recapHTML;
 }
-
 
 
 // Load Team Page (Roster, Images, etc.)
