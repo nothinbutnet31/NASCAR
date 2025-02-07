@@ -322,73 +322,16 @@ function loadTeamPage() {
   // Determine the index of the selected track in the weeks array
   const trackIndex = standingsData.weeks.findIndex((week) => week.track === selectedTrack);
 
-  // Populate the team roster table with driver data
-  teamRoster.innerHTML = teamData.drivers
-    .map(
-      (driver) => `
-      <tr>
-        <td>${driver.driver}</td>
-        <td>${driver.points[trackIndex]}</td>
-        <td>${driver.totalPoints}</td>
-      </tr>`
-    )
-    .join("");
-}
-
-
-  // Add a total row
-  const teamTotalPoints = teamData.drivers.reduce((sum, driver) => sum + driver.totalPoints, 0);
-  teamRoster.innerHTML += `
-    <tr class="total-row">
-      <td><strong>Total</strong></td>
-      <td><strong>${teamData.totals[trackIndex] || 0}</strong></td>
-      <td><strong>${teamTotalPoints || 0}</strong></td>
-    </tr>
-  `;
-
-
-// Populate Team Dropdown
-function populateTeamDropdown() {
-  const teamSelect = document.getElementById("team-select");
-  teamSelect.innerHTML = "";
-
-  const teams = Object.keys(standingsData.teams);
-
-  if (teams.length > 0) {
-    teams.forEach((team) => {
-      const option = document.createElement("option");
-      option.value = team;
-      option.textContent = team;
-      teamSelect.appendChild(option);
-    });
-
-    // Update team page when a new team is selected
-    teamSelect.addEventListener("change", loadTeamPage);
-    loadTeamPage();
-  }
-}
-
-// Populate Week Dropdown
-function populateWeekDropdown() {
-  const weekSelect = document.getElementById("week-select");
-  if (!weekSelect) {
-    console.error("Week select dropdown not found.");
-    return;
-  }
-
-  weekSelect.innerHTML = ""; // Clear any existing options
-
-  standingsData.weeks.forEach((week) => {
-    const option = document.createElement("option");
-    option.value = week.week; // The week number
-    option.textContent = `Week ${week.week} - ${week.track}`;
-    weekSelect.appendChild(option);
+  // Populate the team roster table with driver data for the selected track
+  teamRoster.innerHTML = "";
+  teamData.drivers.forEach((driver) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${driver.driver}</td>
+      <td>${driver.points[trackIndex]}</td>
+    `;
+    teamRoster.appendChild(row);
   });
-
-  if (standingsData.weeks.length > 0) {
-    weekSelect.value = standingsData.weeks[0].week;
-    loadWeeklyStandings();
-  }
 }
 
 // Open Tabs (for switching between pages/sections)
@@ -402,13 +345,12 @@ function openTab(tabName) {
   document.getElementById(tabName).style.display = "block";
   document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
 
+  // Load specific content based on tab
   if (tabName === "teams") {
     populateTeamDropdown();
     loadTeamPage();
-
-    if (tabName === "scoring-rules") {
-    loadScoringRules();
   }
+  // Add any other tab-specific logic here (like scoring rules, etc.)
 }
 
 // Initialize the Page after data is loaded
