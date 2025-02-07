@@ -221,14 +221,11 @@ function generateWeeklyRecap() {
     let storylines = "";
     let helpedWinner = "";
     let hurtLoser = "";
-    
-    let topDriverNames = []; 
 
-    // Identify top team
+    // Sort the teams by their points
     const sortedTeams = Object.entries(currentStandings).sort((a, b) => b[1] - a[1]);
 
     console.log("Sorted Teams:", sortedTeams);
-    console.log("Teams Object Keys:", Object.keys(standingsData.teams));
 
     if (sortedTeams.length === 0) {
         console.warn("No teams found in standings.");
@@ -238,25 +235,20 @@ function generateWeeklyRecap() {
     const topTeam = sortedTeams[0][0]; // Extract team name from sorted array
     console.log("Top Team:", topTeam);
 
+    // Ensure that topTeam exists in teams object
     if (!standingsData.teams.hasOwnProperty(topTeam)) {
         console.warn(`Top team (${topTeam}) is not found in teams object.`);
         return;
     }
 
     const topDrivers = standingsData.teams[topTeam].drivers.filter(driver => driver.totalPoints > 30);
-    topDriverNames = topDrivers.map(driver => `${driver.driver} earned ${driver.totalPoints} points.`);
+    const topDriverNames = topDrivers.map(driver => `${driver.driver} earned ${driver.totalPoints} points.`);
 
     console.log("Top Performers:", topDriverNames);
 
     topPerformers = topDriverNames.length > 0 ? topDriverNames.join('<br>') : "No standout drivers this week.";
 
-    document.getElementById('race-recap').innerHTML = `
-        <h2>Race Recap</h2>
-        <h3>Top Performers:</h3>
-        <p>${topPerformers}</p>
-    `;
-
-    // Recap output
+    // Update the recap section
     const recapHTML = `
         <h2>Race Recap</h2>
         <h3>Standings Changes:</h3>
@@ -266,8 +258,14 @@ function generateWeeklyRecap() {
         <p>${topPerformers || "No data on top performers."}</p>
     `;
 
-    document.getElementById('race-recap').innerHTML = recapHTML;
+    const recapElement = document.getElementById('race-recap');
+    if (recapElement) {
+        recapElement.innerHTML = recapHTML;
+    } else {
+        console.error("Error: 'race-recap' element not found.");
+    }
 }
+
 
 
 // Load Team Page (Roster, Images, etc.)
