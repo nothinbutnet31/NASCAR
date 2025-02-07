@@ -420,3 +420,4 @@ function init() {
 
 // Fetch Data and Initialize
 fetchDataFromGoogleSheets();
+window.onload = init;
