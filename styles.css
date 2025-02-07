@@ -120,9 +120,11 @@ tr:hover {
 #team-image:hover, #track-image:hover {
   transform: scale(1.05); /* Slight zoom on hover */
 }
+
+/* Leader Row Highlight */
 .leader {
-    background-color: gold !important; /* Highlight in gold */
-    font-weight: bold;
+  background-color: gold !important; /* Highlight in gold */
+  font-weight: bold;
 }
 
 /* Footer */
@@ -141,9 +143,17 @@ footer p {
 
 /* Icons */
 .fas {
-  color: black; /* Yellow for icons */
+  color: black; /* Black for icons */
 }
 
+/* Weekly Recap Container */
+#weekly-recap {
+  margin-top: 20px;
+  padding: 10px;
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
 
 /* Scoring Rules Section */
 #scoring-rules {
@@ -153,7 +163,8 @@ footer p {
 }
 
 /* Scoring Grid for Position Scoring (Two Columns) */
-.scoring-grid {
+/* Targets the inner container within the #scoring-rules tab */
+#scoring-rules .scoring-rules {
   display: grid;
   grid-template-columns: repeat(2, 1fr); /* Two equal columns */
   gap: 10px; /* Spacing between items */
