@@ -204,7 +204,6 @@ function generateWeeklyRecap() {
         return;
     }
 
-    // Find the current week (based on the week selected)
     const weekSelect = document.getElementById("week-select");
     const selectedWeek = parseInt(weekSelect.value, 10);
     const weekData = standingsData.weeks.find(week => week.week === selectedWeek);
@@ -215,23 +214,17 @@ function generateWeeklyRecap() {
     }
 
     const currentStandings = weekData.standings;
-    const teams = standingsData.teams;
 
     let standingsChanges = "";
     let topPerformers = "";
-    let storylines = "";  // You can populate this with real race storylines
+    let storylines = "";
     let helpedWinner = "";
     let hurtLoser = "";
 
-    // Identify standings changes
-    Object.entries(currentStandings).forEach(([team, points], index) => {
-        const previousPosition = getPreviousStandings().findIndex(t => t.teamName === team.teamName);
-        if (previousPosition !== index) {
-            standingsChanges += `${team.teamName} moved from ${previousPosition + 1} to ${index + 1}.<br>`;
-        }
-    });
+    // For standings changes, you could check if any team has improved or fallen back from the previous week (if you want this)
+    // Just skip this logic if you don't need it
 
-    // Identify top performers (highest points for the week)
+    // Identify top performers
     const topTeam = Object.entries(currentStandings)
         .sort((a, b) => b[1] - a[1])[0]; // Highest points team
     const topDriverNames = [];
@@ -243,28 +236,24 @@ function generateWeeklyRecap() {
 
     topPerformers = topDriverNames.length > 0 ? topDriverNames.join('<br>') : "No standout drivers this week.";
 
-    // Key storylines (you can add dynamic content for this)
     storylines = "Key race storylines go here.<br>";  // Placeholder
 
-    // Identify the winner and loser (top team and bottom team)
-    const winner = currentStandings[0]; // The team in first place
-    const loser = currentStandings[currentStandings.length - 1]; // The team in last place
+    // Identify the winner and loser
+    const winner = currentStandings[0];
+    const loser = currentStandings[currentStandings.length - 1];
 
-    // Identify drivers who helped the winner
     winner.drivers.forEach(driver => {
-        if (driver.totalPoints > 30) {  // Driver helped the team win
+        if (driver.totalPoints > 30) {
             helpedWinner += `${driver.driver} earned ${driver.totalPoints} points.<br>`;
         }
     });
 
-    // Identify drivers who hurt the loser
     loser.drivers.forEach(driver => {
-        if (driver.totalPoints < 6) {  // Driver hurt the team's position
+        if (driver.totalPoints < 6) {
             hurtLoser += `${driver.driver} earned only ${driver.totalPoints} points.<br>`;
         }
     });
 
-    // Create the recap HTML
     const recapHTML = `
         <h2>Race Recap</h2>
         <h3>Standings Changes:</h3>
@@ -283,7 +272,6 @@ function generateWeeklyRecap() {
         <p>${hurtLoser || "No drivers underperformed significantly this week."}</p>
     `;
 
-    // Insert the recap into the HTML
     document.getElementById('race-recap').innerHTML = recapHTML;
 }
 
