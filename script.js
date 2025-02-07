@@ -218,9 +218,11 @@ function generateWeeklyRecap() {
 
     let standingsChanges = "";
     let topPerformers = "";
+    let storylines = "";
+    let helpedWinner = "";
+    let hurtLoser = "";
     
-    // ✅ Remove duplicate declaration
-    let topDriverNames = [];
+    let topDriverNames = []; 
 
     // Identify top team
     const sortedTeams = Object.entries(currentStandings).sort((a, b) => b[1] - a[1]);
@@ -241,7 +243,6 @@ function generateWeeklyRecap() {
         return;
     }
 
-    // ✅ Proceed only if the team exists
     const topDrivers = standingsData.teams[topTeam].drivers.filter(driver => driver.totalPoints > 30);
     topDriverNames = topDrivers.map(driver => `${driver.driver} earned ${driver.totalPoints} points.`);
 
