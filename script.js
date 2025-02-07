@@ -214,6 +214,7 @@ function generateWeeklyRecap() {
     }
 
     const currentStandings = weekData.standings;
+    console.log("Current Standings:", currentStandings);
 
     let standingsChanges = "";
     let topPerformers = "";
@@ -221,39 +222,31 @@ function generateWeeklyRecap() {
     let helpedWinner = "";
     let hurtLoser = "";
 
-    // For standings changes, you could check if any team has improved or fallen back from the previous week (if you want this)
-    // Just skip this logic if you don't need it
+    // Identify top team
+    const sortedTeams = Object.entries(currentStandings)
+        .sort((a, b) => b[1] - a[1]); 
 
-    // Identify top performers
-    const topTeam = Object.entries(currentStandings)
-        .sort((a, b) => b[1] - a[1])[0]; // Highest points team
-    const topDriverNames = [];
-    teams[topTeam[0]].drivers.forEach(driver => {
-        if (driver.totalPoints > 30) {
-            topDriverNames.push(`${driver.driver} earned ${driver.totalPoints} points.`);
-        }
-    });
+    if (sortedTeams.length === 0) {
+        console.warn("No teams found in standings.");
+        return;
+    }
+
+    const topTeam = sortedTeams[0]; // Highest points team
+    console.log("Top Team:", topTeam);
+
+    if (topTeam && teams[topTeam[0]]) {
+        teams[topTeam[0]].drivers.forEach(driver => {
+            if (driver.totalPoints > 30) {
+                topDriverNames.push(`${driver.driver} earned ${driver.totalPoints} points.`);
+            }
+        });
+    } else {
+        console.warn("Top team is undefined in teams object.");
+    }
 
     topPerformers = topDriverNames.length > 0 ? topDriverNames.join('<br>') : "No standout drivers this week.";
 
-    storylines = "Key race storylines go here.<br>";  // Placeholder
-
-    // Identify the winner and loser
-    const winner = currentStandings[0];
-    const loser = currentStandings[currentStandings.length - 1];
-
-    winner.drivers.forEach(driver => {
-        if (driver.totalPoints > 30) {
-            helpedWinner += `${driver.driver} earned ${driver.totalPoints} points.<br>`;
-        }
-    });
-
-    loser.drivers.forEach(driver => {
-        if (driver.totalPoints < 6) {
-            hurtLoser += `${driver.driver} earned only ${driver.totalPoints} points.<br>`;
-        }
-    });
-
+    // Recap output
     const recapHTML = `
         <h2>Race Recap</h2>
         <h3>Standings Changes:</h3>
@@ -261,20 +254,10 @@ function generateWeeklyRecap() {
 
         <h3>Top Performers:</h3>
         <p>${topPerformers || "No data on top performers."}</p>
-
-        <h3>Key Storylines:</h3>
-        <p>${storylines || "Nothing noteworthy this week."}</p>
-
-        <h3>Drivers Who Helped the Winner:</h3>
-        <p>${helpedWinner || "No standout drivers this week."}</p>
-
-        <h3>Drivers Who Hurt the Loser:</h3>
-        <p>${hurtLoser || "No drivers underperformed significantly this week."}</p>
     `;
 
     document.getElementById('race-recap').innerHTML = recapHTML;
 }
-
 
 // Load Team Page (Roster, Images, etc.)
 function loadTeamPage() {
