@@ -198,44 +198,69 @@ function loadWeeklyStandings() {
 }
 
 // Generate AI Recap for the Selected Week
-function generateWeeklyRecap(raceData, teamsData) {
-    // Get standings and points for both current and previous week
-    const previousStandings = getPreviousStandings();  // Example function to fetch previous standings
-    const currentStandings = raceData.standings; // Example from raceData (this would be your fetched data)
+function generateWeeklyRecap() {
+    if (!isDataLoaded) {
+        console.warn("Data not fully loaded yet.");
+        return;
+    }
 
-    // Highlight standings changes
+    // Find the current week (based on the week selected)
+    const weekSelect = document.getElementById("week-select");
+    const selectedWeek = parseInt(weekSelect.value, 10);
+    const weekData = standingsData.weeks.find(week => week.week === selectedWeek);
+
+    if (!weekData) {
+        console.warn(`No data found for week ${selectedWeek}`);
+        return;
+    }
+
+    const currentStandings = weekData.standings;
+    const teams = standingsData.teams;
+
     let standingsChanges = "";
+    let topPerformers = "";
+    let storylines = "";  // You can populate this with real race storylines
+    let helpedWinner = "";
+    let hurtLoser = "";
+
+    // Identify standings changes
     currentStandings.forEach((team, index) => {
-        const previousPosition = previousStandings.findIndex(t => t.teamName === team.teamName);
+        const previousPosition = getPreviousStandings().findIndex(t => t.teamName === team.teamName);
         if (previousPosition !== index) {
             standingsChanges += `${team.teamName} moved from ${previousPosition + 1} to ${index + 1}.<br>`;
         }
     });
 
     // Identify top performers (highest points for the week)
-    const topPerformers = raceData.topPerformers.map(driver => `${driver.name}: ${driver.points} points`).join('<br>');
-
-    // Key storylines (example, you can customize based on race data)
-    const storylines = raceData.keyStorylines.join('<br>');
-
-    // New feature: Drivers who helped the winner and hurt the loser
-    const winner = currentStandings[0]; // Winner is the first team in the standings
-    const loser = currentStandings[currentStandings.length - 1]; // Loser is the last team in the standings
-
-    let helpedWinner = "";
-    let hurtLoser = "";
-
-    // Find top drivers on the winner's team (scored over 30 points)
-    winner.drivers.forEach(driver => {
-        if (driver.points > 30) { // Driver with over 30 points helped the team win
-            helpedWinner += `${driver.name} earned ${driver.points} points, contributing to the win.<br>`;
+    const topTeam = Object.entries(currentStandings)
+        .sort((a, b) => b[1] - a[1])[0]; // Highest points team
+    const topDriverNames = [];
+    teams[topTeam[0]].drivers.forEach(driver => {
+        if (driver.totalPoints > 30) {
+            topDriverNames.push(`${driver.driver} earned ${driver.totalPoints} points.`);
         }
     });
 
-    // Find worst drivers on the loser's team (scored 5 points or fewer)
+    topPerformers = topDriverNames.length > 0 ? topDriverNames.join('<br>') : "No standout drivers this week.";
+
+    // Key storylines (you can add dynamic content for this)
+    storylines = "Key race storylines go here.<br>";  // Placeholder
+
+    // Identify the winner and loser (top team and bottom team)
+    const winner = currentStandings[0]; // The team in first place
+    const loser = currentStandings[currentStandings.length - 1]; // The team in last place
+
+    // Identify drivers who helped the winner
+    winner.drivers.forEach(driver => {
+        if (driver.totalPoints > 30) {  // Driver helped the team win
+            helpedWinner += `${driver.driver} earned ${driver.totalPoints} points.<br>`;
+        }
+    });
+
+    // Identify drivers who hurt the loser
     loser.drivers.forEach(driver => {
-        if (driver.points <= 5) { // Driver with 5 points or less hurt the team
-            hurtLoser += `${driver.name} earned only ${driver.points} points, hurting the team's position.<br>`;
+        if (driver.totalPoints < 6) {  // Driver hurt the team's position
+            hurtLoser += `${driver.driver} earned only ${driver.totalPoints} points.<br>`;
         }
     });
 
