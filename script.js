@@ -199,71 +199,109 @@ function loadWeeklyStandings() {
 
 // Generate AI Recap for the Selected Week
 function generateWeeklyRecap() {
-    if (!isDataLoaded) {
-        console.warn("Data not fully loaded yet.");
-        return;
+  if (!isDataLoaded) {
+    console.warn("Data not fully loaded yet.");
+    return;
+  }
+
+  const weekSelect = document.getElementById("week-select");
+  const selectedWeek = parseInt(weekSelect.value, 10);
+  const weekData = standingsData.weeks.find(week => week.week === selectedWeek);
+
+  if (!weekData) {
+    console.warn(`No data found for week ${selectedWeek}`);
+    return;
+  }
+
+  const currentStandings = weekData.standings;
+  const previousOverallStandings = getOverallStandings(); // Get the standings from previous week
+  let recapHTML = "<h2>Race Recap</h2>";
+
+  // Find the top team (winner)
+  const sortedTeams = Object.entries(currentStandings).sort((a, b) => b[1] - a[1]);
+  const topTeam = sortedTeams[0][0]; // Extract top team name
+  const topTeamPoints = sortedTeams[0][1];
+  recapHTML += `<h3>Winning Team: ${topTeam} - ${topTeamPoints} points</h3>`;
+
+  // Get the drivers for the top team
+  const topDrivers = standingsData.teams[topTeam].drivers;
+  const topDriversWithOver30 = topDrivers.filter(driver => driver.totalPoints > 30);
+  let topPerformersHTML = "<h3>Top Performers:</h3>";
+  if (topDriversWithOver30.length > 0) {
+    topPerformersHTML += topDriversWithOver30.map(driver => {
+      return `${driver.driver} with ${driver.totalPoints} points`;
+    }).join('<br>');
+  } else {
+    topPerformersHTML += "No standout drivers with over 30 points this week.";
+  }
+  recapHTML += topPerformersHTML;
+
+  // Find the last place team (worst)
+  const lastPlaceTeam = sortedTeams[sortedTeams.length - 1][0]; // Extract last place team
+  const lastPlacePoints = sortedTeams[sortedTeams.length - 1][1];
+  recapHTML += `<h3>Last Place Team: ${lastPlaceTeam} - ${lastPlacePoints} points</h3>`;
+
+  // Get the drivers for the last place team
+  const lastPlaceDrivers = standingsData.teams[lastPlaceTeam].drivers;
+  const worstDrivers = lastPlaceDrivers.filter(driver => driver.totalPoints < 6);
+  let worstPerformersHTML = "<h3>Worst Performers:</h3>";
+  if (worstDrivers.length > 0) {
+    worstPerformersHTML += worstDrivers.map(driver => {
+      return `${driver.driver} with ${driver.totalPoints} points`;
+    }).join('<br>');
+  } else {
+    worstPerformersHTML += "No drivers had a bad week with points under 6.";
+  }
+  recapHTML += worstPerformersHTML;
+
+  // Track Overall Standings Movement
+  const currentOverallStandings = getOverallStandings();
+  let standingsMovementHTML = "<h3>Standings Movement:</h3>";
+  
+  const movement = detectStandingsMovement(previousOverallStandings, currentOverallStandings);
+  if (movement.length > 0) {
+    standingsMovementHTML += movement.join('<br>');
+  } else {
+    standingsMovementHTML += "No major movement in overall standings.";
+  }
+
+  recapHTML += standingsMovementHTML;
+
+  // Update the race recap
+  document.getElementById('race-recap').innerHTML = recapHTML;
+}
+
+// Helper function to get current overall standings
+function getOverallStandings() {
+  const totalPoints = {};
+  standingsData.weeks.forEach((week) => {
+    for (const [team, points] of Object.entries(week.standings)) {
+      totalPoints[team] = (totalPoints[team] || 0) + points;
     }
+  });
 
-    const weekSelect = document.getElementById("week-select");
-    const selectedWeek = parseInt(weekSelect.value, 10);
-    const weekData = standingsData.weeks.find(week => week.week === selectedWeek);
+  // Sort teams by total points
+  const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
+  return sortedTeams;
+}
 
-    if (!weekData) {
-        console.warn(`No data found for week ${selectedWeek}`);
-        return;
+// Helper function to detect movements in the overall standings
+function detectStandingsMovement(previous, current) {
+  let movement = [];
+
+  // Compare the current standings with the previous standings
+  current.forEach(([team, points], index) => {
+    const previousIndex = previous.findIndex(([prevTeam]) => prevTeam === team);
+    if (previousIndex === -1) return; // Team not found in previous standings
+
+    if (index < previousIndex) {
+      movement.push(`${team} moved up ${previousIndex - index} positions.`);
+    } else if (index > previousIndex) {
+      movement.push(`${team} moved down ${index - previousIndex} positions.`);
     }
+  });
 
-    const currentStandings = weekData.standings;
-    console.log("Current Standings:", currentStandings);
-
-    let standingsChanges = "";
-    let topPerformers = "";
-    let storylines = "";
-    let helpedWinner = "";
-    let hurtLoser = "";
-
-    // Sort the teams by their points
-    const sortedTeams = Object.entries(currentStandings).sort((a, b) => b[1] - a[1]);
-
-    console.log("Sorted Teams:", sortedTeams);
-
-    if (sortedTeams.length === 0) {
-        console.warn("No teams found in standings.");
-        return;
-    }
-
-    const topTeam = sortedTeams[0][0]; // Extract team name from sorted array
-    console.log("Top Team:", topTeam);
-
-    // Ensure that topTeam exists in teams object
-    if (!standingsData.teams.hasOwnProperty(topTeam)) {
-        console.warn(`Top team (${topTeam}) is not found in teams object.`);
-        return;
-    }
-
-    const topDrivers = standingsData.teams[topTeam].drivers.filter(driver => driver.totalPoints > 30);
-    const topDriverNames = topDrivers.map(driver => `${driver.driver} earned ${driver.totalPoints} points.`);
-
-    console.log("Top Performers:", topDriverNames);
-
-    topPerformers = topDriverNames.length > 0 ? topDriverNames.join('<br>') : "No standout drivers this week.";
-
-    // Update the recap section
-    const recapHTML = `
-        <h2>Race Recap</h2>
-        <h3>Standings Changes:</h3>
-        <p>${standingsChanges || "No major changes this week."}</p>
-
-        <h3>Top Performers:</h3>
-        <p>${topPerformers || "No data on top performers."}</p>
-    `;
-
-    const recapElement = document.getElementById('race-recap');
-    if (recapElement) {
-        recapElement.innerHTML = recapHTML;
-    } else {
-        console.error("Error: 'race-recap' element not found.");
-    }
+  return movement;
 }
 
 
