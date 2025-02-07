@@ -328,12 +328,13 @@ function loadTeamPage() {
       (driver) => `
       <tr>
         <td>${driver.driver}</td>
-        <td>${driver.points[trackIndex] || 0}</td>
-        <td>${driver.totalPoints || 0}</td>
-      </tr>
-    `
+        <td>${driver.points[trackIndex]}</td>
+        <td>${driver.totalPoints}</td>
+      </tr>`
     )
     .join("");
+}
+
 
   // Add a total row
   const teamTotalPoints = teamData.drivers.reduce((sum, driver) => sum + driver.totalPoints, 0);
