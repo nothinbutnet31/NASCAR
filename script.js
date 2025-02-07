@@ -221,10 +221,12 @@ function generateWeeklyRecap() {
     let storylines = "";
     let helpedWinner = "";
     let hurtLoser = "";
-    let topDriverNames = []; // ✅ Define before use
+    
+    // ✅ Declare topDriverNames before using it
+    let topDriverNames = []; 
 
     // Identify top team
-    const sortedTeams = Object.entries(currentStandings).sort((a, b) => b[1] - a[1]); 
+    const sortedTeams = Object.entries(currentStandings).sort((a, b) => b[1] - a[1]);
 
     console.log("Sorted Teams:", sortedTeams);
     console.log("Teams Object Keys:", Object.keys(teams));
@@ -262,6 +264,7 @@ function generateWeeklyRecap() {
 
     document.getElementById('race-recap').innerHTML = recapHTML;
 }
+
 
 
 // Load Team Page (Roster, Images, etc.)
