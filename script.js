@@ -224,7 +224,7 @@ function generateWeeklyRecap() {
     let hurtLoser = "";
 
     // Identify standings changes
-    currentStandings.forEach((team, index) => {
+    Object.entries(currentStandings).forEach(([team, points], index) => {
         const previousPosition = getPreviousStandings().findIndex(t => t.teamName === team.teamName);
         if (previousPosition !== index) {
             standingsChanges += `${team.teamName} moved from ${previousPosition + 1} to ${index + 1}.<br>`;
