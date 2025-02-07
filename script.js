@@ -198,78 +198,68 @@ function loadWeeklyStandings() {
 }
 
 // Generate AI Recap for the Selected Week
-function generateWeeklyRecap() {
-  const recapContainer = document.getElementById("weekly-recap");
-  if (!recapContainer) {
-    console.error("Weekly recap container not found.");
-    return;
-  }
+function generateRaceRecap(raceData, teamsData) {
+    // Get standings and points for both current and previous week
+    const previousStandings = getPreviousStandings();  // Example function to fetch previous standings
+    const currentStandings = raceData.standings; // Example from raceData (this would be your fetched data)
 
-  let weekSelect = document.getElementById("week-select");
-  let selectedWeekNumber = parseInt(weekSelect.value, 10);
-  let selectedWeek = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
-
-  // If no data is available for the week, or there are no standings, exit early.
-  if (!selectedWeek || Object.keys(selectedWeek.standings).length === 0) {
-    recapContainer.innerHTML = "<p>No race data available for this week.</p>";
-    return;
-  }
-
-  // Calculate the total points scored in the week.
-  const weekTotal = Object.values(selectedWeek.standings).reduce((sum, points) => sum + points, 0);
-  if (weekTotal === 0) {
-    recapContainer.innerHTML = "<p>No points were scored in this race.</p>";
-    return;
-  }
-
-  let recapText = `<h3>Race Recap: ${selectedWeek.track}</h3>`;
-  const sortedTeams = Object.entries(selectedWeek.standings).sort((a, b) => b[1] - a[1]);
-
-  // Winner highlight: only if the winning team scored more than 0 points.
-  const [winningTeam, winningPoints] = sortedTeams[0];
-  if (winningPoints > 0) {
-    recapText += `<p>🏆 <strong>${winningTeam}</strong> dominated the race at <strong>${selectedWeek.track}</strong>, scoring ${winningPoints} points!</p>`;
-  } else {
-    recapContainer.innerHTML = "<p>No team scored any points this week.</p>";
-    return;
-  }
-
-  // Biggest mover compared to the previous week.
-  if (selectedWeek.week > 1) {
-    const previousWeek = standingsData.weeks.find((week) => week.week === (selectedWeek.week - 1));
-    if (previousWeek && Object.keys(previousWeek.standings).length > 0) {
-      let biggestMover = null;
-      let biggestChange = 0;
-
-      // Calculate the change in points for each team.
-      for (const [team, points] of Object.entries(selectedWeek.standings)) {
-        const prevPoints = previousWeek.standings[team] || 0;
-        const change = points - prevPoints;
-        // Update biggest mover only if the change is nonzero and larger than the current biggest change.
-        if (Math.abs(change) > Math.abs(biggestChange)) {
-          biggestMover = team;
-          biggestChange = change;
+    // Highlight standings changes
+    let standingsChanges = "";
+    currentStandings.forEach((team, index) => {
+        const previousPosition = previousStandings.findIndex(t => t.teamName === team.teamName);
+        if (previousPosition !== index) {
+            standingsChanges += `${team.teamName} moved from ${previousPosition + 1} to ${index + 1}.<br>`;
         }
-      }
+    });
 
-      // Only include the biggest mover if the change is nonzero.
-      if (biggestMover && biggestChange !== 0) {
-        if (biggestChange > 0) {
-          recapText += `<p>📈 <strong>${biggestMover}</strong> surged ahead by ${biggestChange} points compared to last week!</p>`;
-        } else {
-          recapText += `<p>📉 <strong>${biggestMover}</strong> fell behind by ${Math.abs(biggestChange)} points compared to last week!</p>`;
+    // Identify top performers (highest points for the week)
+    const topPerformers = raceData.topPerformers.map(driver => `${driver.name}: ${driver.points} points`).join('<br>');
+
+    // Key storylines (example, you can customize based on race data)
+    const storylines = raceData.keyStorylines.join('<br>');
+
+    // New feature: Drivers who helped the winner and hurt the loser
+    const winner = currentStandings[0]; // Winner is the first team in the standings
+    const loser = currentStandings[currentStandings.length - 1]; // Loser is the last team in the standings
+
+    let helpedWinner = "";
+    let hurtLoser = "";
+
+    // Find top drivers on the winner's team (scored over 30 points)
+    winner.drivers.forEach(driver => {
+        if (driver.points > 30) { // Driver with over 30 points helped the team win
+            helpedWinner += `${driver.name} earned ${driver.points} points, contributing to the win.<br>`;
         }
-      }
-    }
-  }
+    });
 
-  // Lowest scoring team: only display if it is different from the winner.
-  const [lowestTeam, lowestPoints] = sortedTeams[sortedTeams.length - 1];
-  if (lowestTeam !== winningTeam) {
-    recapText += `<p>📉 <strong>${lowestTeam}</strong> struggled, scoring only ${lowestPoints} points.</p>`;
-  }
+    // Find worst drivers on the loser's team (scored 5 points or fewer)
+    loser.drivers.forEach(driver => {
+        if (driver.points <= 5) { // Driver with 5 points or less hurt the team
+            hurtLoser += `${driver.name} earned only ${driver.points} points, hurting the team's position.<br>`;
+        }
+    });
 
-  recapContainer.innerHTML = recapText;
+    // Create the recap HTML
+    const recapHTML = `
+        <h2>Race Recap</h2>
+        <h3>Standings Changes:</h3>
+        <p>${standingsChanges || "No major changes this week."}</p>
+
+        <h3>Top Performers:</h3>
+        <p>${topPerformers || "No data on top performers."}</p>
+
+        <h3>Key Storylines:</h3>
+        <p>${storylines || "Nothing noteworthy this week."}</p>
+
+        <h3>Drivers Who Helped the Winner:</h3>
+        <p>${helpedWinner || "No standout drivers this week."}</p>
+
+        <h3>Drivers Who Hurt the Loser:</h3>
+        <p>${hurtLoser || "No drivers underperformed significantly this week."}</p>
+    `;
+
+    // Insert the recap into the HTML
+    document.getElementById('race-recap').innerHTML = recapHTML;
 }
 
 
