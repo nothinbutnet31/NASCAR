@@ -165,6 +165,9 @@ function loadWeeklyStandings() {
 }
 
 // Generate AI Recap for the Selected Week
+// [Previous code remains the same until the generateWeeklyRecap function]
+
+// Generate AI Recap for the Selected Week
 function generateWeeklyRecap() {
   const recapContainer = document.getElementById("weekly-recap");
   if (!recapContainer) {
@@ -219,12 +222,12 @@ function generateWeeklyRecap() {
     recapText += '</ul>';
   }
 
-  // Add "Value Picks" section - drivers who scored well relative to their average
+  // Add "Value Picks" section
   const valuePicks = findValuePicks(trackIndex);
   if (valuePicks.length > 0) {
     recapText += `<p>💎 Value Picks of the Week:</p><ul>`;
-    valuePicks.forEach(({ driver, points, team, improvement }) => {
-      recapText += `<li>${driver} (${team}) - ${points} points (+${improvement.toFixed(1)} above average)</li>`;
+    valuePicks.forEach(({ driver, points, team, improvement, average }) => {
+      recapText += `<li>${driver} (${team}) - ${points} points (+${improvement.toFixed(1)} above ${average} avg)</li>`;
     });
     recapText += '</ul>';
   }
@@ -316,12 +319,12 @@ function generateWeeklyRecap() {
     recapText += '</ul>';
   }
 
-  // Add biggest disappointments (drivers scoring well below their average)
+  // Add biggest disappointments
   const disappointments = findDisappointments(trackIndex);
   if (disappointments.length > 0) {
     recapText += `<p>📉 Biggest Disappointments:</p><ul>`;
-    disappointments.forEach(({ driver, points, team, decline }) => {
-      recapText += `<li>${driver} (${team}) - ${points} points (${decline.toFixed(1)} below average)</li>`;
+    disappointments.forEach(({ driver, points, team, decline, average }) => {
+      recapText += `<li>${driver} (${team}) - ${points} points (${decline.toFixed(1)} below ${average} avg)</li>`;
     });
     recapText += '</ul>';
   }
@@ -332,16 +335,14 @@ function generateWeeklyRecap() {
     const nextWeek = standingsData.weeks[selectedWeekNumber];
     recapText += `<div class="recap-section">
       <h4>🔮 Next Week Preview</h4>
-      <p>Next Race: ${nextWeek.track}</p>`;
-    
-    // Find top performers at this track from previous seasons or similar tracks
-    // (This would require additional historical data)
-    recapText += '</div>';
+      <p>Next Race: ${nextWeek.track}</p>
+    </div>`;
   }
 
   recapContainer.innerHTML = recapText;
 }
 
+// [Rest of the code remains the same]
 // Helper Functions
 
 function calculateAverageTeamScore(standings) {
