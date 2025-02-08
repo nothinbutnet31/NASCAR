@@ -108,11 +108,12 @@ function populateWeekDropdown() {
   }
 
   standingsData.weeks.forEach((week) => {
-    const option = document.createElement("option");
-    option.value = week.week;
-    option.textContent = Week ${week.week}: ${week.track};
-    weekSelect.appendChild(option);
-  });
+  const option = document.createElement("option");
+  option.value = week.week;
+  option.textContent = `Week ${week.week}: ${week.track}`;
+  weekSelect.appendChild(option);
+});
+
 }
 
 // Populate Team Dropdown
