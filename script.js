@@ -268,6 +268,31 @@ function generateWeeklyRecap() {
   }
 
   recapHTML += standingsMovementHTML;
+  function detectStandingsMovement(previousStandings, currentStandings) {
+  let movement = [];
+
+  // Convert previous standings to a map for easy lookup
+  let previousRanks = {};
+  previousStandings.forEach((entry, index) => {
+    previousRanks[entry[0]] = index + 1; // Store the ranking position (1-based index)
+  });
+
+  currentStandings.forEach((entry, index) => {
+    const team = entry[0];
+    const currentRank = index + 1;
+    const previousRank = previousRanks[team] || currentRank; // Default to current if no previous data
+
+    const rankChange = previousRank - currentRank;
+    if (rankChange > 0) {
+      movement.push(`${team} moved up ${rankChange} spots.`);
+    } else if (rankChange < 0) {
+      movement.push(`${team} dropped ${Math.abs(rankChange)} spots.`);
+    }
+  });
+
+  return movement;
+}
+
 
   // Update the race recap section
   document.getElementById('race-recap').innerHTML = recapHTML;
