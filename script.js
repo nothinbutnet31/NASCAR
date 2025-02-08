@@ -578,6 +578,19 @@ function openTab(tabName) {
   }
 }
 
+// Find the most recent week with points
+function findLatestWeekWithData() {
+  for (let i = standingsData.weeks.length - 1; i >= 0; i--) {
+    const week = standingsData.weeks[i];
+    // Check if any team has points greater than 0
+    const hasPoints = Object.values(week.standings).some(points => points > 0);
+    if (hasPoints) {
+      return week.week;
+    }
+  }
+  return 1; // Default to week 1 if no weeks with points are found
+}
+
 // Initialize the Page after data is loaded
 function init() {
   if (!isDataLoaded) {
@@ -588,24 +601,39 @@ function init() {
   // Load overall standings
   loadOverallStandings();
 
-  // Populate and initialize the week dropdown, standings, and recap
+  // Populate the week dropdown
   populateWeekDropdown();
+
+  // Find the latest week with data
+  const latestWeek = findLatestWeekWithData();
+  
+  // Set the week select dropdown to the latest week with data
+  const weekSelect = document.getElementById("week-select");
+  if (weekSelect) {
+    weekSelect.value = latestWeek;
+  }
+
+  // Load weekly standings and recap for the latest week
   loadWeeklyStandings();
   generateWeeklyRecap();
 
   // When the week selection changes, update standings and recap
-  const weekSelect = document.getElementById("week-select");
   weekSelect.addEventListener("change", () => {
     loadWeeklyStandings();
     generateWeeklyRecap();
   });
 
-  // Populate team dropdown and load the team page
+  // Populate team dropdown
   populateTeamDropdown();
   loadTeamPage();
+
+  // Set weekly standings as default tab
+  openTab('weekly');
 }
 
-// On window load, start fetching data from Google Sheets
+// Modify the onload event to include setting the initial tab
 window.onload = () => {
   fetchDataFromGoogleSheets();
-};
+  // Set weekly tab as active by default
+  document.querySelector('[onclick="openTab(\'weekly\')"]').classList.add('active');
+  document.getElementById('weekly').style.display = 'block';
