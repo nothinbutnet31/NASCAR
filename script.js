@@ -92,9 +92,9 @@ function processDriversData(data) {
         teams[team].totals[index] += pt;
       });
     } else if (driver === "Total") {
-      console.log(Total for ${team}: ${row.slice(2).join(", ")});
-    }
-  });
+  console.log(`Total for ${team}: ${row.slice(2).join(", ")}`);
+}
+
 
   standingsData.teams = teams;
   console.log("Processed Drivers Data:", standingsData.teams);
