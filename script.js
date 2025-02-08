@@ -8,17 +8,17 @@ let isDataLoaded = false;
 
 // Fetch data from Google Sheets
 async function fetchDataFromGoogleSheets() {
-  try {
-    const totalsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalsRange}?key=${apiKey}`;
-    const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
+  const totalsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalsRange}?key=${apiKey}`;
+  const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
 
+  try {
     const [totalsResponse, driversResponse] = await Promise.all([
       fetch(totalsUrl),
       fetch(driversUrl),
     ]);
 
     if (!totalsResponse.ok || !driversResponse.ok) {
-      throw new Error("Failed to fetch data.");
+      throw new Error("One of the fetch requests failed.");
     }
 
     const totalsData = await totalsResponse.json();
@@ -47,44 +47,68 @@ function processTotalsData(data) {
 
   headerRow.slice(1).forEach((team, teamIndex) => {
     trackRows.forEach((row, trackIndex) => {
-      standingsData.weeks[trackIndex].standings[team] = parseInt(row[teamIndex + 1], 10);
+      standingsData.weeks[trackIndex].standings[team] = parseInt(row[teamIndex + 1], 10) || 0;
     });
   });
 }
 
 // Process driver data
 function processDriversData(data) {
-  const headerRow = data[0];
   const driverRows = data.slice(1);
-  const teams = {};
+  standingsData.teams = {};
 
   driverRows.forEach((row) => {
     const driver = row[0];
     const team = row[1];
 
     if (driver && team) {
-      if (!teams[team]) {
-        teams[team] = { drivers: [], totals: new Array(headerRow.length - 2).fill(0) };
+      if (!standingsData.teams[team]) {
+        standingsData.teams[team] = { drivers: [], totals: [] };
       }
 
-      const points = row.slice(2).map((points) => parseInt(points, 10));
-      const totalPoints = points.reduce((sum, point) => sum + point, 0);
-      teams[team].drivers.push({ driver, points, totalPoints });
+      const points = row.slice(2).map((p) => parseInt(p, 10) || 0);
+      const totalPoints = points.reduce((sum, p) => sum + p, 0);
 
-      points.forEach((pt, index) => {
-        teams[team].totals[index] += pt;
+      standingsData.teams[team].drivers.push({ driver, points, totalPoints });
+
+      points.forEach((pt, i) => {
+        standingsData.teams[team].totals[i] = (standingsData.teams[team].totals[i] || 0) + pt;
       });
     }
   });
-
-  standingsData.teams = teams;
 }
 
-// Populate dropdowns
-function populateDropdown(selectId, options) {
-  const select = document.getElementById(selectId);
-  if (!select) return;
-  select.innerHTML = options.map(option => `<option value="${option}">${option}</option>`).join("");
+// Populate Week Dropdown
+function populateWeekDropdown() {
+  const weekSelect = document.getElementById("week-select");
+  weekSelect.innerHTML = "";
+  
+  standingsData.weeks.forEach((week) => {
+    const option = document.createElement("option");
+    option.value = week.week;
+    option.textContent = `Week ${week.week}: ${week.track}`;
+    weekSelect.appendChild(option);
+  });
+
+  weekSelect.addEventListener("change", () => {
+    loadWeeklyStandings();
+    generateWeeklyRecap();
+  });
+}
+
+// Populate Team Dropdown
+function populateTeamDropdown() {
+  const teamSelect = document.getElementById("team-select");
+  teamSelect.innerHTML = "";
+
+  Object.keys(standingsData.teams).forEach((team) => {
+    const option = document.createElement("option");
+    option.value = team;
+    option.textContent = team;
+    teamSelect.appendChild(option);
+  });
+
+  teamSelect.addEventListener("change", loadTeamPage);
 }
 
 // Load Overall Standings
@@ -92,106 +116,77 @@ function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
   overallTable.innerHTML = "";
 
-  const totalPoints = standingsData.weeks.reduce((acc, week) => {
-    Object.entries(week.standings).forEach(([team, points]) => {
-      acc[team] = (acc[team] || 0) + points;
-    });
-    return acc;
-  }, {});
+  const totalPoints = {};
+  standingsData.weeks.forEach((week) => {
+    for (const [team, points] of Object.entries(week.standings)) {
+      totalPoints[team] = (totalPoints[team] || 0) + points;
+    }
+  });
 
   const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
 
   sortedTeams.forEach(([team, points], index) => {
-    const trophy = index === 0 ? '<i class="fas fa-trophy"></i> ' : "";
-    overallTable.innerHTML += `<tr><td>${trophy}${team}</td><td>${points}</td></tr>`;
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${index === 0 ? '<i class="fas fa-trophy"></i> ' : ""}${team}</td><td>${points}</td>`;
+    overallTable.appendChild(row);
   });
 }
 
 // Load Weekly Standings
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
-  const selectedWeekNumber = parseInt(weekSelect.value, 10);
+  const selectedWeek = parseInt(weekSelect.value, 10);
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   weeklyTable.innerHTML = "";
 
-  const weekData = standingsData.weeks.find(week => week.week === selectedWeekNumber);
-  if (!weekData) return;
+  const weekData = standingsData.weeks.find((week) => week.week === selectedWeek);
+  if (weekData) {
+    const sortedStandings = Object.entries(weekData.standings).sort((a, b) => b[1] - a[1]);
 
-  Object.entries(weekData.standings)
-    .sort((a, b) => b[1] - a[1])
-    .forEach(([team, points], index) => {
-      const flag = index === 0 ? '<i class="fas fa-flag-checkered"></i> ' : "";
-      weeklyTable.innerHTML += `<tr><td>${flag}${team}</td><td>${points}</td></tr>`;
+    sortedStandings.forEach(([team, points], index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${index === 0 && points > 0 ? '<i class="fas fa-flag-checkered"></i> ' : ""}${team}</td><td>${points}</td>`;
+      weeklyTable.appendChild(row);
     });
-}
-
-// Generate Weekly Recap
-function generateWeeklyRecap() {
-  if (!isDataLoaded) return;
-
-  const weekSelect = document.getElementById("week-select");
-  const selectedWeek = parseInt(weekSelect.value, 10);
-  const weekData = standingsData.weeks.find(week => week.week === selectedWeek);
-  if (!weekData) return;
-
-  const sortedTeams = Object.entries(weekData.standings).sort((a, b) => b[1] - a[1]);
-  const topTeam = sortedTeams[0][0];
-  const lastPlaceTeam = sortedTeams[sortedTeams.length - 1][0];
-
-  let recapHTML = `<h2>Race Recap</h2>
-    <h3>Winning Team: ${topTeam} - ${weekData.standings[topTeam]} points</h3>
-    <h3>Last Place Team: ${lastPlaceTeam} - ${weekData.standings[lastPlaceTeam]} points</h3>`;
-
-  document.getElementById('race-recap').innerHTML = recapHTML;
+  }
 }
 
 // Load Team Page
 function loadTeamPage() {
-  if (!isDataLoaded) return;
+  const teamSelect = document.getElementById("team-select");
+  const teamRoster = document.querySelector("#team-roster tbody");
+  teamRoster.innerHTML = "";
 
-  let teamSelect = document.getElementById("team-select");
-  let trackSelect = document.getElementById("track-select");
-  let teamRoster = document.querySelector("#team-roster tbody");
-  let teamImage = document.getElementById("team-image");
-  let trackImage = document.getElementById("track-image");
-
-  let selectedTeam = teamSelect.value;
-  let selectedTrack = trackSelect.value;
-
-  if (!standingsData.teams[selectedTeam]) return;
-
+  const selectedTeam = teamSelect.value;
   const teamData = standingsData.teams[selectedTeam];
 
-  teamImage.src = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${selectedTeam.replace(/\s+/g, '_')}.png`;
-  teamImage.onerror = function () { this.src = "https://via.placeholder.com/100"; };
+  if (!teamData) {
+    teamRoster.innerHTML = "<tr><td colspan='2'>No data for this team.</td></tr>";
+    return;
+  }
 
-  trackImage.src = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${selectedTrack.replace(/\s+/g, '_')}.png`;
-  trackImage.onerror = function () { this.src = "https://via.placeholder.com/200"; };
-
-  teamRoster.innerHTML = "";
   teamData.drivers.forEach((driver) => {
-    teamRoster.innerHTML += `<tr><td>${driver.driver}</td><td>${driver.points[standingsData.weeks.findIndex(week => week.track === selectedTrack)]}</td></tr>`;
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${driver.driver}</td><td>${driver.totalPoints}</td>`;
+    teamRoster.appendChild(row);
   });
 }
 
-// Open Tabs
-function openTab(tabName) {
-  document.querySelectorAll(".tabcontent").forEach(tab => tab.style.display = "none");
-  document.querySelectorAll(".tablink").forEach(link => link.classList.remove("active"));
-
-  document.getElementById(tabName).style.display = "block";
-  document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
-
-  if (tabName === "teams") {
-    populateDropdown("team-select", Object.keys(standingsData.teams));
-  }
-}
-
-// Initialize
+// Initialize the Page
 function init() {
-  populateDropdown("week-select", standingsData.weeks.map(week => `Week ${week.week}: ${week.track}`));
+  if (!isDataLoaded) {
+    console.warn("Data not fully loaded yet.");
+    return;
+  }
+
+  populateWeekDropdown();
+  populateTeamDropdown();
   loadOverallStandings();
+  loadWeeklyStandings();
+  generateWeeklyRecap();
 }
 
-// Fetch data on page load
-fetchDataFromGoogleSheets();
+// Fetch data when the window loads
+window.onload = () => {
+  fetchDataFromGoogleSheets();
+};
