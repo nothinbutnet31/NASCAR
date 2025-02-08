@@ -223,10 +223,10 @@ function generateWeeklyRecap() {
   }
 
   // Add "Value Picks" section
-  const valuePicks = findValuePicks(trackIndex);
-  if (valuePicks.length > 0) {
-    recapText += `<p>💎 Value Picks of the Week:</p><ul>`;
-    valuePicks.forEach(({ driver, points, team, improvement, average }) => {
+   const breakoutPerformances = findBreakoutPerformances(trackIndex);
+  if (breakoutPerformances.length > 0) {
+    recapText += `<p>⭐ Breakout Performances:</p><ul>`;
+    breakoutPerformances.forEach(({ driver, points, team, improvement, average }) => {
       recapText += `<li>${driver} (${team}) - ${points} points (+${improvement.toFixed(1)} above ${average} avg)</li>`;
     });
     recapText += '</ul>';
@@ -362,8 +362,9 @@ function calculatePointSpread(standings) {
 
 // Previous functions remain the same until findValuePicks...
 
-function findValuePicks(trackIndex) {
-  const valuePicks = [];
+// Rename function to match new terminology
+function findBreakoutPerformances(trackIndex) {
+  const breakoutPerformances = [];
   Object.entries(standingsData.teams).forEach(([team, teamData]) => {
     teamData.drivers.forEach(driver => {
       const currentPoints = driver.points[trackIndex];
@@ -376,7 +377,7 @@ function findValuePicks(trackIndex) {
         
         // Adjusted threshold: Must be at least 15 points above average and score at least 25 points
         if (currentPoints > average + 15 && currentPoints >= 25) {
-          valuePicks.push({
+          breakoutPerformances.push({
             driver: driver.driver,
             team,
             points: currentPoints,
@@ -388,8 +389,9 @@ function findValuePicks(trackIndex) {
     });
   });
   
-  return valuePicks.sort((a, b) => b.improvement - a.improvement).slice(0, 3);
+  return breakoutPerformances.sort((a, b) => b.improvement - a.improvement).slice(0, 3);
 }
+
 
 function findDisappointments(trackIndex) {
   const disappointments = [];
