@@ -242,41 +242,11 @@ function generateWeeklyRecap() {
   const lastPlacePoints = sortedTeams[sortedTeams.length - 1][1];
   recapHTML += `<h3>Last Place Team: ${lastPlaceTeam} - ${lastPlacePoints} points</h3>`;
 
-  // Get the drivers for the last place team
-  const lastPlaceDrivers = standingsData.teams[lastPlaceTeam].drivers;
-  const worstDrivers = lastPlaceDrivers.filter(driver => driver.totalPoints < 6);
-  let worstPerformersHTML = "<h3>Worst Performers:</h3>";
-  if (worstDrivers.length > 0) {
-    worstPerformersHTML += worstDrivers.map(driver => {
-      return `${driver.driver} with ${driver.totalPoints} points`;
-    }).join('<br>');
-  } else {
-    worstPerformersHTML += "No drivers had a bad week with points under 6.";
-  }
-  recapHTML += worstPerformersHTML;
-
-  // Track Overall Standings Movement
-  const currentOverallStandings = getOverallStandings();
-  let standingsMovementHTML = "<h3>Standings Movement:</h3>";
-  let standingsChanges = "";
-  Object.entries(currentOverallStandings).forEach(([team, points], index) => {
-    const previousRank = standingsData.previousRankings[team];
-    if (previousRank !== undefined && previousRank !== index + 1) {
-      const movement = previousRank < index + 1 ? "down" : "up";
-      standingsChanges += `${team} moved ${movement} from rank ${previousRank} to ${index + 1}.<br>`;
-    }
-  });
-
-  if (standingsChanges) {
-    standingsMovementHTML += standingsChanges;
-  } else {
-    standingsMovementHTML += "No change in rankings this week.";
-  }
-  recapHTML += standingsMovementHTML;
-
-  // Display recap HTML
-  document.getElementById("race-recap").innerHTML = recapHTML;
+  // Append recap to the page
+  const recapContainer = document.getElementById("weekly-recap");
+  recapContainer.innerHTML = recapHTML;
 }
+
 // Open Tabs (for switching between pages/sections)
 function openTab(tabName) {
   const tabcontents = document.querySelectorAll(".tabcontent");
@@ -286,7 +256,10 @@ function openTab(tabName) {
   tablinks.forEach((link) => link.classList.remove("active"));
 
   document.getElementById(tabName).style.display = "block";
-  document.querySelector([onclick="openTab('${tabName}')"]).classList.add("active");
+  const activeLink = [...tablinks].find((link) => link.getAttribute("onclick").includes(tabName));
+  if (activeLink) {
+    activeLink.classList.add("active");
+  }
 
   // Load specific content based on tab
   if (tabName === "teams") {
@@ -323,18 +296,7 @@ function init() {
   loadTeamPage();
 }
 
-
-fetchDataFromGoogleSheets();
-document.addEventListener("DOMContentLoaded", async function () {
-  await fetchDataFromGoogleSheets();
-  populateWeekDropdown();
-  populateTeamDropdown();
-
-  // Initialize data for the first week and team
-  loadOverallStandings();
-  loadWeeklyStandings();
-
-  // Listen for changes in dropdowns to reload standings
-  document.getElementById("week-select").addEventListener("change", loadWeeklyStandings);
-  document.getElementById("team-select").addEventListener("change", loadWeeklyStandings);
+// Wait until data is fully loaded before initializing the page
+document.addEventListener("DOMContentLoaded", function () {
+  fetchDataFromGoogleSheets();
 });
