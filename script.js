@@ -1,6 +1,6 @@
 const sheetId = "19LbY1UwCkPXyVMMnvdu_KrYpyi6WhNcfuC6wjzxeBLI";
 const apiKey = "AIzaSyDWBrtpo54AUuVClU49k0FdrLl-IFPpMdY";
-const driversRange = "Sheet1!A1:AA45"; // Adjusted range for new format
+const driversRange = "Drivers!A1:AA45"; // Adjusted range for new format
 
 let standingsData = {
   weeks: [],
