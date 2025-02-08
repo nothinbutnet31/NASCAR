@@ -214,7 +214,8 @@ function generateWeeklyRecap() {
   }
 
   const currentStandings = weekData.standings;
-  const previousOverallStandings = getOverallStandings(); // Get the standings from previous week
+
+  // Clear the previous recap data to avoid showing old data
   let recapHTML = "<h2>Race Recap</h2>";
 
   // Find the top team (winner)
@@ -257,7 +258,8 @@ function generateWeeklyRecap() {
   // Track Overall Standings Movement
   const currentOverallStandings = getOverallStandings();
   let standingsMovementHTML = "<h3>Standings Movement:</h3>";
-  
+
+  const previousOverallStandings = getPreviousWeekStandings(selectedWeek); // Get standings from the previous week
   const movement = detectStandingsMovement(previousOverallStandings, currentOverallStandings);
   if (movement.length > 0) {
     standingsMovementHTML += movement.join('<br>');
@@ -267,11 +269,17 @@ function generateWeeklyRecap() {
 
   recapHTML += standingsMovementHTML;
 
-  // Update the race recap
+  // Update the race recap section
   document.getElementById('race-recap').innerHTML = recapHTML;
 }
 
-// Helper function to get current overall standings
+// Helper function to get the standings for the previous week
+function getPreviousWeekStandings(currentWeek) {
+  const previousWeekData = standingsData.weeks.find(week => week.week === currentWeek - 1);
+  return previousWeekData ? previousWeekData.standings : {};
+}
+
+// Helper function to get current overall standings (summed across all weeks)
 function getOverallStandings() {
   const totalPoints = {};
   standingsData.weeks.forEach((week) => {
@@ -283,25 +291,6 @@ function getOverallStandings() {
   // Sort teams by total points
   const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
   return sortedTeams;
-}
-
-// Helper function to detect movements in the overall standings
-function detectStandingsMovement(previous, current) {
-  let movement = [];
-
-  // Compare the current standings with the previous standings
-  current.forEach(([team, points], index) => {
-    const previousIndex = previous.findIndex(([prevTeam]) => prevTeam === team);
-    if (previousIndex === -1) return; // Team not found in previous standings
-
-    if (index < previousIndex) {
-      movement.push(`${team} moved up ${previousIndex - index} positions.`);
-    } else if (index > previousIndex) {
-      movement.push(`${team} moved down ${index - previousIndex} positions.`);
-    }
-  });
-
-  return movement;
 }
 
 
