@@ -168,7 +168,13 @@ function loadOverallStandings() {
     overallTable.appendChild(row);
   });
 
-  highlightLeader();
+ function highlightLeader() {
+  const leaderRow = document.querySelector('.leader-row');
+  if (leaderRow) {
+    leaderRow.style.backgroundColor = '#f0f8ff'; // Light blue background
+    leaderRow.style.fontWeight = 'bold';
+  }
+}
 }
 
 // Load Weekly Standings
