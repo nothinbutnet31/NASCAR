@@ -359,21 +359,30 @@ function calculatePointSpread(standings) {
   return Math.max(...scores) - Math.min(...scores);
 }
 
+// Previous functions remain the same until findValuePicks...
+
 function findValuePicks(trackIndex) {
   const valuePicks = [];
   Object.entries(standingsData.teams).forEach(([team, teamData]) => {
     teamData.drivers.forEach(driver => {
       const currentPoints = driver.points[trackIndex];
-      const otherPoints = driver.points.filter((p, i) => i !== trackIndex);
-      const average = otherPoints.reduce((sum, p) => sum + p, 0) / otherPoints.length;
+      // Only use points from previous weeks
+      const previousPoints = driver.points.slice(0, trackIndex);
       
-      if (currentPoints > average + 10) { // At least 10 points above average
-        valuePicks.push({
-          driver: driver.driver,
-          team,
-          points: currentPoints,
-          improvement: currentPoints - average
-        });
+      // Only proceed if we have previous weeks to compare against
+      if (previousPoints.length > 0) {
+        const average = previousPoints.reduce((sum, p) => sum + p, 0) / previousPoints.length;
+        
+        // Adjusted threshold: Must be at least 15 points above average and score at least 25 points
+        if (currentPoints > average + 15 && currentPoints >= 25) {
+          valuePicks.push({
+            driver: driver.driver,
+            team,
+            points: currentPoints,
+            improvement: currentPoints - average,
+            average: average.toFixed(1) // Added for context
+          });
+        }
       }
     });
   });
@@ -386,22 +395,53 @@ function findDisappointments(trackIndex) {
   Object.entries(standingsData.teams).forEach(([team, teamData]) => {
     teamData.drivers.forEach(driver => {
       const currentPoints = driver.points[trackIndex];
-      const otherPoints = driver.points.filter((p, i) => i !== trackIndex);
-      const average = otherPoints.reduce((sum, p) => sum + p, 0) / otherPoints.length;
+      // Only use points from previous weeks
+      const previousPoints = driver.points.slice(0, trackIndex);
       
-      if (average - currentPoints > 15) { // At least 15 points below average
-        disappointments.push({
-          driver: driver.driver,
-          team,
-          points: currentPoints,
-          decline: average - currentPoints
-        });
+      // Only proceed if we have previous weeks to compare against
+      if (previousPoints.length > 0) {
+        const average = previousPoints.reduce((sum, p) => sum + p, 0) / previousPoints.length;
+        
+        // Adjusted threshold: Must be at least 20 points below average and have an average of at least 15
+        if (average - currentPoints > 20 && average >= 15) {
+          disappointments.push({
+            driver: driver.driver,
+            team,
+            points: currentPoints,
+            decline: average - currentPoints,
+            average: average.toFixed(1) // Added for context
+          });
+        }
       }
     });
   });
   
   return disappointments.sort((a, b) => b.decline - a.decline).slice(0, 3);
 }
+
+// Update the display in the main recap function to show the averages
+// Find the section in generateWeeklyRecap() that displays value picks and update it:
+// (Only showing the modified sections)
+
+// Value Picks section
+if (valuePicks.length > 0) {
+  recapText += `<p>💎 Value Picks of the Week:</p><ul>`;
+  valuePicks.forEach(({ driver, points, team, improvement, average }) => {
+    recapText += `<li>${driver} (${team}) - ${points} points (${improvement.toFixed(1)} above ${average} avg)</li>`;
+  });
+  recapText += '</ul>';
+}
+
+// Disappointments section
+if (disappointments.length > 0) {
+  recapText += `<p>📉 Biggest Disappointments:</p><ul>`;
+  disappointments.forEach(({ driver, points, team, decline, average }) => {
+    recapText += `<li>${driver} (${team}) - ${points} points (${decline.toFixed(1)} below ${average} avg)</li>`;
+  });
+  recapText += '</ul>';
+}
+
+// Rest of the code remains the same...
 
 function getOrdinalSuffix(num) {
   const j = num % 10;
