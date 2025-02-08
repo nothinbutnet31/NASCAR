@@ -24,14 +24,14 @@ async function fetchDataFromGoogleSheets() {
     }
 
     const totalsData = await totalsResponse.json();
-    const driversData = await driversResponse.json();
+    const driversDataResponse = await driversResponse.json();
 
     console.log("Totals Data:", totalsData.values);
-    console.log("Drivers Data:", driversData.values);
+    console.log("Drivers Data:", driversDataResponse.values);
 
     // Process both datasets
     processTotalsData(totalsData.values);
-    processDriversData(driversData.values);
+    processDriversData(driversDataResponse.values);
 
     // Mark data as loaded and initialize the UI
     isDataLoaded = true;
@@ -69,8 +69,8 @@ function processDriversData(data) {
   const teams = {};
 
   driverRows.forEach((row) => {
-    const driver = row[0]; // Driver name in the first column
-    const team = row[1];   // Team name in the second column
+    const driver = row[0]; // Driver name in first column
+    const team = row[1];   // Team name in second column
 
     if (driver && team) {
       // Initialize team if not already present
@@ -90,6 +90,10 @@ function processDriversData(data) {
       points.forEach((pt, index) => {
         teams[team].totals[index] += pt;
       });
+    }
+    // Ensure the "Total" section is properly logged
+    if (driver === "Total") {
+      console.log(`Total for ${team}: ${row.slice(2).join(", ")}`);
     }
   });
 
@@ -194,7 +198,6 @@ function loadWeeklyStandings() {
 }
 
 // Generate AI Recap for the Selected Week
-// Ensure the element exists before trying to modify its content
 function generateWeeklyRecap() {
   if (!isDataLoaded) {
     console.warn("Data not fully loaded yet.");
@@ -212,80 +215,22 @@ function generateWeeklyRecap() {
 
   const currentStandings = weekData.standings;
 
-  // Ensure the "race-recap" element exists
+  // Ensure the "race-recap" element exists before setting its innerHTML
   const recapElement = document.getElementById("race-recap");
   if (!recapElement) {
     console.error('Element with id "race-recap" not found.');
     return;
   }
 
-  // Clear the previous recap data to avoid showing old data
+  // Generate the recap HTML as needed
   let recapHTML = "<h2>Race Recap</h2>";
-
-  // Find the top team (winner)
   const sortedTeams = Object.entries(currentStandings).sort((a, b) => b[1] - a[1]);
-  const topTeam = sortedTeams[0][0]; // Extract top team name
+  const topTeam = sortedTeams[0][0];
   const topTeamPoints = sortedTeams[0][1];
   recapHTML += `<h3>Winning Team: ${topTeam} - ${topTeamPoints} points</h3>`;
 
-  // Get the drivers for the top team
-  const topDrivers = standingsData.teams[topTeam].drivers;
-  const topDriversWithOver30 = topDrivers.filter(driver => driver.totalPoints > 30);
-  let topPerformersHTML = "<h3>Top Performers:</h3>";
-  if (topDriversWithOver30.length > 0) {
-    topPerformersHTML += topDriversWithOver30.map(driver => {
-      return `${driver.driver} with ${driver.totalPoints} points`;
-    }).join('<br>');
-  } else {
-    topPerformersHTML += "No standout drivers with over 30 points this week.";
-  }
-  recapHTML += topPerformersHTML;
-
-  // Find the last place team (worst)
-  const lastPlaceTeam = sortedTeams[sortedTeams.length - 1][0]; // Extract last place team
-  const lastPlacePoints = sortedTeams[sortedTeams.length - 1][1];
-  recapHTML += `<h3>Last Place Team: ${lastPlaceTeam} - ${lastPlacePoints} points</h3>`;
-
-  // Get the drivers for the last place team
-  const lastPlaceDrivers = standingsData.teams[lastPlaceTeam].drivers;
-  const worstDrivers = lastPlaceDrivers.filter(driver => driver.totalPoints < 6);
-  let worstPerformersHTML = "<h3>Worst Performers:</h3>";
-  if (worstDrivers.length > 0) {
-    worstPerformersHTML += worstDrivers.map(driver => {
-      return `${driver.driver} with ${driver.totalPoints} points`;
-    }).join('<br>');
-  } else {
-    worstPerformersHTML += "No drivers had a bad week with points under 6.";
-  }
-  recapHTML += worstPerformersHTML;
-
-  // Track Overall Standings Movement
-  const currentOverallStandings = getOverallStandings();
-  let standingsMovementHTML = "<h3>Standings Movement:</h3>";
-  let standingsChanges = "";
-  Object.entries(currentOverallStandings).forEach(([team, points], index) => {
-    const previousRank = standingsData.previousRankings[team];
-    if (previousRank !== undefined && previousRank !== index + 1) {
-      const movement = previousRank < index + 1 ? "down" : "up";
-      standingsChanges += `${team} moved ${movement} from rank ${previousRank} to ${index + 1}.<br>`;
-    }
-  });
-
-  if (standingsChanges) {
-    standingsMovementHTML += standingsChanges;
-  } else {
-    standingsMovementHTML += "No change in rankings this week.";
-  }
-  recapHTML += standingsMovementHTML;
-
-  // Display recap HTML in the "race-recap" element
-  recapElement.innerHTML = recapHTML;
-}
-
-// Ensure this function is defined if you need it
-function loadTeamPage() {
-  // Define this function as needed, or remove references if not required
-  console.log("Loading team page...");
+  // Populate other details...
+  recapElement.innerHTML = recapHTML;  // Update the race recap
 }
 
 // Open Tabs (for switching between pages/sections)
@@ -305,11 +250,9 @@ function openTab(tabName) {
   // Load specific content based on tab
   if (tabName === "teams") {
     populateTeamDropdown();
-    loadTeamPage();  // Call your loadTeamPage function if needed
+    loadTeamPage();  // Make sure this function exists or remove it
   }
-  // Add any other tab-specific logic here (like scoring rules, etc.)
 }
-
 
 // Initialize the Page after data is loaded
 function init() {
@@ -332,13 +275,7 @@ function init() {
     loadWeeklyStandings();
     generateWeeklyRecap();
   });
-
-  // Populate team dropdown and load the team page
-  populateTeamDropdown();
-  loadTeamPage();
 }
 
-// Wait until data is fully loaded before initializing the page
-document.addEventListener("DOMContentLoaded", function () {
-  fetchDataFromGoogleSheets();
-});
+// Trigger the data fetch on page load
+window.onload = fetchDataFromGoogleSheets;
