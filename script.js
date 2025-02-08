@@ -11,26 +11,21 @@ let isDataLoaded = false; // Track if data is fully loaded
 async function fetchDataFromGoogleSheets() {
   const totalsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalsRange}?key=${apiKey}`;
   const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
-}
 
-
+  // Use await inside an async function
   try {
-    // Fetch both team totals and driver data simultaneously
-    const [totalsResponse, driversResponse] = await Promise.all([
-      fetch(totalsUrl),
-      fetch(driversUrl),
-    ]);
-
-    // Check if responses are OK
-    if (!totalsResponse.ok || !driversResponse.ok) {
-      throw new Error("One of the fetch requests failed.");
-    }
+    const totalsResponse = await fetch(totalsUrl);
+    const driversResponse = await fetch(driversUrl);
 
     const totalsData = await totalsResponse.json();
-    const driversDataResponse = await driversResponse.json();
+    const driversData = await driversResponse.json();
 
-    console.log("Totals Data:", totalsData.values);
-    console.log("Drivers Data:", driversDataResponse.values);
+    // Do something with the data
+    console.log(totalsData, driversData);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+}
 
     // Process both datasets
     processTotalsData(totalsData.values);
