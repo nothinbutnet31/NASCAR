@@ -637,3 +637,4 @@ window.onload = () => {
   // Set weekly tab as active by default
   document.querySelector('[onclick="openTab(\'weekly\')"]').classList.add('active');
   document.getElementById('weekly').style.display = 'block';
+  };
