@@ -381,7 +381,7 @@ function findValuePicks(trackIndex) {
             team,
             points: currentPoints,
             improvement: currentPoints - average,
-            average: average.toFixed(1) // Added for context
+            average: average.toFixed(1)
           });
         }
       }
@@ -410,7 +410,7 @@ function findDisappointments(trackIndex) {
             team,
             points: currentPoints,
             decline: average - currentPoints,
-            average: average.toFixed(1) // Added for context
+            average: average.toFixed(1)
           });
         }
       }
@@ -419,30 +419,6 @@ function findDisappointments(trackIndex) {
   
   return disappointments.sort((a, b) => b.decline - a.decline).slice(0, 3);
 }
-
-// Update the display in the main recap function to show the averages
-// Find the section in generateWeeklyRecap() that displays value picks and update it:
-// (Only showing the modified sections)
-
-// Value Picks section
-if (valuePicks.length > 0) {
-  recapText += `<p>💎 Value Picks of the Week:</p><ul>`;
-  valuePicks.forEach(({ driver, points, team, improvement, average }) => {
-    recapText += `<li>${driver} (${team}) - ${points} points (${improvement.toFixed(1)} above ${average} avg)</li>`;
-  });
-  recapText += '</ul>';
-}
-
-// Disappointments section
-if (disappointments.length > 0) {
-  recapText += `<p>📉 Biggest Disappointments:</p><ul>`;
-  disappointments.forEach(({ driver, points, team, decline, average }) => {
-    recapText += `<li>${driver} (${team}) - ${points} points (${decline.toFixed(1)} below ${average} avg)</li>`;
-  });
-  recapText += '</ul>';
-}
-
-// Rest of the code remains the same...
 
 function getOrdinalSuffix(num) {
   const j = num % 10;
