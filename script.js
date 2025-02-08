@@ -233,6 +233,116 @@ function generateWeeklyRecap() {
   recapElement.innerHTML = recapHTML;  // Update the race recap
 }
 // Load Team Page (Roster, Images, etc.)
+function loadTeamPage() {
+  if (!isDataLoaded) {
+    console.warn("Data not fully loaded yet.");
+    return;
+  }
+
+  let teamSelect = document.getElementById("team-select");
+  let trackSelect = document.getElementById("track-select");
+  let teamRoster = document.querySelector("#team-roster tbody");
+  let teamImage = document.getElementById("team-image");
+  let trackImage = document.getElementById("track-image");
+
+  if (!teamSelect || !trackSelect || !teamRoster || !teamImage || !trackImage) {
+    console.error("Missing dropdowns or team roster element.");
+    return;
+  }
+
+  let selectedTeam = teamSelect.value;
+  let selectedTrack = trackSelect.value;
+
+  console.log("Selected Team:", selectedTeam);
+  console.log("Selected Track:", selectedTrack);
+
+  if (!standingsData.teams[selectedTeam]) {
+    console.warn("No data found for selected team:", selectedTeam);
+    teamRoster.innerHTML = "<tr><td colspan='3'>No data found for this team.</td></tr>";
+    return;
+  }
+
+  const teamData = standingsData.teams[selectedTeam];
+
+  if (!teamData.drivers || teamData.drivers.length === 0) {
+    console.warn("No drivers found for team:", selectedTeam);
+    teamRoster.innerHTML = "<tr><td colspan='3'>No drivers found for this team.</td></tr>";
+    return;
+  }
+
+  // Set team image (with fallback)
+  const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${selectedTeam.replace(/\s+/g, '_')}.png`;
+  teamImage.src = teamImageUrl;
+  teamImage.alt = `${selectedTeam} Logo`;
+  teamImage.onerror = function () {
+    this.src = "https://via.placeholder.com/100";
+  };
+
+  // Set track image (with fallback)
+  const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${selectedTrack.replace(/\s+/g, '_')}.png`;
+  trackImage.src = trackImageUrl;
+  trackImage.alt = `${selectedTrack} Image`;
+  trackImage.onerror = function () {
+    this.src = "https://via.placeholder.com/200";
+  };
+
+  // Repopulate track dropdown (only include tracks where team data exists)
+  trackSelect.innerHTML = "";  // Clear existing options
+  let uniqueTracks = new Set();
+
+  standingsData.weeks.forEach((week, index) => {
+    if (teamData.totals[index] !== undefined && teamData.totals[index] > 0 && !uniqueTracks.has(week.track)) {
+      const option = document.createElement("option");
+      option.value = week.track;
+      option.textContent = week.track;
+      trackSelect.appendChild(option);
+      uniqueTracks.add(week.track);  // Ensure no duplicates in the dropdown
+    }
+  });
+
+  if (trackSelect.options.length === 0) {
+    teamRoster.innerHTML = "<tr><td colspan='3'>No data available for any track.</td></tr>";
+    return;
+  }
+
+  // Default to the first available track if no track is selected
+  if (!selectedTrack && trackSelect.options.length > 0) {
+    trackSelect.selectedIndex = 0;
+    selectedTrack = trackSelect.value;  // Update selectedTrack variable
+  }
+
+  // Load team roster for the selected track
+  loadTeamRoster(selectedTeam, selectedTrack);
+}
+
+// Load team roster for the selected team and track
+function loadTeamRoster(teamName, trackName) {
+  const teamRoster = document.querySelector("#team-roster tbody");
+  const teamData = standingsData.teams[teamName];
+  const trackIndex = standingsData.weeks.findIndex((week) => week.track === trackName);
+
+  if (trackIndex === -1) {
+    teamRoster.innerHTML = "<tr><td colspan='3'>No track data available.</td></tr>";
+    return;
+  }
+
+  // Populate team roster with drivers' points for the selected track
+  teamRoster.innerHTML = ""; // Clear existing rows
+  const uniqueDrivers = new Set();  // To avoid duplicate driver names in the table
+
+  teamData.drivers.forEach((driver) => {
+    if (!uniqueDrivers.has(driver.driver)) {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${driver.driver}</td>
+        <td>${driver.points[trackIndex]}</td>
+        <td>${driver.totalPoints}</td>
+      `;
+      teamRoster.appendChild(row);
+      uniqueDrivers.add(driver.driver);  // Prevent duplicate drivers
+    }
+  });
+}
 // Load Team Page (Roster, Images, etc.)
 function loadTeamPage() {
   if (!isDataLoaded) {
@@ -288,13 +398,16 @@ function loadTeamPage() {
   };
 
   // Repopulate track dropdown (only include tracks where team data exists)
-  trackSelect.innerHTML = "";
+  trackSelect.innerHTML = "";  // Clear existing options
+  let uniqueTracks = new Set();
+
   standingsData.weeks.forEach((week, index) => {
-    if (teamData.totals[index] !== undefined && teamData.totals[index] > 0) {
+    if (teamData.totals[index] !== undefined && teamData.totals[index] > 0 && !uniqueTracks.has(week.track)) {
       const option = document.createElement("option");
       option.value = week.track;
       option.textContent = week.track;
       trackSelect.appendChild(option);
+      uniqueTracks.add(week.track);  // Ensure no duplicates in the dropdown
     }
   });
 
@@ -306,7 +419,7 @@ function loadTeamPage() {
   // Default to the first available track if no track is selected
   if (!selectedTrack && trackSelect.options.length > 0) {
     trackSelect.selectedIndex = 0;
-    selectedTrack = trackSelect.value; // Update selectedTrack variable
+    selectedTrack = trackSelect.value;  // Update selectedTrack variable
   }
 
   // Load team roster for the selected track
@@ -326,16 +439,22 @@ function loadTeamRoster(teamName, trackName) {
 
   // Populate team roster with drivers' points for the selected track
   teamRoster.innerHTML = ""; // Clear existing rows
+  const uniqueDrivers = new Set();  // To avoid duplicate driver names in the table
+
   teamData.drivers.forEach((driver) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${driver.driver}</td>
-      <td>${driver.points[trackIndex]}</td>
-      <td>${driver.totalPoints}</td>
-    `;
-    teamRoster.appendChild(row);
+    if (!uniqueDrivers.has(driver.driver)) {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${driver.driver}</td>
+        <td>${driver.points[trackIndex]}</td>
+        <td>${driver.totalPoints}</td>
+      `;
+      teamRoster.appendChild(row);
+      uniqueDrivers.add(driver.driver);  // Prevent duplicate drivers
+    }
   });
 }
+
 
 // Open Tabs (for switching between pages/sections)
 function openTab(tabName) {
