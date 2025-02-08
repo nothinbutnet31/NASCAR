@@ -8,8 +8,9 @@ let isDataLoaded = false; // Track if data is fully loaded
 
 // Fetch data from Google Sheets
 async function fetchDataFromGoogleSheets() {
-  const totalsUrl = https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalsRange}?key=${apiKey};
-  const driversUrl = https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey};
+  const totalsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalsRange}?key=${apiKey}`;
+  const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
+}
 
   try {
     // Fetch both team totals and driver data simultaneously
