@@ -8,8 +8,8 @@ let isDataLoaded = false; // Track if data is fully loaded
 
 // Fetch data from Google Sheets
 async function fetchDataFromGoogleSheets() {
-  const totalsUrl = https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalsRange}?key=${apiKey};
-  const driversUrl = https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey};
+  const totalsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalsRange}?key=${apiKey}`;
+  const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
 
   try {
     // Fetch both team totals and driver data simultaneously
@@ -40,7 +40,6 @@ async function fetchDataFromGoogleSheets() {
     console.error("Error fetching data from Google Sheets:", error);
   }
 }
-
 // Process team totals data
 function processTotalsData(data) {
   const headerRow = data[0]; // Team names are in the header row
