@@ -201,7 +201,7 @@ function generateWeeklyRecap() {
   }
 
   const currentStandings = weekData.standings;
-  const previousOverallStandings = getOverallStandings(); // Get the standings from previous week
+  const previousOverallStandings = standingsData.weeks[standingsData.weeks.length - 2]?.standings || {};
   let recapHTML = "<h2>Race Recap</h2>";
 
   // Find the top team (winner)
@@ -229,6 +229,16 @@ function generateWeeklyRecap() {
   recapHTML += `<h3>Last Place Team: ${lastPlaceTeam} - ${lastPlacePoints} points</h3>`;
 
   document.getElementById("weekly-recap").innerHTML = recapHTML;
+}
+
+function openTab(tabName) {
+  const tabs = document.querySelectorAll('.tab-content');
+  tabs.forEach(tab => tab.style.display = 'none');
+  
+  const activeTab = document.getElementById(tabName);
+  if (activeTab) {
+    activeTab.style.display = 'block';
+  }
 }
 
 // Initialize the page
