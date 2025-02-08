@@ -175,6 +175,7 @@ function generateWeeklyRecap() {
   const weekSelect = document.getElementById("week-select");
   const selectedWeekNumber = parseInt(weekSelect.value, 10);
   const selectedWeek = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
+  const trackIndex = selectedWeekNumber - 1;
 
   if (!selectedWeek || Object.keys(selectedWeek.standings).length === 0) {
     recapContainer.innerHTML = "<p>No race data available for this week.</p>";
@@ -189,40 +190,227 @@ function generateWeeklyRecap() {
     return;
   }
 
-  // Winner highlight
+  // Weekly Overview Section
+  recapText += `<div class="recap-section">
+    <h4>📊 Weekly Overview</h4>
+    <ul>
+      <li>Average Team Score: ${calculateAverageTeamScore(selectedWeek.standings)} points</li>
+      <li>Teams Above Average: ${countTeamsAboveAverage(selectedWeek.standings)}</li>
+      <li>Point Spread (Highest to Lowest): ${calculatePointSpread(selectedWeek.standings)} points</li>
+    </ul>
+  </div>`;
+
+  // Top Performers Section
   const [winningTeam, winningPoints] = sortedTeams[0];
-  recapText += `<p>🏆 <strong>${winningTeam}</strong> dominated the race at <strong>${selectedWeek.track}</strong>, scoring ${winningPoints} points!</p>`;
+  recapText += `<div class="recap-section">
+    <h4>🏆 Top Performers</h4>
+    <p><strong>${winningTeam}</strong> won the week at <strong>${selectedWeek.track}</strong> with ${winningPoints} points!</p>`;
+  
+  // Get winning team's drivers who scored 30+ points
+  const topDrivers = standingsData.teams[winningTeam].drivers.filter(
+    driver => driver.points[trackIndex] >= 30
+  );
+  
+  if (topDrivers.length > 0) {
+    recapText += `<p>💫 Star Drivers:</p><ul>`;
+    topDrivers.forEach(driver => {
+      recapText += `<li>${driver.driver} (${driver.points[trackIndex]} points)</li>`;
+    });
+    recapText += '</ul>';
+  }
 
-  // Biggest mover compared to previous week
+  // Add "Value Picks" section - drivers who scored well relative to their average
+  const valuePicks = findValuePicks(trackIndex);
+  if (valuePicks.length > 0) {
+    recapText += `<p>💎 Value Picks of the Week:</p><ul>`;
+    valuePicks.forEach(({ driver, points, team, improvement }) => {
+      recapText += `<li>${driver} (${team}) - ${points} points (+${improvement.toFixed(1)} above average)</li>`;
+    });
+    recapText += '</ul>';
+  }
+  recapText += '</div>';
+
+  // Standings Movement Section
   if (selectedWeek.week > 1) {
-    const previousWeek = standingsData.weeks.find((week) => week.week === (selectedWeek.week - 1));
-    if (previousWeek && Object.keys(previousWeek.standings).length > 0) {
-      let biggestMover = null;
-      let biggestChange = 0;
+    const previousWeek = standingsData.weeks[selectedWeekNumber - 2];
+    const currentTotals = {};
+    const previousTotals = {};
 
-      for (const [team, points] of Object.entries(selectedWeek.standings)) {
-        const prevPoints = previousWeek.standings[team] || 0;
-        const change = points - prevPoints;
+    // Calculate current and previous totals
+    standingsData.weeks.slice(0, selectedWeekNumber).forEach(week => {
+      Object.entries(week.standings).forEach(([team, points]) => {
+        currentTotals[team] = (currentTotals[team] || 0) + points;
+      });
+    });
 
-        if (Math.abs(change) > Math.abs(biggestChange)) {
-          biggestMover = team;
-          biggestChange = change;
-        }
+    standingsData.weeks.slice(0, selectedWeekNumber - 1).forEach(week => {
+      Object.entries(week.standings).forEach(([team, points]) => {
+        previousTotals[team] = (previousTotals[team] || 0) + points;
+      });
+    });
+
+    // Calculate gaps to leader
+    const currentLeader = Object.entries(currentTotals).sort((a, b) => b[1] - a[1])[0];
+    recapText += `<div class="recap-section">
+      <h4>🏁 Championship Battle</h4>
+      <p>Points Behind Leader (${currentLeader[0]}):</p>
+      <ul>`;
+    
+    Object.entries(currentTotals)
+      .sort((a, b) => b[1] - a[1])
+      .slice(1, 4) // Top 3 chasers
+      .forEach(([team, points]) => {
+        const gap = currentLeader[1] - points;
+        recapText += `<li>${team}: ${gap} points back</li>`;
+      });
+    recapText += '</ul></div>';
+
+    // Position Changes
+    const previousRanking = Object.entries(previousTotals)
+      .sort((a, b) => b[1] - a[1])
+      .map(([team]) => team);
+    const currentRanking = Object.entries(currentTotals)
+      .sort((a, b) => b[1] - a[1])
+      .map(([team]) => team);
+
+    const changes = [];
+    currentRanking.forEach((team, currentPos) => {
+      const previousPos = previousRanking.indexOf(team);
+      const positionChange = previousPos - currentPos;
+      if (positionChange !== 0) {
+        changes.push({
+          team,
+          change: positionChange,
+          currentPos: currentPos + 1
+        });
       }
+    });
 
-      if (biggestMover) {
-        recapText += `<p>📈 <strong>${biggestMover}</strong> was the biggest mover, improving by ${biggestChange} points compared to last week!</p>`;
-      }
+    if (changes.length > 0) {
+      recapText += '<div class="recap-section"><h4>📈 Standings Changes</h4><ul>';
+      changes.forEach(({ team, change, currentPos }) => {
+        const direction = change > 0 ? 'up' : 'down';
+        const arrow = change > 0 ? '⬆️' : '⬇️';
+        recapText += `<li>${arrow} ${team} moved ${direction} ${Math.abs(change)} position${Math.abs(change) > 1 ? 's' : ''} to ${currentPos}${getOrdinalSuffix(currentPos)} place</li>`;
+      });
+      recapText += '</ul></div>';
     }
   }
 
-  // Lowest scoring team
+  // Struggles and Disappointments Section
   const [lowestTeam, lowestPoints] = sortedTeams[sortedTeams.length - 1];
-  recapText += `<p>📉 <strong>${lowestTeam}</strong> had a tough week, managing only ${lowestPoints} points.</p>`;
+  recapText += `<div class="recap-section">
+    <h4>😔 Struggles and Disappointments</h4>
+    <p><strong>${lowestTeam}</strong> had a tough week with ${lowestPoints} points.</p>`;
+  
+  // Get lowest team's drivers who scored 5 or fewer points
+  const struggleDrivers = standingsData.teams[lowestTeam].drivers.filter(
+    driver => driver.points[trackIndex] <= 5
+  );
+  
+  if (struggleDrivers.length > 0) {
+    recapText += `<p>Underperforming Drivers:</p><ul>`;
+    struggleDrivers.forEach(driver => {
+      recapText += `<li>${driver.driver} (${driver.points[trackIndex]} points)</li>`;
+    });
+    recapText += '</ul>';
+  }
+
+  // Add biggest disappointments (drivers scoring well below their average)
+  const disappointments = findDisappointments(trackIndex);
+  if (disappointments.length > 0) {
+    recapText += `<p>📉 Biggest Disappointments:</p><ul>`;
+    disappointments.forEach(({ driver, points, team, decline }) => {
+      recapText += `<li>${driver} (${team}) - ${points} points (${decline.toFixed(1)} below average)</li>`;
+    });
+    recapText += '</ul>';
+  }
+  recapText += '</div>';
+
+  // Next Week Preview
+  if (selectedWeekNumber < standingsData.weeks.length) {
+    const nextWeek = standingsData.weeks[selectedWeekNumber];
+    recapText += `<div class="recap-section">
+      <h4>🔮 Next Week Preview</h4>
+      <p>Next Race: ${nextWeek.track}</p>`;
+    
+    // Find top performers at this track from previous seasons or similar tracks
+    // (This would require additional historical data)
+    recapText += '</div>';
+  }
 
   recapContainer.innerHTML = recapText;
 }
 
+// Helper Functions
+
+function calculateAverageTeamScore(standings) {
+  const scores = Object.values(standings);
+  return (scores.reduce((sum, score) => sum + score, 0) / scores.length).toFixed(1);
+}
+
+function countTeamsAboveAverage(standings) {
+  const average = calculateAverageTeamScore(standings);
+  return Object.values(standings).filter(score => score > average).length;
+}
+
+function calculatePointSpread(standings) {
+  const scores = Object.values(standings);
+  return Math.max(...scores) - Math.min(...scores);
+}
+
+function findValuePicks(trackIndex) {
+  const valuePicks = [];
+  Object.entries(standingsData.teams).forEach(([team, teamData]) => {
+    teamData.drivers.forEach(driver => {
+      const currentPoints = driver.points[trackIndex];
+      const otherPoints = driver.points.filter((p, i) => i !== trackIndex);
+      const average = otherPoints.reduce((sum, p) => sum + p, 0) / otherPoints.length;
+      
+      if (currentPoints > average + 10) { // At least 10 points above average
+        valuePicks.push({
+          driver: driver.driver,
+          team,
+          points: currentPoints,
+          improvement: currentPoints - average
+        });
+      }
+    });
+  });
+  
+  return valuePicks.sort((a, b) => b.improvement - a.improvement).slice(0, 3);
+}
+
+function findDisappointments(trackIndex) {
+  const disappointments = [];
+  Object.entries(standingsData.teams).forEach(([team, teamData]) => {
+    teamData.drivers.forEach(driver => {
+      const currentPoints = driver.points[trackIndex];
+      const otherPoints = driver.points.filter((p, i) => i !== trackIndex);
+      const average = otherPoints.reduce((sum, p) => sum + p, 0) / otherPoints.length;
+      
+      if (average - currentPoints > 15) { // At least 15 points below average
+        disappointments.push({
+          driver: driver.driver,
+          team,
+          points: currentPoints,
+          decline: average - currentPoints
+        });
+      }
+    });
+  });
+  
+  return disappointments.sort((a, b) => b.decline - a.decline).slice(0, 3);
+}
+
+function getOrdinalSuffix(num) {
+  const j = num % 10;
+  const k = num % 100;
+  if (j == 1 && k != 11) return "st";
+  if (j == 2 && k != 12) return "nd";
+  if (j == 3 && k != 13) return "rd";
+  return "th";
+}
 // Load Team Page (Roster, Images, etc.)
 function loadTeamPage() {
   if (!isDataLoaded) {
