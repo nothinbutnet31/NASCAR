@@ -108,6 +108,8 @@ function populateWeekDropdown() {
     console.error("Week select dropdown not found.");
     return;
   }
+  
+  weekSelect.innerHTML = ''; // Clear existing options before repopulating
 
   standingsData.weeks.forEach((week) => {
     const option = document.createElement("option");
@@ -116,6 +118,7 @@ function populateWeekDropdown() {
     weekSelect.appendChild(option);
   });
 }
+
 
 // Populate Team Dropdown
 function populateTeamDropdown() {
