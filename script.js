@@ -89,9 +89,10 @@ function processDriversData(data) {
       points.forEach((pt, index) => {
         teams[team].totals[index] += pt;
       });
-    } else if (driver === "Total") {
-      console.log(Total for ${team}: ${row.slice(2).join(", ")});
-    }
+  } else if (driver === "Total") {
+    console.log(`Total for ${team}: ${row.slice(2).join(", ")}`);
+}
+
   });
 
   standingsData.teams = teams;
