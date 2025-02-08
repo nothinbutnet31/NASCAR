@@ -24,14 +24,14 @@ async function fetchDataFromGoogleSheets() {
     }
 
     const totalsData = await totalsResponse.json();
-    const driversDataResponse = await driversResponse.json();
+    const driversData = await driversResponse.json();
 
     console.log("Totals Data:", totalsData.values);
-    console.log("Drivers Data:", driversDataResponse.values);
+    console.log("Drivers Data:", driversData.values);
 
     // Process both datasets
     processTotalsData(totalsData.values);
-    processDriversData(driversDataResponse.values);
+    processDriversData(driversData.values);
 
     // Mark data as loaded and initialize the UI
     isDataLoaded = true;
@@ -69,8 +69,8 @@ function processDriversData(data) {
   const teams = {};
 
   driverRows.forEach((row) => {
-    const driver = row[0]; // Driver name in first column
-    const team = row[1];   // Team name in second column
+    const driver = row[0]; // Driver name in the first column
+    const team = row[1];   // Team name in the second column
 
     if (driver && team) {
       // Initialize team if not already present
@@ -90,10 +90,6 @@ function processDriversData(data) {
       points.forEach((pt, index) => {
         teams[team].totals[index] += pt;
       });
-    }
-    // Ensure the "Total" section is properly logged
-    if (driver === "Total") {
-      console.log(`Total for ${team}: ${row.slice(2).join(", ")}`);
     }
   });
 
