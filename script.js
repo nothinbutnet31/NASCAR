@@ -251,6 +251,32 @@ function generateWeeklyRecap() {
   const recapDiv = document.getElementById("weekly-recap");
   recapDiv.innerHTML = recapHTML;
 }
+// Function to open a specific tab
+function openTab(tabName) {
+  // Get all elements with class="tabcontent" and hide them
+  const tabcontents = document.querySelectorAll(".tabcontent");
+  tabcontents.forEach((tab) => {
+    tab.style.display = "none";
+  });
+
+  // Get all elements with class="tablink" and remove the "active" class
+  const tablinks = document.querySelectorAll(".tablink");
+  tablinks.forEach((link) => {
+    link.classList.remove("active");
+  });
+
+  // Show the current tab and add "active" class to the clicked tab
+  document.getElementById(tabName).style.display = "block";
+  const activeLink = document.querySelector(`[onclick="openTab('${tabName}')"]`);
+  if (activeLink) {
+    activeLink.classList.add("active");
+  }
+}
+
+// Initialize the default tab to be displayed
+document.addEventListener("DOMContentLoaded", () => {
+  openTab("overall");  // Set the default active tab
+});
 
 // Initialize the page
 function init() {
