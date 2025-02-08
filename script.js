@@ -277,7 +277,54 @@ function generateWeeklyRecap() {
   // Display recap HTML
   document.getElementById("race-recap").innerHTML = recapHTML;
 }
+// Open Tabs (for switching between pages/sections)
+function openTab(tabName) {
+  const tabcontents = document.querySelectorAll(".tabcontent");
+  const tablinks = document.querySelectorAll(".tablink");
 
+  tabcontents.forEach((tab) => (tab.style.display = "none"));
+  tablinks.forEach((link) => link.classList.remove("active"));
+
+  document.getElementById(tabName).style.display = "block";
+  document.querySelector([onclick="openTab('${tabName}')"]).classList.add("active");
+
+  // Load specific content based on tab
+  if (tabName === "teams") {
+    populateTeamDropdown();
+    loadTeamPage();
+  }
+  // Add any other tab-specific logic here (like scoring rules, etc.)
+}
+
+// Initialize the Page after data is loaded
+function init() {
+  if (!isDataLoaded) {
+    console.warn("Data not fully loaded yet.");
+    return;
+  }
+
+  // Load overall standings
+  loadOverallStandings();
+
+  // Populate and initialize the week dropdown, standings, and recap
+  populateWeekDropdown();
+  loadWeeklyStandings();
+  generateWeeklyRecap();
+
+  // When the week selection changes, update standings and recap
+  const weekSelect = document.getElementById("week-select");
+  weekSelect.addEventListener("change", () => {
+    loadWeeklyStandings();
+    generateWeeklyRecap();
+  });
+
+  // Populate team dropdown and load the team page
+  populateTeamDropdown();
+  loadTeamPage();
+}
+
+
+fetchDataFromGoogleSheets();
 document.addEventListener("DOMContentLoaded", async function () {
   await fetchDataFromGoogleSheets();
   populateWeekDropdown();
