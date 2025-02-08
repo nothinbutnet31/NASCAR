@@ -8,9 +8,8 @@ let isDataLoaded = false; // Track if data is fully loaded
 
 // Fetch data from Google Sheets
 async function fetchDataFromGoogleSheets() {
-  const totalsUrl = https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalsRange}?key=${apiKey};
-  const driversUrl = https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey};
-
+  const totalsUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${totalsRange}?key=${apiKey}`;
+  const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
 
   try {
     // Fetch both team totals and driver data simultaneously
@@ -92,9 +91,9 @@ function processDriversData(data) {
         teams[team].totals[index] += pt;
       });
     } else if (driver === "Total") {
-  console.log(`Total for ${team}: ${row.slice(2).join(", ")}`);
-}
-
+      console.log(`Total for ${team}: ${row.slice(2).join(", ")}`);
+    }
+  });
 
   standingsData.teams = teams;
   console.log("Processed Drivers Data:", standingsData.teams);
@@ -111,7 +110,7 @@ function populateWeekDropdown() {
   standingsData.weeks.forEach((week) => {
     const option = document.createElement("option");
     option.value = week.week;
-    option.textContent = Week ${week.week}: ${week.track};
+    option.textContent = `Week ${week.week}: ${week.track}`;
     weekSelect.appendChild(option);
   });
 }
@@ -154,9 +153,8 @@ function loadOverallStandings() {
     // Add trophy icon for first place
     const trophy = index === 0 ? '<i class="fas fa-trophy"></i> ' : "";
     row.innerHTML = 
-      <td>${trophy}${team}</td>
-      <td>${points}</td>
-    ;
+      `<td>${trophy}${team}</td>
+      <td>${points}</td>`;
     overallTable.appendChild(row);
   });
 
@@ -190,9 +188,8 @@ function loadWeeklyStandings() {
       // Add checkered flag icon for first place if points > 0
       const flag = index === 0 && points > 0 ? '<i class="fas fa-flag-checkered"></i> ' : "";
       row.innerHTML = 
-        <td>${flag}${team}</td>
-        <td>${points}</td>
-      ;
+        `<td>${flag}${team}</td>
+        <td>${points}</td>`;
       weeklyTable.appendChild(row);
     });
   }
@@ -210,7 +207,7 @@ function generateWeeklyRecap() {
   const weekData = standingsData.weeks.find(week => week.week === selectedWeek);
 
   if (!weekData) {
-    console.warn(No data found for week ${selectedWeek});
+    console.warn(`No data found for week ${selectedWeek}`);
     return;
   }
 
@@ -223,7 +220,7 @@ function generateWeeklyRecap() {
   const sortedTeams = Object.entries(currentStandings).sort((a, b) => b[1] - a[1]);
   const topTeam = sortedTeams[0][0]; // Extract top team name
   const topTeamPoints = sortedTeams[0][1];
-  recapHTML += <h3>Winning Team: ${topTeam} - ${topTeamPoints} points</h3>;
+  recapHTML += `<h3>Winning Team: ${topTeam} - ${topTeamPoints} points</h3>`;
 
   // Get the drivers for the top team
   const topDrivers = standingsData.teams[topTeam].drivers;
@@ -231,7 +228,7 @@ function generateWeeklyRecap() {
   let topPerformersHTML = "<h3>Top Performers:</h3>";
   if (topDriversWithOver30.length > 0) {
     topPerformersHTML += topDriversWithOver30.map(driver => {
-      return ${driver.driver} with ${driver.totalPoints} points;
+      return `${driver.driver} with ${driver.totalPoints} points`;
     }).join('<br>');
   } else {
     topPerformersHTML += "No standout drivers with over 30 points this week.";
@@ -241,7 +238,7 @@ function generateWeeklyRecap() {
   // Find the last place team (worst)
   const lastPlaceTeam = sortedTeams[sortedTeams.length - 1][0]; // Extract last place team
   const lastPlacePoints = sortedTeams[sortedTeams.length - 1][1];
-  recapHTML += <h3>Last Place Team: ${lastPlaceTeam} - ${lastPlacePoints} points</h3>;
+  recapHTML += `<h3>Last Place Team: ${lastPlaceTeam} - ${lastPlacePoints} points</h3>`;
 
   // Get the drivers for the last place team
   const lastPlaceDrivers = standingsData.teams[lastPlaceTeam].drivers;
@@ -249,7 +246,7 @@ function generateWeeklyRecap() {
   let worstPerformersHTML = "<h3>Worst Performers:</h3>";
   if (worstDrivers.length > 0) {
     worstPerformersHTML += worstDrivers.map(driver => {
-      return ${driver.driver} with ${driver.totalPoints} points;
+      return `${driver.driver} with ${driver.totalPoints} points`;
     }).join('<br>');
   } else {
     worstPerformersHTML += "No drivers had a bad week with points under 6.";
@@ -269,31 +266,6 @@ function generateWeeklyRecap() {
   }
 
   recapHTML += standingsMovementHTML;
-  function detectStandingsMovement(previousStandings, currentStandings) {
-  let movement = [];
-
-  // Convert previous standings to a map for easy lookup
-  let previousRanks = {};
-  previousStandings.forEach((entry, index) => {
-    previousRanks[entry[0]] = index + 1; // Store the ranking position (1-based index)
-  });
-
-  currentStandings.forEach((entry, index) => {
-    const team = entry[0];
-    const currentRank = index + 1;
-    const previousRank = previousRanks[team] || currentRank; // Default to current if no previous data
-
-    const rankChange = previousRank - currentRank;
-    if (rankChange > 0) {
-      movement.push(${team} moved up ${rankChange} spots.);
-    } else if (rankChange < 0) {
-      movement.push(${team} dropped ${Math.abs(rankChange)} spots.);
-    }
-  });
-
-  return movement;
-}
-
 
   // Update the race recap section
   document.getElementById('race-recap').innerHTML = recapHTML;
@@ -319,8 +291,6 @@ function getOverallStandings() {
   return sortedTeams;
 }
 
-
-
 // Load Team Page (Roster, Images, etc.)
 function loadTeamPage() {
   if (!isDataLoaded) {
@@ -345,132 +315,42 @@ function loadTeamPage() {
   console.log("Selected Team:", selectedTeam);
   console.log("Selected Track:", selectedTrack);
 
-  if (!standingsData.teams[selectedTeam]) {
-    console.warn("No data found for selected team:", selectedTeam);
-    teamRoster.innerHTML = "<tr><td colspan='3'>No data found for this team.</td></tr>";
-    return;
-  }
-
-  const teamData = standingsData.teams[selectedTeam];
-
-  if (!teamData.drivers || teamData.drivers.length === 0) {
-    console.warn("No drivers found for team:", selectedTeam);
-    teamRoster.innerHTML = "<tr><td colspan='3'>No drivers found for this team.</td></tr>";
-    return;
-  }
-
-  // Set team image (with fallback)
-  const teamImageUrl = https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${selectedTeam.replace(/\s+/g, '_')}.png;
+  // Display Team Image
+  const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${selectedTeam.replace(/\s+/g, '_')}.png`;
   teamImage.src = teamImageUrl;
-  teamImage.alt = ${selectedTeam} Logo;
-  teamImage.onerror = function () {
-    this.src = "https://via.placeholder.com/100";
-  };
 
-  // Set track image (with fallback)
-  const trackImageUrl = https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${selectedTrack.replace(/\s+/g, '_')}.png;
+  // Display Track Image
+  const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${selectedTrack.replace(/\s+/g, '_')}.jpg`;
   trackImage.src = trackImageUrl;
-  trackImage.alt = ${selectedTrack} Image;
-  trackImage.onerror = function () {
-    this.src = "https://via.placeholder.com/200";
-  };
 
-  // Repopulate track dropdown (only include tracks where team data exists)
-  trackSelect.innerHTML = "";
-  standingsData.weeks.forEach((week, index) => {
-    if (teamData.totals[index] !== undefined && teamData.totals[index] > 0) {
-      const option = document.createElement("option");
-      option.value = week.track;
-      option.textContent = week.track;
-      trackSelect.appendChild(option);
-    }
-  });
+  // Load Team Roster
+  let roster = standingsData.teams[selectedTeam].drivers;
+  teamRoster.innerHTML = ""; // Clear previous roster
 
-  if (trackSelect.options.length === 0) {
-    teamRoster.innerHTML = "<tr><td colspan='3'>No data available for any track.</td></tr>";
-    return;
-  }
-
-  // Default to the first available track if no track is selected
-  if (!selectedTrack) {
-    trackSelect.selectedIndex = 0;
-    let selectedTrack = trackSelect.value;
-  }
-
-  // Load team roster for the selected track
-  loadTeamRoster(selectedTeam, selectedTrack);
-}
-
-// Load team roster for the selected team and track
-function loadTeamRoster(teamName, trackName) {
-  const teamRoster = document.querySelector("#team-roster tbody");
-  const teamData = standingsData.teams[teamName];
-  const trackIndex = standingsData.weeks.findIndex((week) => week.track === trackName);
-
-  if (trackIndex === -1) {
-    teamRoster.innerHTML = "<tr><td colspan='3'>No track data available.</td></tr>";
-    return;
-  }
-
-  // Populate team roster with drivers' points for the selected track
-  teamRoster.innerHTML = "";
-  teamData.drivers.forEach((driver) => {
+  roster.forEach(driver => {
     const row = document.createElement("tr");
     row.innerHTML = 
-      <td>${driver.driver}</td>
-      <td>${driver.points[trackIndex]}</td>
-    ;
+      `<td>${driver.driver}</td>
+      <td>${driver.totalPoints}</td>`;
     teamRoster.appendChild(row);
   });
 }
 
-// Open Tabs (for switching between pages/sections)
-function openTab(tabName) {
-  const tabcontents = document.querySelectorAll(".tabcontent");
-  const tablinks = document.querySelectorAll(".tablink");
-
-  tabcontents.forEach((tab) => (tab.style.display = "none"));
-  tablinks.forEach((link) => link.classList.remove("active"));
-
-  document.getElementById(tabName).style.display = "block";
-  document.querySelector([onclick="openTab('${tabName}')"]).classList.add("active");
-
-  // Load specific content based on tab
-  if (tabName === "teams") {
-    populateTeamDropdown();
-    loadTeamPage();
-  }
-  // Add any other tab-specific logic here (like scoring rules, etc.)
-}
-
-// Initialize the Page after data is loaded
-function init() {
-  if (!isDataLoaded) {
-    console.warn("Data not fully loaded yet.");
-    return;
-  }
-
-  // Load overall standings
-  loadOverallStandings();
-
-  // Populate and initialize the week dropdown, standings, and recap
-  populateWeekDropdown();
+// Event Listener for Week Change
+document.getElementById("week-select").addEventListener("change", function () {
   loadWeeklyStandings();
   generateWeeklyRecap();
+});
 
-  // When the week selection changes, update standings and recap
-  const weekSelect = document.getElementById("week-select");
-  weekSelect.addEventListener("change", () => {
-    loadWeeklyStandings();
-    generateWeeklyRecap();
-  });
-
-  // Populate team dropdown and load the team page
+// Initialize page
+function init() {
+  populateWeekDropdown();
   populateTeamDropdown();
+  loadOverallStandings();
+  loadWeeklyStandings();
+  generateWeeklyRecap();
   loadTeamPage();
 }
 
-// On window load, start fetching data from Google Sheets
-window.onload = () => {
-  fetchDataFromGoogleSheets();
-};
+// Call fetchData to load all the data
+fetchDataFromGoogleSheets();
