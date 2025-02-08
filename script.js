@@ -233,6 +233,7 @@ function generateWeeklyRecap() {
   recapElement.innerHTML = recapHTML;  // Update the race recap
 }
 // Load Team Page (Roster, Images, etc.)
+// Load Team Page (Roster, Images, etc.)
 function loadTeamPage() {
   if (!isDataLoaded) {
     console.warn("Data not fully loaded yet.");
@@ -271,17 +272,17 @@ function loadTeamPage() {
   }
 
   // Set team image (with fallback)
-  const teamImageUrl = https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${selectedTeam.replace(/\s+/g, '_')}.png;
+  const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${selectedTeam.replace(/\s+/g, '_')}.png`;
   teamImage.src = teamImageUrl;
-  teamImage.alt = ${selectedTeam} Logo;
+  teamImage.alt = `${selectedTeam} Logo`;
   teamImage.onerror = function () {
     this.src = "https://via.placeholder.com/100";
   };
 
   // Set track image (with fallback)
-  const trackImageUrl = https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${selectedTrack.replace(/\s+/g, '_')}.png;
+  const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${selectedTrack.replace(/\s+/g, '_')}.png`;
   trackImage.src = trackImageUrl;
-  trackImage.alt = ${selectedTrack} Image;
+  trackImage.alt = `${selectedTrack} Image`;
   trackImage.onerror = function () {
     this.src = "https://via.placeholder.com/200";
   };
@@ -303,9 +304,9 @@ function loadTeamPage() {
   }
 
   // Default to the first available track if no track is selected
-  if (!selectedTrack) {
+  if (!selectedTrack && trackSelect.options.length > 0) {
     trackSelect.selectedIndex = 0;
-    let selectedTrack = trackSelect.value;
+    selectedTrack = trackSelect.value; // Update selectedTrack variable
   }
 
   // Load team roster for the selected track
@@ -324,16 +325,18 @@ function loadTeamRoster(teamName, trackName) {
   }
 
   // Populate team roster with drivers' points for the selected track
-  teamRoster.innerHTML = "";
+  teamRoster.innerHTML = ""; // Clear existing rows
   teamData.drivers.forEach((driver) => {
     const row = document.createElement("tr");
-    row.innerHTML = 
+    row.innerHTML = `
       <td>${driver.driver}</td>
       <td>${driver.points[trackIndex]}</td>
-    ;
+      <td>${driver.totalPoints}</td>
+    `;
     teamRoster.appendChild(row);
   });
 }
+
 // Open Tabs (for switching between pages/sections)
 function openTab(tabName) {
   const tabcontents = document.querySelectorAll(".tabcontent");
