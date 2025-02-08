@@ -194,6 +194,7 @@ function loadWeeklyStandings() {
 }
 
 // Generate AI Recap for the Selected Week
+// Ensure the element exists before trying to modify its content
 function generateWeeklyRecap() {
   if (!isDataLoaded) {
     console.warn("Data not fully loaded yet.");
@@ -210,6 +211,13 @@ function generateWeeklyRecap() {
   }
 
   const currentStandings = weekData.standings;
+
+  // Ensure the "race-recap" element exists
+  const recapElement = document.getElementById("race-recap");
+  if (!recapElement) {
+    console.error('Element with id "race-recap" not found.');
+    return;
+  }
 
   // Clear the previous recap data to avoid showing old data
   let recapHTML = "<h2>Race Recap</h2>";
@@ -238,9 +246,46 @@ function generateWeeklyRecap() {
   const lastPlacePoints = sortedTeams[sortedTeams.length - 1][1];
   recapHTML += `<h3>Last Place Team: ${lastPlaceTeam} - ${lastPlacePoints} points</h3>`;
 
-  // Append recap to the page
-  const recapContainer = document.getElementById("weekly-recap");
-  recapContainer.innerHTML = recapHTML;
+  // Get the drivers for the last place team
+  const lastPlaceDrivers = standingsData.teams[lastPlaceTeam].drivers;
+  const worstDrivers = lastPlaceDrivers.filter(driver => driver.totalPoints < 6);
+  let worstPerformersHTML = "<h3>Worst Performers:</h3>";
+  if (worstDrivers.length > 0) {
+    worstPerformersHTML += worstDrivers.map(driver => {
+      return `${driver.driver} with ${driver.totalPoints} points`;
+    }).join('<br>');
+  } else {
+    worstPerformersHTML += "No drivers had a bad week with points under 6.";
+  }
+  recapHTML += worstPerformersHTML;
+
+  // Track Overall Standings Movement
+  const currentOverallStandings = getOverallStandings();
+  let standingsMovementHTML = "<h3>Standings Movement:</h3>";
+  let standingsChanges = "";
+  Object.entries(currentOverallStandings).forEach(([team, points], index) => {
+    const previousRank = standingsData.previousRankings[team];
+    if (previousRank !== undefined && previousRank !== index + 1) {
+      const movement = previousRank < index + 1 ? "down" : "up";
+      standingsChanges += `${team} moved ${movement} from rank ${previousRank} to ${index + 1}.<br>`;
+    }
+  });
+
+  if (standingsChanges) {
+    standingsMovementHTML += standingsChanges;
+  } else {
+    standingsMovementHTML += "No change in rankings this week.";
+  }
+  recapHTML += standingsMovementHTML;
+
+  // Display recap HTML in the "race-recap" element
+  recapElement.innerHTML = recapHTML;
+}
+
+// Ensure this function is defined if you need it
+function loadTeamPage() {
+  // Define this function as needed, or remove references if not required
+  console.log("Loading team page...");
 }
 
 // Open Tabs (for switching between pages/sections)
@@ -260,10 +305,11 @@ function openTab(tabName) {
   // Load specific content based on tab
   if (tabName === "teams") {
     populateTeamDropdown();
-    loadTeamPage();
+    loadTeamPage();  // Call your loadTeamPage function if needed
   }
   // Add any other tab-specific logic here (like scoring rules, etc.)
 }
+
 
 // Initialize the Page after data is loaded
 function init() {
