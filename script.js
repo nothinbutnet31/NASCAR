@@ -458,11 +458,22 @@ function openTab(tabName) {
 
   tabcontents.forEach(tab => tab.style.display = "none");
   tablinks.forEach(link => link.classList.remove("active"));
+ // Show the selected tab content
+  const selectedTab = document.getElementById(tabName);
+  if (selectedTab) {
+    selectedTab.style.display = "block";
+  }
 
-  document.getElementById(tabName).style.display = "block";
-  document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
+  // Add the "active" class to the selected tab link
+  const selectedTabLink = document.querySelector(`[onclick="openTab('${tabName}')"]`);
+  if (selectedTabLink) {
+    selectedTabLink.classList.add("active");
+  }
 
-  if (tabName === "teams") {
+  // Load data for the selected tab
+  if (tabName === "weekly-standings") {
+    loadWeeklyStandings();
+  } else if (tabName === "teams") {
     loadTeamPage();
   }
 }
@@ -498,7 +509,7 @@ function initializeApp() {
   if (trackSelect) {
     trackSelect.addEventListener("change", loadTeamPage);
   }
-
+ openTab("weekly-standings"); // Open the Weekly Standings tab by default
   // Set up the first tab as active by default
   const defaultTab = document.querySelector(".tablink");
   if (defaultTab) {
