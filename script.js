@@ -422,10 +422,10 @@ function loadTeamPage() {
 
   const totalRow = document.createElement("tr");
   totalRow.className = "total-row";
-  totalRow.innerHTML = 
+  totalRow.innerHTML =` 
     <td><strong>Total Team Points</strong></td>
     <td class="points-cell"><strong>${teamTotal}</strong></td>
-  ;
+  `;
   teamRoster.appendChild(totalRow);
 
   // Update team image
@@ -468,7 +468,7 @@ function openTab(tabName) {
   }
 
   // Add the "active" class to the selected tab link
-  const selectedTabLink = document.querySelector([onclick="openTab('${tabName}')"]);
+  const selectedTabLink = document.querySelector(`[onclick="openTab('${tabName}')"]`);
   if (selectedTabLink) {
     selectedTabLink.classList.add("active");
   }
