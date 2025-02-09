@@ -301,47 +301,48 @@ function loadTeamPage() {
     };
   }
 
-  // Calculate and display driver points
-   standingsData.teams[selectedTeam].drivers.forEach(driver => {
-    let driverTotal = 0;
+  // Initialize total points counter
+  let totalPoints = 0;
+
+  // Add rows for each driver and calculate their points
+  standingsData.teams[selectedTeam].drivers.forEach(driver => {
+    let driverPoints = 0;
     
+    // Calculate points for this driver across all weeks
     standingsData.weeks.forEach(week => {
       if (week.standings[selectedTeam]?.drivers[driver]) {
-        driverTotal += week.standings[selectedTeam].drivers[driver];
+        driverPoints += week.standings[selectedTeam].drivers[driver];
       }
     });
-    
-    driverTotals[driver] = driverTotal;
-    totalTeamPoints += driverTotal;
-  });
 
-  // Then display the driver rows
-  Object.entries(driverTotals).forEach(([driver, points]) => {
+    totalPoints += driverPoints;
+
+    // Create row for this driver
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${driver}</td>
-      <td class="points-cell">${points}</td>
+      <td class="points-cell">${driverPoints}</td>
     `;
     teamRoster.appendChild(row);
   });
 
   // Add total row
- const totalRow = document.createElement("tr");
+  const totalRow = document.createElement("tr");
   totalRow.className = "total-row";
   totalRow.innerHTML = `
     <td><strong>Total Team Points</strong></td>
-    <td class="points-cell"><strong>${totalTeamPoints}</strong></td>
+    <td class="points-cell"><strong>${totalPoints}</strong></td>
   `;
   teamRoster.appendChild(totalRow);
 
   // Update team stats
- if (teamStatsContainer) {
+  if (teamStatsContainer) {
     const position = calculateTeamPosition(selectedTeam);
     teamStatsContainer.innerHTML = `
       <h3>Team Statistics</h3>
       <p>Current Position: ${position}</p>
-      <p>Total Points: ${totalTeamPoints}</p>
-      <p>Average Points per Race: ${(totalTeamPoints / standingsData.weeks.length).toFixed(1)}</p>
+      <p>Total Points: ${totalPoints}</p>
+      <p>Average Points per Race: ${(totalPoints / standingsData.weeks.length).toFixed(1)}</p>
     `;
   }
 }
