@@ -478,38 +478,13 @@ function initializeApp() {
   // First populate data
   populateWeekDropdown();
   populateTeamDropdown();
-  loadOverallStandings();
   
-  // Set up event listeners
-  const weekSelect = document.getElementById("week-select");
-  if (weekSelect) {
-    weekSelect.addEventListener("change", loadWeeklyStandings);
-  }
-
-  const teamSelect = document.getElementById("team-select");
-  if (teamSelect) {
-    teamSelect.addEventListener("change", loadTeamPage);
-  }
-
-  const trackSelect = document.getElementById("track-select");
-  if (trackSelect) {
-    trackSelect.addEventListener("change", loadTeamPage);
-  }
-
-  // Make sure weekly standings tab is visible and active
-  const weeklyTab = document.getElementById("weekly-standings");
-  if (weeklyTab) {
-    weeklyTab.style.display = "block";
-  }
+  // Hide all tabs initially
+  const tabcontents = document.querySelectorAll(".tabcontent");
+  tabcontents.forEach(tab => tab.style.display = "none");
   
-  // Load the weekly standings content
-  loadWeeklyStandings();
-  
-  // Set the weekly standings tab as active
-  const weeklyTabLink = document.querySelector(`[onclick="openTab('weekly-standings')"]`);
-  if (weeklyTabLink) {
-    weeklyTabLink.classList.add("active");
-  }
+  // Explicitly open weekly standings first
+  openTab("weekly-standings");
 }
 
 // Initialize the app when the window loads
