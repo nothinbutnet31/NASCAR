@@ -296,7 +296,7 @@ function generateWeeklyRecap() {
   const weeklyPoints = Object.values(weekData.standings).map(data => data.total);
   const avgPoints = weeklyPoints.reduce((a, b) => a + b, 0) / weeklyPoints.length;
 
-  recapText += 
+  recapText +=` 
     <div class="recap-section">
       <h4>📊 Weekly Overview</h4>
       <ul>
@@ -305,7 +305,7 @@ function generateWeeklyRecap() {
         <li>Point Spread: ${Math.max(...weeklyPoints) - Math.min(...weeklyPoints)} points</li>
       </ul>
     </div>
-  ;
+  `;
 
   const sortedTeams = Object.entries(weekData.standings)
     .sort((a, b) => b[1].total - a[1].total);
