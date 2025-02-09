@@ -319,8 +319,15 @@ function loadTeamPage() {
   const teamImage = document.getElementById("team-image");
   const trackImage = document.getElementById("track-image");
 
+  // Remove any existing containers to prevent duplication
+  const existingContainer = document.querySelector("#team-selection-container");
+  if (existingContainer) {
+    existingContainer.remove();
+  }
+
   // Create container for selects and images
   const selectImageContainer = document.createElement("div");
+  selectImageContainer.id = "team-selection-container"; // Add ID for easy removal
   selectImageContainer.style.cssText = `
     display: flex;
     justify-content: center;
@@ -377,8 +384,6 @@ function loadTeamPage() {
     const title = teamContent.querySelector("h2");
     if (title) {
       title.insertAdjacentElement('afterend', selectImageContainer);
-    } else {
-      teamContent.insertBefore(selectImageContainer, teamContent.firstChild.nextSibling);
     }
   }
 
@@ -399,9 +404,12 @@ function loadTeamPage() {
     allRacesOption.textContent = "All Races";
     trackSelect.appendChild(allRacesOption);
 
-    // Add each track
+    // Add each track with valid points
     standingsData.weeks.forEach((week, index) => {
-      if (week && week.track && week.track.trim() !== "") {
+      // Check if the week has any valid points for the selected team
+      const hasValidPoints = week.standings[selectedTeam]?.total > 0;
+
+      if (week && week.track && week.track.trim() !== "" && hasValidPoints) {
         const option = document.createElement("option");
         option.value = index;
         option.textContent = week.track;
@@ -409,11 +417,13 @@ function loadTeamPage() {
       }
     });
 
-    // Add change event listener
-    trackSelect.addEventListener("change", () => {
+    // Add change event listener (only once)
+    trackSelect.removeEventListener("change", trackSelect.changeHandler);
+    trackSelect.changeHandler = () => {
       updateTeamRoster(selectedTeam, trackSelect.value);
       updateTrackImageForTeamPage(trackSelect.value);
-    });
+    };
+    trackSelect.addEventListener("change", trackSelect.changeHandler);
   }
 
   // Update team image
@@ -520,7 +530,12 @@ function populateWeekDropdown() {
 
   if (standingsData.weeks && standingsData.weeks.length > 0) {
     standingsData.weeks.forEach((week) => {
-      if (week && week.track && week.track.trim() !== "") {
+      // Check if the week has any valid points
+      const hasValidPoints = Object.values(week.standings).some(teamData => 
+        teamData.total > 0
+      );
+
+      if (week && week.track && week.track.trim() !== "" && hasValidPoints) {
         const option = document.createElement("option");
         option.value = week.week;
         option.textContent = `Week ${week.week} - ${week.track}`;
@@ -528,10 +543,16 @@ function populateWeekDropdown() {
       }
     });
 
-    // Set to the first week by default
-    weekSelect.value = "1";
-    loadWeeklyStandings();
-    updateTrackImage();
+    // Find first week with valid points
+    const firstValidWeek = standingsData.weeks.find(week => 
+      Object.values(week.standings).some(teamData => teamData.total > 0)
+    );
+
+    if (firstValidWeek) {
+      weekSelect.value = firstValidWeek.week;
+      loadWeeklyStandings();
+      updateTrackImage();
+    }
   }
 
   weekSelect.addEventListener("change", () => {
