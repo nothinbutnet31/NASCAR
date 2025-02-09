@@ -325,7 +325,7 @@ function generateWeeklyRecap() {
   });
 
   const topDrivers = allDriversScores
-    .sort((a, b) => b.points - a[1].total]);
+    .sort((a, b) => b.points - a.points);
 
   recapText += `<p>Top Scoring Drivers:</p><ul>`;
   topDrivers.forEach(({ driver, team, points }) => {
