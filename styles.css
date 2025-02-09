@@ -199,7 +199,21 @@ footer p {
     flex-direction: column;
     align-items: center;
   }
+#weekly-standings table {
+    width: 100%;
+    font-size: 1.2em;
+    margin: 20px 0;
+}
 
+#weekly-standings td, 
+#weekly-standings th {
+    padding: 15px;
+    text-align: left;
+}
+
+#weekly-standings tbody tr {
+    line-height: 2;
+}
   .tablink {
     width: 100%;
     margin: 5px 0;
