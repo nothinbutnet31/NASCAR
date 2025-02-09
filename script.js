@@ -21,10 +21,10 @@ let standingsData = {
   weeks: [],
   teams: {
     Midge: {
-      drivers: ["Denny Hamlin", "William Byron", "Ricky Stenhouse Jr.", "Ryan Preece", "Shane van Gisbergen"]
+      drivers: ["Denny Hamlin", "William Byron", "Ricky Stenhouse Jr", "Ryan Preece", "Shane van Gisbergen"]
     },
     Emilia: { 
-      drivers: ["Austin Cindric", "Austin Dillon", "Kyle Larson", "AJ Allmendiner", "Alex Bowman"]
+      drivers: ["Austin Cindric", "Austin Dillon", "Kyle Larson", "A.J. Allmendiner", "Alex Bowman"]
     },
     Heather: { 
       drivers: ["Kyle Busch", "Chase Elliott", "Erik Jones", "Tyler Reddick", "Michael McDowell"]
