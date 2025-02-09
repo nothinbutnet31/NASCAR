@@ -57,6 +57,28 @@ async function fetchDataFromGoogleSheets() {
     console.error("Error fetching data:", error);
   }
 }
+function initializeApp() {
+  // Populate dropdowns
+  populateWeekDropdown();
+  populateTeamDropdown();
+
+  // Load initial data
+  loadOverallStandings();
+  loadWeeklyStandings();
+  generateWeeklyRecap();
+  
+  // Load team page if we're on that tab
+  if (document.getElementById("teams").style.display !== "none") {
+    loadTeamPage();
+  }
+
+  // Set up the first tab as active by default
+  const defaultTab = document.querySelector(".tablink");
+  if (defaultTab) {
+    defaultTab.click();
+  }
+}
+
 
 function highlightLeader() {
   const leaderRow = document.querySelector('.leader-row');
