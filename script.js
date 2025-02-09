@@ -381,7 +381,7 @@ function populateWeekDropdown() {
 
   // Set to first week by default if there are weeks available
   if (standingsData.weeks.length > 0) {
-    weekSelect.value = "1";
+    weekSelect.value = "2";
     loadWeeklyStandings();
     generateWeeklyRecap();
   }
