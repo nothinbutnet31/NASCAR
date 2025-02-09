@@ -1,56 +1,48 @@
 // Constants and Initial Data
 const sheetId = "19LbY1UwCkPXyVMMnvdu_KrYpyi6WhNcfuC6wjzxeBLI";
 const apiKey = "AIzaSyDWBrtpo54AUuVClU49k0FdrLl-IFPpMdY";
-const driversRange = "Drivers!A1:AA45";
+const driversRange = "Drivers!A1:AA45";  // Adjust range as needed
 
-let isDataLoaded = false;
-
+// Scoring system for additional features (if needed)
 const scoringSystem = {
   "1st": 40, "2nd": 35, "3rd": 34, "4th": 33, "5th": 32,
   "6th": 31, "7th": 30, "8th": 29, "9th": 28, "10th": 27,
   "11th": 26, "12th": 25, "13th": 24, "14th": 23, "15th": 22,
   "16th": 21, "17th": 20, "18th": 19, "19th": 18, "20th": 17,
   "21st": 16, "22nd": 15, "23rd": 14, "24th": 13, "25th": 12,
-  "26th": 11, "27th": 10, "28th": 9, "29th": 8, "30th": 7,
-  "31st": 6, "32nd": 5, "33rd": 4, "34th": 3, "35th": 2,
-  "36th": 1, "37th": 1, "38th": 1, "39th": 1, "40th": 1,
+  "26th": 11, "27th": 10, "28th": 9,  "29th": 8,  "30th": 7,
+  "31st": 6,  "32nd": 5,  "33rd": 4,  "34th": 3,  "35th": 2,
+  "36th": 1,  "37th": 1,  "38th": 1,  "39th": 1,  "40th": 1,
   "Fastest Lap": 1, "Stage 1 Winner": 10, "Stage 2 Winner": 10, "Pole Winner": 5
 };
 
+// Standings Data: weeks and teams (teams with driver rosters)
 let standingsData = {
   weeks: [],
   teams: {
-    Midge: {
-      drivers: ["Denny Hamlin", "William Byron", "Ricky Stenhouse Jr.", "Ryan Preece", "Shane van Gisbergen"]
-    },
-    Emilia: { 
-      drivers: ["Austin Cindric", "Austin Dillon", "Kyle Larson", "AJ Allmendiner", "Alex Bowman"]
-    },
-    Heather: { 
-      drivers: ["Kyle Busch", "Chase Elliott", "Erik Jones", "Tyler Reddick", "Michael McDowell"]
-    },
-    Dan: {
-      drivers: ["Brad Keselowski", "Chris Buescher", "Noah Gragson", "Joey Logano", "Cole Custer"]
-    },
-    Grace: {
-      drivers: ["Ross Chastain", "Chase Briscoe", "Josh Berry", "Bubba Wallace", "Daniel Suarez"]
-    },
-    Edmund: {
-      drivers: ["Ryan Blaney", "Christopher Bell", "Riley Herbst", "Ty Gibbs", "Carson Hocevar"]
-    }
+    Midge: { drivers: ["Denny Hamlin", "William Byron", "Ricky Stenhouse Jr.", "Ryan Preece", "Shane van Gisbergen"] },
+    Emilia: { drivers: ["Austin Cindric", "Austin Dillon", "Kyle Larson", "AJ Allmendiner", "Alex Bowman"] },
+    Heather: { drivers: ["Kyle Busch", "Chase Elliott", "Erik Jones", "Tyler Reddick", "Michael McDowell"] },
+    Dan: { drivers: ["Brad Keselowski", "Chris Buescher", "Noah Gragson", "Joey Logano", "Cole Custer"] },
+    Grace: { drivers: ["Ross Chastain", "Chase Briscoe", "Josh Berry", "Bubba Wallace", "Daniel Suarez"] },
+    Edmund: { drivers: ["Ryan Blaney", "Christopher Bell", "Riley Herbst", "Ty Gibbs", "Carson Hocevar"] }
   }
 };
 
+let isDataLoaded = false;
+
+// -----------------------------------------------------------------------------
 // Core Data Loading Functions
+// (For this example, we're only using driver data from one range; adjust as needed)
+// -----------------------------------------------------------------------------
+
 async function fetchDataFromGoogleSheets() {
   const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
-
   try {
     const response = await fetch(driversUrl);
     if (!response.ok) {
       throw new Error("Failed to fetch data from Google Sheets");
     }
-
     const data = await response.json();
     if (data.values && data.values.length > 0) {
       processRaceData(data.values);
@@ -69,17 +61,19 @@ function processRaceData(data) {
   const headerRow = data[0];
   const positions = data.slice(1);
   
+  // Reset weeks array
   standingsData.weeks = [];
   
+  // Each column (except the first) is a track; use headerRow slice (from index 1)
   headerRow.slice(1).forEach((track, trackIndex) => {
     if (!track) return;
-
     let raceResults = {
       track: track.trim(),
       week: trackIndex + 1,
-      standings: {}
+      standings: {}  // Will hold each team's result for that track
     };
 
+    // For each team in standingsData.teams, calculate points for this track.
     Object.entries(standingsData.teams).forEach(([teamName, team]) => {
       let teamPoints = 0;
       let driverPoints = {};
@@ -92,7 +86,6 @@ function processRaceData(data) {
             points += scoringSystem[category] || 0;
           }
         });
-
         driverPoints[driver] = points;
         teamPoints += points;
       });
@@ -105,22 +98,23 @@ function processRaceData(data) {
 
     standingsData.weeks.push(raceResults);
   });
+  // For debugging:
+  console.log("Processed Race Data (Weeks):", standingsData.weeks);
 }
 
+// -----------------------------------------------------------------------------
 // Utility Functions
+// -----------------------------------------------------------------------------
+
+// Calculate overall team position (summing across all weeks)
 function calculateTeamPosition(teamName) {
   const totalPoints = {};
-  
   standingsData.weeks.forEach((week) => {
-    Object.entries(week.standings).forEach(([team, data]) => {
+    for (const [team, data] of Object.entries(week.standings)) {
       totalPoints[team] = (totalPoints[team] || 0) + data.total;
-    });
+    }
   });
-
-  const sortedTeams = Object.entries(totalPoints)
-    .sort((a, b) => b[1] - a[1])
-    .map(([team]) => team);
-
+  const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]).map(([team]) => team);
   return sortedTeams.indexOf(teamName) + 1;
 }
 
@@ -132,288 +126,262 @@ function highlightLeader() {
   }
 }
 
-function populateWeekDropdown() {
-  const weekSelect = document.getElementById("week-select");
-  if (!weekSelect) return;
-
-  weekSelect.innerHTML = "";
-
-  // Add default option
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = "Select a Week";
-  weekSelect.appendChild(defaultOption);
-
-  let lastValidWeekIndex = 0;
-
-  // Add each week and track the most recent non-zero week
-  standingsData.weeks.forEach((week, index) => {
-    if (week.track && week.track.trim() !== "") {
-      // Check if the week has non-zero data
-      const hasNonZeroData = Object.values(week.standings).some(
-        (teamData) => teamData.total > 0
-      );
-
-      if (hasNonZeroData) {
-        const option = document.createElement("option");
-        option.value = index + 1;
-        option.textContent = `Week ${index + 1}: ${week.track}`;
-        weekSelect.appendChild(option);
-        lastValidWeekIndex = index + 1; // Update the most recent valid week
-      }
+// Get overall standings (across all weeks)
+function getOverallStandings() {
+  const totalPoints = {};
+  standingsData.weeks.forEach((week) => {
+    for (const [team, data] of Object.entries(week.standings)) {
+      totalPoints[team] = (totalPoints[team] || 0) + data.total;
     }
   });
-
-  // Set the default selected option to the most recent non-zero week
-  weekSelect.value = lastValidWeekIndex;
-  loadWeeklyStandings(); // Load the standings for the most recent non-zero week
+  return Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
 }
 
-function populateTeamDropdown() {
-  const teamSelect = document.getElementById("team-select");
-  if (!teamSelect) return;
+// Get previous week’s standings (for movement calculation)
+function getPreviousWeekStandings(currentWeek) {
+  const previousWeekData = standingsData.weeks.find(week => week.week === currentWeek - 1);
+  return previousWeekData ? previousWeekData.standings : {};
+}
 
-  teamSelect.innerHTML = "";
+// Detect standings movement between two weeks
+function detectStandingsMovement(previousStandings, currentStandings) {
+  if (!Array.isArray(previousStandings) || !Array.isArray(currentStandings)) {
+    // Convert objects to arrays of entries if necessary.
+    previousStandings = Object.entries(previousStandings);
+    currentStandings = Object.entries(currentStandings);
+  }
 
-  // Add default option
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = "Select a Team";
-  teamSelect.appendChild(defaultOption);
-
-  // Add each team
-  const teams = Object.keys(standingsData.teams);
-  teams.forEach((team, index) => {
-    const option = document.createElement("option");
-    option.value = team;
-    option.textContent = team;
-    teamSelect.appendChild(option);
-
-    // Set the first team as the default selected option
-    if (index === 0) {
-      teamSelect.value = team;
+  let movement = [];
+  let previousRanks = {};
+  previousStandings.forEach((entry, index) => {
+    previousRanks[entry[0]] = index + 1;
+  });
+  currentStandings.forEach((entry, index) => {
+    const team = entry[0];
+    const currentRank = index + 1;
+    const previousRank = previousRanks[team] || currentRank;
+    const rankChange = previousRank - currentRank;
+    if (rankChange > 0) {
+      movement.push(`${team} moved up ${rankChange} spots.`);
+    } else if (rankChange < 0) {
+      movement.push(`${team} dropped ${Math.abs(rankChange)} spots.`);
     }
   });
-
-  loadTeamPage(); // Load the page for the first team
+  return movement.length > 0 ? movement : ["No major changes in overall standings."];
 }
+
+// -----------------------------------------------------------------------------
 // Main Feature Functions
+// -----------------------------------------------------------------------------
+
+// Load Overall Standings
 function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
   if (!overallTable) return;
-  
   overallTable.innerHTML = "";
   const totalPoints = {};
-
   standingsData.weeks.forEach((week) => {
-    Object.entries(week.standings).forEach(([team, data]) => {
+    for (const [team, data] of Object.entries(week.standings)) {
       totalPoints[team] = (totalPoints[team] || 0) + data.total;
-    });
+    }
   });
-
-  const sortedTeams = Object.entries(totalPoints)
-    .sort((a, b) => b[1] - a[1]);
-
+  const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
   sortedTeams.forEach(([team, points], index) => {
     const row = document.createElement("tr");
     row.className = index === 0 ? 'leader-row' : '';
-    const trophy = index === 0 ? '<i class="fas fa-trophy"></i> ' : '';
-    row.innerHTML = `
-      <td>${trophy}${team}</td>
-      <td>${points}</td>
-    `;
+    const trophy = index === 0 ? '<i class="fas fa-trophy"></i> ' : "";
+    row.innerHTML = `<td>${trophy}${team}</td><td>${points}</td>`;
     overallTable.appendChild(row);
   });
-
   highlightLeader();
 }
 
+// Load Weekly Standings
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
+  const selectedWeek = parseInt(weekSelect.value, 10);
   const weeklyTable = document.querySelector("#weekly-standings tbody");
-  const trackImage = document.getElementById("track-image");
-  
   if (!weeklyTable) return;
   weeklyTable.innerHTML = "";
-
-  if (!weekSelect?.value) {
-    const recapContainer = document.getElementById("weekly-recap");
-    if (recapContainer) recapContainer.innerHTML = "";
-    return;
-  }
-
-  const selectedWeek = parseInt(weekSelect.value, 10);
-  const weekData = standingsData.weeks[selectedWeek - 1];
-
+  const weekData = standingsData.weeks.find(week => week.week === selectedWeek);
   if (weekData) {
-    if (trackImage) {
-      const trackName = weekData.track.replace(/[^a-zA-Z0-9]/g, '_');
-      const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
-      trackImage.src = trackImageUrl;
-      trackImage.alt = `${weekData.track} Track`;
-      trackImage.onerror = function() {
-        this.src = "https://via.placeholder.com/200";
-      };
-    }
-
-    const sortedTeams = Object.entries(weekData.standings)
-      .sort((a, b) => b[1].total - a[1].total);
-
-    sortedTeams.forEach(([team, data], index) => {
+    const sortedStandings = Object.entries(weekData.standings).sort((a, b) => b[1].total - a[1].total);
+    sortedStandings.forEach(([team, data], index) => {
       const row = document.createElement("tr");
       row.className = index === 0 ? 'leader-row' : '';
-      const flag = index === 0 ? '<i class="fas fa-flag-checkered"></i> ' : '';
-      row.innerHTML = `
-        <td>${flag}${team}</td>
-        <td>${data.total}</td>
-      `;
+      const flag = index === 0 && data.total > 0 ? '<i class="fas fa-flag-checkered"></i> ' : "";
+      row.innerHTML = `<td>${flag}${team}</td><td>${data.total}</td>`;
       weeklyTable.appendChild(row);
     });
-
-    generateWeeklyRecap();
   }
+  generateWeeklyRecap();
 }
 
+// Generate Weekly Recap (Winner, Worst, Overall Movement)
 function generateWeeklyRecap() {
-  const recapContainer = document.getElementById("weekly-recap");
+  const recapContainer = document.getElementById("race-recap");
   if (!recapContainer) return;
 
   const weekSelect = document.getElementById("week-select");
-  if (!weekSelect) return;
-
   const selectedWeek = parseInt(weekSelect.value, 10);
-  const weekData = standingsData.weeks[selectedWeek - 1];
-
+  const weekData = standingsData.weeks.find(week => week.week === selectedWeek);
   if (!weekData) {
     recapContainer.innerHTML = "<p>No data available for this week.</p>";
     return;
   }
 
-  let recapText = `<h3>Race Recap: ${weekData.track}</h3>`;
+  // Extract current standings (object with team: { total, drivers })
+  const currentStandings = weekData.standings;
 
-  const weeklyPoints = Object.values(weekData.standings).map(data => data.total);
-  const avgPoints = weeklyPoints.reduce((a, b) => a + b, 0) / weeklyPoints.length;
+  // Sort teams based on their total points for the week
+  const sortedTeams = Object.entries(currentStandings).sort((a, b) => b[1].total - a[1].total);
+  if (sortedTeams.length === 0) {
+    recapContainer.innerHTML = "<p>No standings available for this week.</p>";
+    return;
+  }
 
-  recapText += `
-    <div class="recap-section">
-      <h4>📊 Weekly Overview</h4>
-      <ul>
-        <li>Average Team Score: ${avgPoints.toFixed(1)} points</li>
-        <li>Teams Above Average: ${weeklyPoints.filter(p => p > avgPoints).length}</li>
-        <li>Point Spread: ${Math.max(...weeklyPoints) - Math.min(...weeklyPoints)} points</li>
-      </ul>
-    </div>
-  `;
+  // Determine winning and last-place teams
+  const winningTeamName = sortedTeams[0][0];
+  const winningTeamPoints = sortedTeams[0][1].total;
+  const lastPlaceTeamName = sortedTeams[sortedTeams.length - 1][0];
+  const lastPlaceTeamPoints = sortedTeams[sortedTeams.length - 1][1].total;
 
-  const sortedTeams = Object.entries(weekData.standings)
-    .sort((a, b) => b[1].total - a[1].total);
-  
-  const [winningTeam, winningData] = sortedTeams[0];
-  recapText += `
-    <div class="recap-section">
-      <h4>🏆 Top Performers</h4>
-      <p><strong>${winningTeam}</strong> won the week with ${winningData.total} points!</p>
-    `;
+  let recapHTML = `<h2>Race Recap: ${weekData.track}</h2>
+    <h3>Winning Team: ${winningTeamName} - ${winningTeamPoints} points</h3>`;
 
-  const allDriversScores = [];
-  Object.entries(weekData.standings).forEach(([team, data]) => {
-    Object.entries(data.drivers).forEach(([driver, points]) => {
-      allDriversScores.push({ team, driver, points });
-    });
-  });
+  // Top performers on the winning team (drivers with over 30 points)
+  let topDriverNames = [];
+  if (standingsData.teams.hasOwnProperty(winningTeamName)) {
+    const topDrivers = standingsData.teams[winningTeamName].drivers.filter(driver => driver.totalPoints > 30);
+    topDriverNames = topDrivers.map(driver => `${driver.driver} with ${driver.totalPoints} points`);
+  }
+  recapHTML += `<h4>Top Performers:</h4>
+    <p>${topDriverNames.length > 0 ? topDriverNames.join('<br>') : "No drivers scored over 30 points on the winning team."}</p>`;
 
-  const topDrivers = allDriversScores
-    .sort((a, b) => b.points - a.points)
-    .slice(0, 3);
+  // Worst performers on the last-place team (drivers with less than 6 points)
+  let worstDriverNames = [];
+  if (standingsData.teams.hasOwnProperty(lastPlaceTeamName)) {
+    const worstDrivers = standingsData.teams[lastPlaceTeamName].drivers.filter(driver => driver.totalPoints < 6);
+    worstDriverNames = worstDrivers.map(driver => `${driver.driver} with ${driver.totalPoints} points`);
+  }
+  recapHTML += `<h3>Last Place Team: ${lastPlaceTeamName} - ${lastPlaceTeamPoints} points</h3>
+    <h4>Worst Performers:</h4>
+    <p>${worstDriverNames.length > 0 ? worstDriverNames.join('<br>') : "No drivers had a bad week (under 6 points) on the last place team."}</p>`;
 
-  recapText += `<p>Top Scoring Drivers:</p><ul>`;
-  topDrivers.forEach(({ driver, team, points }) => {
-    recapText += `<li>${driver} (${team}) - ${points} points</li>`;
-  });
-  recapText += `</ul></div>`;
+  // Overall standings movement between the previous week and current week
+  const previousStandings = getPreviousWeekStandings(selectedWeek);
+  const currentOverallStandings = getOverallStandings();
+  const movement = detectStandingsMovement(previousStandings, currentOverallStandings);
+  recapHTML += `<h4>Overall Standings Movement:</h4>
+    <p>${movement.join('<br>')}</p>`;
 
-  recapContainer.innerHTML = recapText;
+  recapContainer.innerHTML = recapHTML;
 }
 
+// Detect Standings Movement between previous and current overall standings
+function detectStandingsMovement(previousStandings, currentStandings) {
+  // previousStandings and currentStandings are arrays of [team, points]
+  let movement = [];
+  let previousRanks = {};
+  previousStandings.forEach((entry, index) => {
+    previousRanks[entry[0]] = index + 1;
+  });
+  currentStandings.forEach((entry, index) => {
+    const team = entry[0];
+    const currentRank = index + 1;
+    const previousRank = previousRanks[team] || currentRank;
+    const rankChange = previousRank - currentRank;
+    if (rankChange > 0) {
+      movement.push(`${team} moved up ${rankChange} spots.`);
+    } else if (rankChange < 0) {
+      movement.push(`${team} dropped ${Math.abs(rankChange)} spots.`);
+    }
+  });
+  return movement.length > 0 ? movement : ["No major changes in overall standings."];
+}
+
+// Helper function to get previous week's standings (as an object)
+function getPreviousWeekStandings(currentWeek) {
+  const previousWeekData = standingsData.weeks.find(week => week.week === currentWeek - 1);
+  return previousWeekData ? previousWeekData.standings : {};
+}
+
+// Load Team Page (Roster, Images, Stats)
 function loadTeamPage() {
-  if (!isDataLoaded) return;
-
   const teamSelect = document.getElementById("team-select");
-  if (!teamSelect) return;
-
-  const selectedTeam = teamSelect.value;
+  const trackSelect = document.getElementById("track-select");
   const teamRoster = document.querySelector("#team-roster tbody");
   const teamImage = document.getElementById("team-image");
   const teamStatsContainer = document.getElementById("team-stats");
-  const trackSelect = document.getElementById("track-select");
 
-  if (!standingsData.teams[selectedTeam] || !teamRoster) return;
+  if (!teamSelect || !trackSelect || !teamRoster || !teamImage || !teamStatsContainer) return;
 
-  // Clear and populate track select dropdown
-  if (trackSelect) {
-    trackSelect.innerHTML = "";
-    // Add default option
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "";
-    defaultOption.textContent = "All Races";
-    trackSelect.appendChild(defaultOption);
+  let selectedTeam = teamSelect.value;
+  let selectedTrack = trackSelect.value;
 
-    let lastValidTrackIndex = 0;
-
-    // Add each track and track the most recent non-zero track
-    standingsData.weeks.forEach((week, index) => {
-      if (week.track && week.track.trim() !== "") {
-        // Check if the track has non-zero data for the selected team
-        const teamData = week.standings[selectedTeam];
-        const hasNonZeroData = teamData && teamData.total > 0;
-
-        if (hasNonZeroData) {
-          const option = document.createElement("option");
-          option.value = index;
-          option.textContent = week.track;
-          trackSelect.appendChild(option);
-          lastValidTrackIndex = index; // Update the most recent valid track
-        }
-      }
-    });
-
-    // Set the default selected option to the most recent non-zero track
-    trackSelect.value = lastValidTrackIndex;
+  if (!standingsData.teams[selectedTeam]) {
+    teamRoster.innerHTML = "<tr><td colspan='3'>No data found for this team.</td></tr>";
+    return;
   }
 
-  // Calculate driver points based on track selection
-  const selectedTrackIndex = trackSelect ? trackSelect.value : "";
-  const driverTotals = {};
+  const teamData = standingsData.teams[selectedTeam];
 
-  standingsData.teams[selectedTeam].drivers.forEach((driver) => {
-    driverTotals[driver] = 0;
+  // Update team image
+  const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${selectedTeam.replace(/\s+/g, '_')}.png`;
+  teamImage.src = teamImageUrl;
+  teamImage.alt = `${selectedTeam} Logo`;
+  teamImage.onerror = function () {
+    this.src = "https://via.placeholder.com/100";
+  };
 
-    if (selectedTrackIndex === "") {
-      // Calculate total points across all races
-      standingsData.weeks.forEach((week) => {
-        if (week.standings[selectedTeam]?.drivers[driver]) {
-          driverTotals[driver] += week.standings[selectedTeam].drivers[driver];
-        }
-      });
-    } else {
-      // Calculate points for the selected race only
-      const week = standingsData.weeks[selectedTrackIndex];
-      if (week?.standings[selectedTeam]?.drivers[driver]) {
-        driverTotals[driver] = week.standings[selectedTeam].drivers[driver];
-      }
+  // Populate track dropdown for this team (only tracks with data)
+  trackSelect.innerHTML = "";
+  standingsData.weeks.forEach((week, index) => {
+    if (teamData.totals[index] !== undefined && teamData.totals[index] > 0) {
+      const option = document.createElement("option");
+      option.value = index;
+      option.textContent = week.track;
+      trackSelect.appendChild(option);
     }
   });
 
-  // Clear and populate team roster
-  teamRoster.innerHTML = "";
-  let teamTotal = 0;
+  if (trackSelect.options.length === 0) {
+    teamRoster.innerHTML = "<tr><td colspan='3'>No data available for any track.</td></tr>";
+    return;
+  }
 
-  Object.entries(driverTotals).forEach(([driver, points]) => {
-    teamTotal += points;
+  // Default to first available track if none selected
+  if (!selectedTrack) {
+    trackSelect.selectedIndex = 0;
+    selectedTrack = trackSelect.value;
+  }
+
+  loadTeamRoster(selectedTeam, selectedTrack);
+}
+
+function loadTeamRoster(teamName, trackIndex) {
+  const teamRoster = document.querySelector("#team-roster tbody");
+  const teamData = standingsData.teams[teamName];
+  const trackData = standingsData.weeks[trackIndex];
+
+  if (!trackData) {
+    teamRoster.innerHTML = "<tr><td colspan='3'>No track data available.</td></tr>";
+    return;
+  }
+
+  // Clear roster table and calculate totals
+  teamRoster.innerHTML = "";
+  let teamTotalTrackPoints = 0;
+
+  // Build header row is assumed to be in HTML
+  teamData.drivers.forEach((driver) => {
+    const trackPoints = driver.points[trackIndex] || 0;
+    teamTotalTrackPoints += trackPoints;
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${driver}</td>
-      <td class="points-cell">${points}</td>
+      <td>${driver.driver}</td>
+      <td class="points-cell">${trackPoints}</td>
+      <td class="points-cell">${driver.totalPoints}</td>
     `;
     teamRoster.appendChild(row);
   });
@@ -421,101 +389,143 @@ function loadTeamPage() {
   const totalRow = document.createElement("tr");
   totalRow.className = "total-row";
   totalRow.innerHTML = `
-    <td><strong>Total Team Points</strong></td>
-    <td class="points-cell"><strong>${teamTotal}</strong></td>
+    <td><strong>Total Team Points (Track)</strong></td>
+    <td class="points-cell"><strong>${teamTotalTrackPoints}</strong></td>
+    <td></td>
   `;
   teamRoster.appendChild(totalRow);
 
-  // Update team image
-  if (teamImage) {
-    const teamImageName = selectedTeam.replace(/[^a-zA-Z0-9]/g, "_");
-    const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${teamImageName}.png`;
-    teamImage.src = teamImageUrl;
-    teamImage.alt = `${selectedTeam} Logo`;
-    teamImage.onerror = function () {
-      this.src = "https://via.placeholder.com/100";
-    };
-  }
+  // Update team statistics (overall team position, total points, average points per race)
+  const teamPosition = calculateTeamPosition(teamName);
+  const overallStandings = getOverallStandings();
+  const teamOverallPoints = overallStandings.find(([team]) => team === teamName)?.[1] || 0;
+  const raceCount = standingsData.weeks.length;
+  const averagePoints = (teamOverallPoints / raceCount).toFixed(1);
 
-  // Update team statistics
-  if (teamStatsContainer) {
-    const position = calculateTeamPosition(selectedTeam);
-    const raceCount = selectedTrackIndex === "" ? standingsData.weeks.length : 1;
-    const averagePoints = (teamTotal / raceCount).toFixed(1);
-
-    teamStatsContainer.innerHTML = `
-      <h3>Team Statistics</h3>
-      <p>Current Position: ${position}</p>
-      <p>Total Points: ${teamTotal}</p>
-      <p>Average Points per Race: ${averagePoints}</p>
-    `;
-  }
+  teamStatsContainer.innerHTML = `
+    <h3>Team Statistics</h3>
+    <p>Position: ${teamPosition}</p>
+    <p>Total Points (Season): ${teamOverallPoints}</p>
+    <p>Average Points per Race: ${averagePoints}</p>
+  `;
 }
 
+// Open Tabs (for switching between pages/sections)
 function openTab(tabName) {
-  const tabcontents = document.querySelectorAll(".tabcontent");
-  const tablinks = document.querySelectorAll(".tablink");
+  document.querySelectorAll(".tabcontent").forEach(tab => tab.style.display = "none");
+  document.querySelectorAll(".tablink").forEach(link => link.classList.remove("active"));
 
-  tabcontents.forEach(tab => tab.style.display = "none");
-  tablinks.forEach(link => link.classList.remove("active"));
- // Show the selected tab content
   const selectedTab = document.getElementById(tabName);
   if (selectedTab) {
     selectedTab.style.display = "block";
   }
-
-  // Add the "active" class to the selected tab link
-  const selectedTabLink = document.querySelector(`[onclick="openTab('${tabName}')"]`);
-  if (selectedTabLink) {
-    selectedTabLink.classList.add("active");
+  const selectedLink = document.querySelector(`[onclick="openTab('${tabName}')"]`);
+  if (selectedLink) {
+    selectedLink.classList.add("active");
   }
 
-  // Load data for the selected tab
   if (tabName === "weekly-standings") {
     loadWeeklyStandings();
   } else if (tabName === "teams") {
+    populateTeamDropdown();
     loadTeamPage();
   }
 }
 
-function highlightLeader() {
-  const leaderRow = document.querySelector('.leader-row');
-  if (leaderRow) {
-    leaderRow.style.backgroundColor = '#f0f8ff';
-    leaderRow.style.fontWeight = 'bold';
-  }
-}
-
+// Initialize the App
 function initializeApp() {
   if (!isDataLoaded) return;
-
+  
   populateWeekDropdown();
   populateTeamDropdown();
   loadOverallStandings();
   loadWeeklyStandings();
-  
-  // Set up event listeners
+  generateWeeklyRecap();
+
+  // Set up event listeners for dropdowns
   const weekSelect = document.getElementById("week-select");
   if (weekSelect) {
-    weekSelect.addEventListener("change", loadWeeklyStandings);
+    weekSelect.addEventListener("change", () => {
+      loadWeeklyStandings();
+      generateWeeklyRecap();
+    });
   }
-
   const teamSelect = document.getElementById("team-select");
   if (teamSelect) {
     teamSelect.addEventListener("change", loadTeamPage);
   }
-
   const trackSelect = document.getElementById("track-select");
   if (trackSelect) {
     trackSelect.addEventListener("change", loadTeamPage);
   }
- openTab("weekly-standings"); // Open the Weekly Standings tab by default
-  // Set up the first tab as active by default
-  const defaultTab = document.querySelector(".tablink");
-  if (defaultTab) {
-    defaultTab.click();
-  }
+  
+  openTab("weekly-standings"); // Open the Weekly Standings tab by default
+  // Optionally, set the first tab as active if needed.
 }
 
-// Initialize the app when the window loads
-window.onload = fetchDataFromGoogleSheets;
+// Calculate Overall Team Position (summed across all weeks)
+function calculateTeamPosition(teamName) {
+  const totalPoints = {};
+  standingsData.weeks.forEach((week) => {
+    for (const [team, data] of Object.entries(week.standings)) {
+      totalPoints[team] = (totalPoints[team] || 0) + data.total;
+    }
+  });
+  const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]).map(([team]) => team);
+  return sortedTeams.indexOf(teamName) + 1;
+}
+
+// -----------------------------------------------------------------------------
+// Standings Movement Functions
+// -----------------------------------------------------------------------------
+// Get overall standings (summed across all weeks)
+function getOverallStandings() {
+  const totalPoints = {};
+  standingsData.weeks.forEach((week) => {
+    for (const [team, data] of Object.entries(week.standings)) {
+      totalPoints[team] = (totalPoints[team] || 0) + data.total;
+    }
+  });
+  return Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
+}
+
+// Get previous week standings (for movement calculation)
+function getPreviousWeekStandings(currentWeek) {
+  const previousWeekData = standingsData.weeks.find(week => week.week === currentWeek - 1);
+  return previousWeekData ? previousWeekData.standings : {};
+}
+
+// Detect movement between previous and current overall standings
+function detectStandingsMovement(previousStandings, currentStandings) {
+  // Convert standings objects to arrays if necessary
+  if (!Array.isArray(previousStandings)) {
+    previousStandings = Object.entries(previousStandings);
+  }
+  if (!Array.isArray(currentStandings)) {
+    currentStandings = Object.entries(currentStandings);
+  }
+  
+  let movement = [];
+  let previousRanks = {};
+  previousStandings.forEach((entry, index) => {
+    previousRanks[entry[0]] = index + 1;
+  });
+  currentStandings.forEach((entry, index) => {
+    const team = entry[0];
+    const currentRank = index + 1;
+    const previousRank = previousRanks[team] || currentRank;
+    const rankChange = previousRank - currentRank;
+    if (rankChange > 0) {
+      movement.push(`${team} moved up ${rankChange} spots.`);
+    } else if (rankChange < 0) {
+      movement.push(`${team} dropped ${Math.abs(rankChange)} spots.`);
+    }
+  });
+  return movement.length > 0 ? movement : ["No major changes in overall standings."];
+}
+
+// -----------------------------------------------------------------------------
+// Start the App by fetching data from Google Sheets when window loads
+window.onload = () => {
+  fetchDataFromGoogleSheets();
+};
