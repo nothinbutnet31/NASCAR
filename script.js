@@ -97,6 +97,14 @@ async function fetchDataFromGoogleSheets() {
   }
 }
 
+// Helper function to highlight leader - moved outside
+function highlightLeader() {
+  const leaderRow = document.querySelector('.leader-row');
+  if (leaderRow) {
+    leaderRow.style.backgroundColor = '#f0f8ff';
+    leaderRow.style.fontWeight = 'bold';
+  }
+}
 // Process race data
 function processRaceData(data) {
   const headerRow = data[0]; // First row contains track names
@@ -168,13 +176,7 @@ function loadOverallStandings() {
     overallTable.appendChild(row);
   });
 
- function highlightLeader() {
-  const leaderRow = document.querySelector('.leader-row');
-  if (leaderRow) {
-    leaderRow.style.backgroundColor = '#f0f8ff'; // Light blue background
-    leaderRow.style.fontWeight = 'bold';
-  }
-}
+ highlightLeader();
 }
 
 // Load Weekly Standings
