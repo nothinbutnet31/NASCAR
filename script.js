@@ -388,7 +388,12 @@ function populateTeamDropdown() {
 // Populate Week Dropdown
 function populateWeekDropdown() {
   const weekSelect = document.getElementById("week-select");
-  if (!weekSelect) return;
+  if (!weekSelect) {
+    console.warn("Week select element not found");
+    return;
+  }
+
+  console.log("Populating week dropdown with data:", standingsData.weeks); // Debug log
 
   weekSelect.innerHTML = "";
 
@@ -400,50 +405,154 @@ function populateWeekDropdown() {
 
   if (standingsData.weeks && standingsData.weeks.length > 0) {
     standingsData.weeks.forEach((week) => {
-      if (week.track && week.track.trim() !== "") {
+      if (week && week.track && week.track.trim() !== "") {
         const option = document.createElement("option");
         option.value = week.week;
         option.textContent = `Week ${week.week} - ${week.track}`;
         weekSelect.appendChild(option);
+        console.log(`Added week option: ${option.textContent}`); // Debug log
       }
     });
 
-    // Set to the latest week
+    // Set to the latest week with data
     const latestWeek = findLatestWeekWithData();
     if (latestWeek) {
       weekSelect.value = latestWeek;
+      console.log(`Set to latest week: ${latestWeek}`); // Debug log
       loadWeeklyStandings();
+      updateTrackImage();
     }
   } else {
-    console.warn("No week data available");
+    console.warn("No weeks data available");
   }
 
   // Add change event listener
   weekSelect.addEventListener("change", () => {
-    loadWeeklyStandings();
-    generateWeeklyRecap();
-    updateTrackImage();
+    const selectedWeek = weekSelect.value;
+    console.log(`Week selection changed to: ${selectedWeek}`); // Debug log
+    if (selectedWeek) {
+      loadWeeklyStandings();
+      generateWeeklyRecap();
+      updateTrackImage();
+    }
   });
+}
+
+// Helper function to find latest week with data
+function findLatestWeekWithData() {
+  if (!standingsData.weeks || standingsData.weeks.length === 0) {
+    return null;
+  }
+
+  for (let i = standingsData.weeks.length - 1; i >= 0; i--) {
+    const week = standingsData.weeks[i];
+    if (week && week.track && Object.keys(week.standings).length > 0) {
+      return week.week;
+    }
+  }
+
+  return standingsData.weeks[0].week; // Default to first week if no other valid week found
 }
 
 // Add this new function to handle track images
 function updateTrackImage() {
   const weekSelect = document.getElementById("week-select");
   const trackImage = document.getElementById("track-image");
+  const selectionContainer = document.getElementById("selection-container");
   
-  if (!trackImage || !weekSelect.value) return;
-
-  const selectedWeek = standingsData.weeks.find(week => week.week === parseInt(weekSelect.value, 10));
+  // Create or update the selection container styling
+  if (!selectionContainer) {
+    const container = document.createElement("div");
+    container.id = "selection-container";
+    container.style.cssText = `
+      display: flex;
+      justify-content: center;
+      align-items: start;
+      gap: 40px;
+      margin: 20px auto;
+      width: 100%;
+    `;
+    
+    // Create left and right containers
+    const leftContainer = document.createElement("div");
+    leftContainer.style.cssText = `
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    `;
+    
+    const rightContainer = document.createElement("div");
+    rightContainer.style.cssText = `
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    `;
+    
+    // Move elements to their containers
+    if (weekSelect) {
+      weekSelect.style.cssText = `
+        padding: 8px;
+        margin-bottom: 10px;
+        width: 200px;
+      `;
+      leftContainer.appendChild(weekSelect);
+    }
+    
+    if (trackImage) {
+      trackImage.style.cssText = `
+        width: 200px;
+        height: auto;
+        border-radius: 8px;
+      `;
+      leftContainer.appendChild(trackImage);
+    }
+    
+    const teamSelect = document.getElementById("team-select");
+    const teamImage = document.getElementById("team-image");
+    
+    if (teamSelect) {
+      teamSelect.style.cssText = `
+        padding: 8px;
+        margin-bottom: 10px;
+        width: 200px;
+      `;
+      rightContainer.appendChild(teamSelect);
+    }
+    
+    if (teamImage) {
+      teamImage.style.cssText = `
+        width: 200px;
+        height: auto;
+        border-radius: 8px;
+      `;
+      rightContainer.appendChild(teamImage);
+    }
+    
+    container.appendChild(leftContainer);
+    container.appendChild(rightContainer);
+    
+    // Insert the container in the correct location
+    const weeklyContent = document.getElementById("weekly");
+    if (weeklyContent) {
+      weeklyContent.insertBefore(container, weeklyContent.firstChild);
+    }
+  }
   
-  if (selectedWeek && selectedWeek.track) {
-    const trackName = selectedWeek.track.replace(/[^a-zA-Z0-9]/g, '_');
-    const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
-    trackImage.src = trackImageUrl;
-    trackImage.alt = `${selectedWeek.track} Track`;
-    trackImage.onerror = function() {
-      this.src = "https://via.placeholder.com/200";
-      console.warn(`Track image not found for ${selectedWeek.track}`);
-    };
+  // Update track image
+  if (trackImage && weekSelect.value) {
+    const selectedWeek = standingsData.weeks.find(week => week.week === parseInt(weekSelect.value, 10));
+    if (selectedWeek && selectedWeek.track) {
+      const trackName = selectedWeek.track.replace(/[^a-zA-Z0-9]/g, '_');
+      const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
+      trackImage.src = trackImageUrl;
+      trackImage.alt = `${selectedWeek.track} Track`;
+      trackImage.onerror = function() {
+        this.src = "https://via.placeholder.com/200";
+        console.warn(`Track image not found for ${selectedWeek.track}`);
+      };
+    }
   }
 }
 
@@ -462,19 +571,6 @@ function openTab(tabName) {
     populateTeamDropdown();
     loadTeamPage();
   }
-}
-
-// Find the most recent week with points
-function findLatestWeekWithData() {
-  for (let i = standingsData.weeks.length - 1; i >= 0; i--) {
-    const week = standingsData.weeks[i];
-    // Check if any team has points greater than 0
-    const hasPoints = Object.values(week.standings).some(points => points > 0);
-    if (hasPoints) {
-      return week.week;
-    }
-  }
-  return 1; // Default to week 1 if no weeks with points are found
 }
 
 // Initialize the Page after data is loaded
