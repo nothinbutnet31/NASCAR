@@ -328,11 +328,11 @@ function generateWeeklyRecap() {
     .sort((a, b) => b.points - a.points)
     .slice(0, 3);
 
-  recapText += <p>Top Scoring Drivers:</p><ul>;
+  recapText += `<p>Top Scoring Drivers:</p><ul>`;
   topDrivers.forEach(({ driver, team, points }) => {
-    recapText += <li>${driver} (${team}) - ${points} points</li>;
+    recapText += `<li>${driver} (${team}) - ${points} points</li>`;
   });
-  recapText += </ul></div>;
+  recapText += `</ul></div>`;
 
   recapContainer.innerHTML = recapText;
 }
@@ -446,12 +446,12 @@ function loadTeamPage() {
     const raceCount = selectedTrackIndex === "" ? standingsData.weeks.length : 1;
     const averagePoints = (teamTotal / raceCount).toFixed(1);
 
-    teamStatsContainer.innerHTML = 
+    teamStatsContainer.innerHTML = `
       <h3>Team Statistics</h3>
       <p>Current Position: ${position}</p>
       <p>Total Points: ${teamTotal}</p>
       <p>Average Points per Race: ${averagePoints}</p>
-    ;
+    `;
   }
 }
 
