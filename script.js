@@ -406,7 +406,6 @@ function loadTeamPage() {
 
     // Add each track with valid points
     standingsData.weeks.forEach((week, index) => {
-      // Check if the week has any valid points for the selected team
       const hasValidPoints = week.standings[selectedTeam]?.total > 0;
 
       if (week && week.track && week.track.trim() !== "" && hasValidPoints) {
@@ -416,6 +415,10 @@ function loadTeamPage() {
         trackSelect.appendChild(option);
       }
     });
+
+    // Set initial value to "All Races" and update track image
+    trackSelect.value = "";
+    updateTrackImageForTeamPage("");
 
     // Add change event listener (only once)
     trackSelect.removeEventListener("change", trackSelect.changeHandler);
