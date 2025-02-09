@@ -199,22 +199,7 @@ footer p {
     flex-direction: column;
     align-items: center;
   }
-#weekly-standings table {
-    width: 100%;
-    font-size: 1.4em !important;
-    margin: 20px 0;
-    border-collapse: collapse;
-}
 
-#weekly-standings td, 
-#weekly-standings th {
-    padding: 20px !important;
-    text-align: left;
-    border: 1px solid #ddd;
-}
-
-#weekly-standings tbody tr {
-    line-height: 2.5 !important;
 }
 
 .tabcontent {
@@ -240,4 +225,41 @@ footer p {
   .team-selection select, .track-selection select {
     width: 100%;
   }
+}
+/* Weekly Standings Specific Styles */
+#weekly-standings table {
+    width: 100%;
+    font-size: 24px !important;
+    margin: 20px 0;
+    border-collapse: collapse;
+}
+
+#weekly-standings td, 
+#weekly-standings th {
+    padding: 25px 30px !important;
+    text-align: left;
+    border: 2px solid #ddd !important;
+}
+
+#weekly-standings th {
+    background-color: #1E88E5;
+    color: white;
+    font-size: 26px !important;
+}
+
+#weekly-standings tbody tr {
+    line-height: 1.5;
+    height: 80px !important;
+}
+
+#weekly-standings .leader-row {
+    background-color: gold !important;
+    font-weight: bold;
+}
+
+/* Make the container wider for weekly standings */
+#weekly-standings.tabcontent {
+    max-width: 1400px !important;
+    margin: 0 auto;
+    padding: 20px;
 }
