@@ -271,11 +271,11 @@ function calculateStagePoints(driver, weekData) {
   Object.values(weekData.standings).forEach(teamData => {
     Object.entries(teamData.drivers).forEach(([driverName, points]) => {
       if (driverName === driver) {
-        // Check for stage wins (10 points each in scoring system)
-        if (points >= scoringSystem["Stage 1 Winner"]) {
+        // Look specifically for stage wins in the data
+        if (points === scoringSystem["Stage 1 Winner"]) {
           stagePoints += scoringSystem["Stage 1 Winner"];
         }
-        if (points >= scoringSystem["Stage 2 Winner"]) {
+        if (points === scoringSystem["Stage 2 Winner"]) {
           stagePoints += scoringSystem["Stage 2 Winner"];
         }
       }
@@ -290,8 +290,8 @@ function calculateQualifyingBonus(driver, weekData) {
   Object.values(weekData.standings).forEach(teamData => {
     Object.entries(teamData.drivers).forEach(([driverName, points]) => {
       if (driverName === driver) {
-        // Check for pole (5 points in scoring system)
-        if (points >= scoringSystem["Pole Winner"]) {
+        // Look specifically for pole position
+        if (points === scoringSystem["Pole Winner"]) {
           qualifyingBonus += scoringSystem["Pole Winner"];
         }
       }
@@ -300,14 +300,14 @@ function calculateQualifyingBonus(driver, weekData) {
   return qualifyingBonus;
 }
 
-// Add helper function for fastest lap bonus
+// Helper function for fastest lap bonus
 function calculateFastestLapBonus(driver, weekData) {
   let fastestLapBonus = 0;
   Object.values(weekData.standings).forEach(teamData => {
     Object.entries(teamData.drivers).forEach(([driverName, points]) => {
       if (driverName === driver) {
-        // Check for fastest lap (1 point in scoring system)
-        if (points >= scoringSystem["Fastest Lap"]) {
+        // Look specifically for fastest lap
+        if (points === scoringSystem["Fastest Lap"]) {
           fastestLapBonus += scoringSystem["Fastest Lap"];
         }
       }
