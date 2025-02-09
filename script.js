@@ -43,7 +43,7 @@ let standingsData = {
 
 // Core Data Loading Functions
 async function fetchDataFromGoogleSheets() {
-  const driversUrl = https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey};
+  const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
 
   try {
     const response = await fetch(driversUrl);
@@ -127,7 +127,7 @@ function calculateTeamPosition(teamName) {
 function highlightLeader() {
   const leaderRow = document.querySelector('.leader-row');
   if (leaderRow) {
-    leaderRow.style.backgroundColor = '#f0f8ff';
+    leaderRow.style.backgroundColor = '#fff000';
     leaderRow.style.fontWeight = 'bold';
   }
 }
@@ -157,8 +157,9 @@ function populateWeekDropdown() {
       if (hasNonZeroData) {
         const option = document.createElement("option");
         option.value = index + 1;
-        option.textContent = Week ${index + 1}: ${week.track};
-        weekSelect.appendChild(option);
+        
+        option.textContent = `Week ${index + 1}: ${week.track}`; // Fix: Add backticks
+       weekSelect.appendChild(option);
         lastValidWeekIndex = index + 1; // Update the most recent valid week
       }
     }
@@ -218,10 +219,10 @@ function loadOverallStandings() {
     const row = document.createElement("tr");
     row.className = index === 0 ? 'leader-row' : '';
     const trophy = index === 0 ? '<i class="fas fa-trophy"></i> ' : '';
-    row.innerHTML = 
+    row.innerHTML =`
       <td>${trophy}${team}</td>
       <td>${points}</td>
-    ;
+    `;
     overallTable.appendChild(row);
   });
 
@@ -248,9 +249,10 @@ function loadWeeklyStandings() {
   if (weekData) {
     if (trackImage) {
       const trackName = weekData.track.replace(/[^a-zA-Z0-9]/g, '_');
-      const trackImageUrl = https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png;
+      const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
       trackImage.src = trackImageUrl;
-      trackImage.alt = ${weekData.track} Track;
+      trackImage.alt = `${weekData.track} Track`;
+
       trackImage.onerror = function() {
         this.src = "https://via.placeholder.com/200";
       };
@@ -263,10 +265,10 @@ function loadWeeklyStandings() {
       const row = document.createElement("tr");
       row.className = index === 0 ? 'leader-row' : '';
       const flag = index === 0 ? '<i class="fas fa-flag-checkered"></i> ' : '';
-      row.innerHTML = 
+      row.innerHTML = `
         <td>${flag}${team}</td>
         <td>${data.total}</td>
-      ;
+      `;
       weeklyTable.appendChild(row);
     });
 
@@ -289,7 +291,7 @@ function generateWeeklyRecap() {
     return;
   }
 
-  let recapText = <h3>Race Recap: ${weekData.track}</h3>;
+  let recapText = `<h3>Race Recap: ${weekData.track}</h3>`;
 
   const weeklyPoints = Object.values(weekData.standings).map(data => data.total);
   const avgPoints = weeklyPoints.reduce((a, b) => a + b, 0) / weeklyPoints.length;
@@ -309,11 +311,11 @@ function generateWeeklyRecap() {
     .sort((a, b) => b[1].total - a[1].total);
   
   const [winningTeam, winningData] = sortedTeams[0];
-  recapText += 
+  recapText += `
     <div class="recap-section">
       <h4>🏆 Top Performers</h4>
       <p><strong>${winningTeam}</strong> won the week with ${winningData.total} points!</p>
-    ;
+    `;
 
   const allDriversScores = [];
   Object.entries(weekData.standings).forEach(([team, data]) => {
@@ -411,10 +413,10 @@ function loadTeamPage() {
   Object.entries(driverTotals).forEach(([driver, points]) => {
     teamTotal += points;
     const row = document.createElement("tr");
-    row.innerHTML = 
+    row.innerHTML =`
       <td>${driver}</td>
       <td class="points-cell">${points}</td>
-    ;
+    `;
     teamRoster.appendChild(row);
   });
 
@@ -429,9 +431,10 @@ function loadTeamPage() {
   // Update team image
   if (teamImage) {
     const teamImageName = selectedTeam.replace(/[^a-zA-Z0-9]/g, "_");
-    const teamImageUrl = https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${teamImageName}.png;
+    const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${teamImageName}.png`;
     teamImage.src = teamImageUrl;
-    teamImage.alt = ${selectedTeam} Logo;
+    teamImage.alt = `${selectedTeam} Logo`;
+
     teamImage.onerror = function () {
       this.src = "https://via.placeholder.com/100";
     };
@@ -478,13 +481,7 @@ function openTab(tabName) {
   }
 }
 
-function highlightLeader() {
-  const leaderRow = document.querySelector('.leader-row');
-  if (leaderRow) {
-    leaderRow.style.backgroundColor = '#f0f8ff';
-    leaderRow.style.fontWeight = 'bold';
-  }
-}
+
 
 function initializeApp() {
   if (!isDataLoaded) return;
@@ -509,8 +506,10 @@ function initializeApp() {
   if (trackSelect) {
     trackSelect.addEventListener("change", loadTeamPage);
   }
- openTab("weekly-standings"); // Open the Weekly Standings tab by default
-  // Set up the first tab as active by default
+
+  // Just use one default tab opening method
+  openTab("weekly-standings");
+
   const defaultTab = document.querySelector(".tablink");
   if (defaultTab) {
     defaultTab.click();
