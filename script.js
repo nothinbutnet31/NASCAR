@@ -325,8 +325,7 @@ function generateWeeklyRecap() {
   });
 
   const topDrivers = allDriversScores
-    .sort((a, b) => b.points - a.points)
-    .slice(0, 3);
+    .sort((a, b) => b.points - a[1].total]);
 
   recapText += `<p>Top Scoring Drivers:</p><ul>`;
   topDrivers.forEach(({ driver, team, points }) => {
@@ -386,19 +385,21 @@ function loadTeamPage() {
   // Calculate driver points based on track selection
   const selectedTrackIndex = trackSelect ? trackSelect.value : "";
   const driverTotals = {};
+  const driverSeasonTotals = {};  // Add this for season totals
 
   standingsData.teams[selectedTeam].drivers.forEach((driver) => {
     driverTotals[driver] = 0;
+    driverSeasonTotals[driver] = 0;  // Initialize season total
 
-    if (selectedTrackIndex === "") {
-      // Calculate total points across all races
-      standingsData.weeks.forEach((week) => {
-        if (week.standings[selectedTeam]?.drivers[driver]) {
-          driverTotals[driver] += week.standings[selectedTeam].drivers[driver];
-        }
-      });
-    } else {
-      // Calculate points for the selected race only
+    // Calculate season total points
+    standingsData.weeks.forEach((week) => {
+      if (week.standings[selectedTeam]?.drivers[driver]) {
+        driverSeasonTotals[driver] += week.standings[selectedTeam].drivers[driver];
+      }
+    });
+
+    // Calculate selected race points
+    if (selectedTrackIndex !== "") {
       const week = standingsData.weeks[selectedTrackIndex];
       if (week?.standings[selectedTeam]?.drivers[driver]) {
         driverTotals[driver] = week.standings[selectedTeam].drivers[driver];
@@ -406,27 +407,17 @@ function loadTeamPage() {
     }
   });
 
-  // Clear and populate team roster
+  // Update the team roster display
   teamRoster.innerHTML = "";
-  let teamTotal = 0;
-
   Object.entries(driverTotals).forEach(([driver, points]) => {
-    teamTotal += points;
     const row = document.createElement("tr");
-    row.innerHTML =`
+    row.innerHTML = `
       <td>${driver}</td>
       <td class="points-cell">${points}</td>
+      <td class="points-cell">${driverSeasonTotals[driver]}</td>
     `;
     teamRoster.appendChild(row);
   });
-
-  const totalRow = document.createElement("tr");
-  totalRow.className = "total-row";
-  totalRow.innerHTML =` 
-    <td><strong>Total Team Points</strong></td>
-    <td class="points-cell"><strong>${teamTotal}</strong></td>
-  `;
-  teamRoster.appendChild(totalRow);
 
   // Update team image
   if (teamImage) {
@@ -444,12 +435,12 @@ function loadTeamPage() {
   if (teamStatsContainer) {
     const position = calculateTeamPosition(selectedTeam);
     const raceCount = selectedTrackIndex === "" ? standingsData.weeks.length : 1;
-    const averagePoints = (teamTotal / raceCount).toFixed(1);
+    const averagePoints = (driverSeasonTotals[selectedTeam] / raceCount).toFixed(1);
 
     teamStatsContainer.innerHTML = `
       <h3>Team Statistics</h3>
       <p>Current Position: ${position}</p>
-      <p>Total Points: ${teamTotal}</p>
+      <p>Total Points: ${driverSeasonTotals[selectedTeam]}</p>
       <p>Average Points per Race: ${averagePoints}</p>
     `;
   }
@@ -481,15 +472,12 @@ function openTab(tabName) {
   }
 }
 
-
-
 function initializeApp() {
   if (!isDataLoaded) return;
 
   populateWeekDropdown();
   populateTeamDropdown();
   loadOverallStandings();
-  loadWeeklyStandings();
   
   // Set up event listeners
   const weekSelect = document.getElementById("week-select");
@@ -507,13 +495,9 @@ function initializeApp() {
     trackSelect.addEventListener("change", loadTeamPage);
   }
 
-  // Just use one default tab opening method
+  // Open weekly standings tab first and load its content
   openTab("weekly-standings");
-
-  const defaultTab = document.querySelector(".tablink");
-  if (defaultTab) {
-    defaultTab.click();
-  }
+  loadWeeklyStandings();
 }
 
 // Initialize the app when the window loads
