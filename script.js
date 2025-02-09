@@ -479,12 +479,14 @@ function findLatestWeekWithData() {
 
 // Initialize the Page after data is loaded
 function init() {
-  if (!isDataLoaded) {
+  if (!isDataLoaded || !standingsData.weeks || standingsData.weeks.length === 0) {
     console.warn("Data not fully loaded yet.");
     return;
   }
 
-  // Load overall standings
+  console.log("Initializing with weeks data:", standingsData.weeks); // Debug log
+
+  // Load overall standings first
   loadOverallStandings();
 
   // Populate the week dropdown
@@ -492,24 +494,31 @@ function init() {
 
   // Find the latest week with data
   const latestWeek = findLatestWeekWithData();
+  console.log("Latest week found:", latestWeek); // Debug log
   
   // Set the week select dropdown to the latest week with data
   const weekSelect = document.getElementById("week-select");
   if (weekSelect) {
     weekSelect.value = latestWeek;
+    console.log("Set week select value to:", latestWeek); // Debug log
   }
 
   // Load weekly standings and recap for the latest week
   loadWeeklyStandings();
   generateWeeklyRecap();
+  updateTrackImage(); // Make sure to update track image
 
-  // When the week selection changes, update standings and recap
-  weekSelect.addEventListener("change", () => {
-    loadWeeklyStandings();
-    generateWeeklyRecap();
-  });
+  // When the week selection changes, update everything
+  if (weekSelect) {
+    weekSelect.addEventListener("change", () => {
+      console.log("Week selection changed to:", weekSelect.value); // Debug log
+      loadWeeklyStandings();
+      generateWeeklyRecap();
+      updateTrackImage();
+    });
+  }
 
-  // Populate team dropdown
+  // Initialize team page
   populateTeamDropdown();
   loadTeamPage();
 
@@ -517,10 +526,17 @@ function init() {
   openTab('weekly');
 }
 
-// Modify the onload event to include setting the initial tab
+// Make sure window.onload is properly set
 window.onload = () => {
+  console.log("Window loaded, fetching data..."); // Debug log
   fetchDataFromGoogleSheets();
   // Set weekly tab as active by default
-  document.querySelector('[onclick="openTab(\'weekly\')"]').classList.add('active');
-  document.getElementById('weekly').style.display = 'block';
+  const weeklyTab = document.querySelector('[onclick="openTab(\'weekly\')"]');
+  if (weeklyTab) {
+    weeklyTab.classList.add('active');
+  }
+  const weeklyContent = document.getElementById('weekly');
+  if (weeklyContent) {
+    weeklyContent.style.display = 'block';
+  }
 };
