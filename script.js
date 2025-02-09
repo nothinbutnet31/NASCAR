@@ -109,26 +109,32 @@ function highlightLeader() {
 function processRaceData(data) {
   const headerRow = data[0]; // First row contains track names
   const positions = data.slice(1); // Remaining rows contain positions and special categories
-
-  // Process each race (column)
+  
+  // Clear existing weeks data
+  standingsData.weeks = [];
+  
+  // Process each race (column), skip the first column which contains position labels
   headerRow.slice(1).forEach((track, trackIndex) => {
+    if (!track) return; // Skip if track name is empty
+
     let raceResults = {
-      track: track,
+      track: track.trim(), // Ensure track name is cleaned
       week: trackIndex + 1,
       standings: {}
     };
+
 
     // Calculate points for each team
     Object.entries(standingsData.teams).forEach(([teamName, team]) => {
       let teamPoints = 0;
       let driverPoints = {};
 
-      // Calculate points for each driver in the team
+  / Calculate points for each driver in the team
       team.drivers.forEach(driver => {
         let points = 0;
 
         // Check each position/category for the driver
-        positions.forEach((row, rowIndex) => {
+        positions.forEach((row) => {
           if (row[trackIndex + 1] === driver) {
             const category = row[0]; // Position or special category
             points += scoringSystem[category] || 0;
@@ -147,6 +153,8 @@ function processRaceData(data) {
 
     standingsData.weeks.push(raceResults);
   });
+
+  console.log('Processed weeks:', standingsData.weeks); // Debug log
 }
 
 // Load Overall Standings
@@ -294,39 +302,46 @@ function loadTeamPage() {
   }
 
   // Calculate and display driver points
-  let totalPoints = 0;
-  standingsData.teams[selectedTeam].drivers.forEach(driver => {
-    const driverTotalPoints = standingsData.weeks.reduce((total, week) => {
-      return total + (week.standings[selectedTeam]?.drivers[driver] || 0);
-    }, 0);
+   standingsData.teams[selectedTeam].drivers.forEach(driver => {
+    let driverTotal = 0;
+    
+    standingsData.weeks.forEach(week => {
+      if (week.standings[selectedTeam]?.drivers[driver]) {
+        driverTotal += week.standings[selectedTeam].drivers[driver];
+      }
+    });
+    
+    driverTotals[driver] = driverTotal;
+    totalTeamPoints += driverTotal;
+  });
 
-    totalPoints += driverTotalPoints;
-
+  // Then display the driver rows
+  Object.entries(driverTotals).forEach(([driver, points]) => {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${driver}</td>
-      <td>${driverTotalPoints}</td>
+      <td class="points-cell">${points}</td>
     `;
     teamRoster.appendChild(row);
   });
 
   // Add total row
-  const totalRow = document.createElement("tr");
+ const totalRow = document.createElement("tr");
   totalRow.className = "total-row";
   totalRow.innerHTML = `
-    <td><strong>Total</strong></td>
-    <td><strong>${totalPoints}</strong></td>
+    <td><strong>Total Team Points</strong></td>
+    <td class="points-cell"><strong>${totalTeamPoints}</strong></td>
   `;
   teamRoster.appendChild(totalRow);
 
   // Update team stats
-  if (teamStatsContainer) {
+ if (teamStatsContainer) {
     const position = calculateTeamPosition(selectedTeam);
     teamStatsContainer.innerHTML = `
       <h3>Team Statistics</h3>
       <p>Current Position: ${position}</p>
-      <p>Total Points: ${totalPoints}</p>
-      <p>Average Points per Race: ${(totalPoints / standingsData.weeks.length).toFixed(1)}</p>
+      <p>Total Points: ${totalTeamPoints}</p>
+      <p>Average Points per Race: ${(totalTeamPoints / standingsData.weeks.length).toFixed(1)}</p>
     `;
   }
 }
@@ -343,15 +358,31 @@ function init() {
 }
 
 // Helper functions (populateWeekDropdown, populateTeamDropdown, openTab, etc.)
+// Modified populateWeekDropdown function
 function populateWeekDropdown() {
   const weekSelect = document.getElementById("week-select");
-  weekSelect.innerHTML = "";
+  weekSelect.innerHTML = ""; // Clear existing options
 
+  if (standingsData.weeks.length === 0) {
+    console.log('No weeks data available'); // Debug log
+    return;
+  }
+
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Select a Track";
+  defaultOption.disabled = true;
+  defaultOption.selected = true;
+  weekSelect.appendChild(defaultOption);
+
+  // Add options for each week
   standingsData.weeks.forEach((week) => {
-    const option = document.createElement("option");
-    option.value = week.week;
-    option.textContent = `Week ${week.week} - ${week.track}`;
-    weekSelect.appendChild(option);
+    if (week.track) { // Only add if track name exists
+      const option = document.createElement("option");
+      option.value = week.week;
+      option.textContent = `Week ${week.week} - ${week.track}`;
+      weekSelect.appendChild(option);
+    }
   });
 
   weekSelect.addEventListener("change", () => {
