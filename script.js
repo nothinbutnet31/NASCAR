@@ -393,8 +393,6 @@ function populateWeekDropdown() {
     return;
   }
 
-  console.log("Populating week dropdown with data:", standingsData.weeks); // Debug log
-
   weekSelect.innerHTML = "";
 
   // Add default option
@@ -410,149 +408,38 @@ function populateWeekDropdown() {
         option.value = week.week;
         option.textContent = `Week ${week.week} - ${week.track}`;
         weekSelect.appendChild(option);
-        console.log(`Added week option: ${option.textContent}`); // Debug log
       }
     });
 
-    // Set to the latest week with data
-    const latestWeek = findLatestWeekWithData();
-    if (latestWeek) {
-      weekSelect.value = latestWeek;
-      console.log(`Set to latest week: ${latestWeek}`); // Debug log
-      loadWeeklyStandings();
-      updateTrackImage();
-    }
-  } else {
-    console.warn("No weeks data available");
+    // Set to the first week by default
+    weekSelect.value = "1";
+    loadWeeklyStandings();
+    updateTrackImage();
   }
 
-  // Add change event listener
   weekSelect.addEventListener("change", () => {
-    const selectedWeek = weekSelect.value;
-    console.log(`Week selection changed to: ${selectedWeek}`); // Debug log
-    if (selectedWeek) {
-      loadWeeklyStandings();
-      generateWeeklyRecap();
-      updateTrackImage();
-    }
+    loadWeeklyStandings();
+    generateWeeklyRecap();
+    updateTrackImage();
   });
-}
-
-// Helper function to find latest week with data
-function findLatestWeekWithData() {
-  if (!standingsData.weeks || standingsData.weeks.length === 0) {
-    return null;
-  }
-
-  for (let i = standingsData.weeks.length - 1; i >= 0; i--) {
-    const week = standingsData.weeks[i];
-    if (week && week.track && Object.keys(week.standings).length > 0) {
-      return week.week;
-    }
-  }
-
-  return standingsData.weeks[0].week; // Default to first week if no other valid week found
 }
 
 // Add this new function to handle track images
 function updateTrackImage() {
   const weekSelect = document.getElementById("week-select");
   const trackImage = document.getElementById("track-image");
-  const selectionContainer = document.getElementById("selection-container");
   
-  // Create or update the selection container styling
-  if (!selectionContainer) {
-    const container = document.createElement("div");
-    container.id = "selection-container";
-    container.style.cssText = `
-      display: flex;
-      justify-content: center;
-      align-items: start;
-      gap: 40px;
-      margin: 20px auto;
-      width: 100%;
-    `;
-    
-    // Create left and right containers
-    const leftContainer = document.createElement("div");
-    leftContainer.style.cssText = `
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    `;
-    
-    const rightContainer = document.createElement("div");
-    rightContainer.style.cssText = `
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-    `;
-    
-    // Move elements to their containers
-    if (weekSelect) {
-      weekSelect.style.cssText = `
-        padding: 8px;
-        margin-bottom: 10px;
-        width: 200px;
-      `;
-      leftContainer.appendChild(weekSelect);
-    }
-    
-    if (trackImage) {
-      trackImage.style.cssText = `
-        width: 200px;
-        height: auto;
-        border-radius: 8px;
-      `;
-      leftContainer.appendChild(trackImage);
-    }
-    
-    const teamSelect = document.getElementById("team-select");
-    const teamImage = document.getElementById("team-image");
-    
-    if (teamSelect) {
-      teamSelect.style.cssText = `
-        padding: 8px;
-        margin-bottom: 10px;
-        width: 200px;
-      `;
-      rightContainer.appendChild(teamSelect);
-    }
-    
-    if (teamImage) {
-      teamImage.style.cssText = `
-        width: 200px;
-        height: auto;
-        border-radius: 8px;
-      `;
-      rightContainer.appendChild(teamImage);
-    }
-    
-    container.appendChild(leftContainer);
-    container.appendChild(rightContainer);
-    
-    // Insert the container in the correct location
-    const weeklyContent = document.getElementById("weekly");
-    if (weeklyContent) {
-      weeklyContent.insertBefore(container, weeklyContent.firstChild);
-    }
-  }
-  
-  // Update track image
-  if (trackImage && weekSelect.value) {
-    const selectedWeek = standingsData.weeks.find(week => week.week === parseInt(weekSelect.value, 10));
-    if (selectedWeek && selectedWeek.track) {
-      const trackName = selectedWeek.track.replace(/[^a-zA-Z0-9]/g, '_');
-      const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
-      trackImage.src = trackImageUrl;
-      trackImage.alt = `${selectedWeek.track} Track`;
-      trackImage.onerror = function() {
-        this.src = "https://via.placeholder.com/200";
-        console.warn(`Track image not found for ${selectedWeek.track}`);
-      };
-    }
+  if (!trackImage || !weekSelect.value) return;
+
+  const selectedWeek = standingsData.weeks.find(week => week.week === parseInt(weekSelect.value, 10));
+  if (selectedWeek && selectedWeek.track) {
+    const trackName = selectedWeek.track.replace(/[^a-zA-Z0-9]/g, '_');
+    const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
+    trackImage.src = trackImageUrl;
+    trackImage.alt = `${selectedWeek.track} Track`;
+    trackImage.onerror = function() {
+      this.src = "https://via.placeholder.com/200";
+    };
   }
 }
 
@@ -561,13 +448,16 @@ function openTab(tabName) {
   const tabcontents = document.querySelectorAll(".tabcontent");
   const tablinks = document.querySelectorAll(".tablink");
 
-  tabcontents.forEach((tab) => (tab.style.display = "none"));
-  tablinks.forEach((link) => link.classList.remove("active"));
+  tabcontents.forEach(tab => tab.style.display = "none");
+  tablinks.forEach(link => link.classList.remove("active"));
 
   document.getElementById(tabName).style.display = "block";
   document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
 
-  if (tabName === "teams") {
+  if (tabName === "weekly") {
+    populateWeekDropdown();
+    loadWeeklyStandings();
+  } else if (tabName === "teams") {
     populateTeamDropdown();
     loadTeamPage();
   }
@@ -575,64 +465,20 @@ function openTab(tabName) {
 
 // Initialize the Page after data is loaded
 function init() {
-  if (!isDataLoaded || !standingsData.weeks || standingsData.weeks.length === 0) {
+  if (!isDataLoaded) {
     console.warn("Data not fully loaded yet.");
     return;
   }
 
-  console.log("Initializing with weeks data:", standingsData.weeks); // Debug log
-
-  // Load overall standings first
+  // Load overall standings
   loadOverallStandings();
 
-  // Populate the week dropdown
-  populateWeekDropdown();
-
-  // Find the latest week with data
-  const latestWeek = findLatestWeekWithData();
-  console.log("Latest week found:", latestWeek); // Debug log
-  
-  // Set the week select dropdown to the latest week with data
-  const weekSelect = document.getElementById("week-select");
-  if (weekSelect) {
-    weekSelect.value = latestWeek;
-    console.log("Set week select value to:", latestWeek); // Debug log
-  }
-
-  // Load weekly standings and recap for the latest week
-  loadWeeklyStandings();
-  generateWeeklyRecap();
-  updateTrackImage(); // Make sure to update track image
-
-  // When the week selection changes, update everything
-  if (weekSelect) {
-    weekSelect.addEventListener("change", () => {
-      console.log("Week selection changed to:", weekSelect.value); // Debug log
-      loadWeeklyStandings();
-      generateWeeklyRecap();
-      updateTrackImage();
-    });
-  }
-
-  // Initialize team page
-  populateTeamDropdown();
-  loadTeamPage();
-
-  // Set weekly standings as default tab
+  // Set weekly tab as default and initialize it
   openTab('weekly');
 }
 
 // Make sure window.onload is properly set
 window.onload = () => {
-  console.log("Window loaded, fetching data..."); // Debug log
+  console.log("Window loaded, fetching data...");
   fetchDataFromGoogleSheets();
-  // Set weekly tab as active by default
-  const weeklyTab = document.querySelector('[onclick="openTab(\'weekly\')"]');
-  if (weeklyTab) {
-    weeklyTab.classList.add('active');
-  }
-  const weeklyContent = document.getElementById('weekly');
-  if (weeklyContent) {
-    weeklyContent.style.display = 'block';
-  }
 };
