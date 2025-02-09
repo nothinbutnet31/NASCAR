@@ -145,14 +145,20 @@ function populateWeekDropdown() {
   weekSelect.appendChild(defaultOption);
 
   // Add each week
+  let lastValidWeekIndex = 0;
   standingsData.weeks.forEach((week, index) => {
     if (week.track && week.track.trim() !== "") {
       const option = document.createElement("option");
       option.value = index + 1;
       option.textContent = `Week ${index + 1}: ${week.track}`;
       weekSelect.appendChild(option);
+      lastValidWeekIndex = index + 1;
     }
   });
+
+  // Set the default selected option to the last valid week
+  weekSelect.value = lastValidWeekIndex;
+  loadWeeklyStandings(); // Load the standings for the last valid week
 }
 
 function populateTeamDropdown() {
@@ -168,14 +174,21 @@ function populateTeamDropdown() {
   teamSelect.appendChild(defaultOption);
 
   // Add each team
-  Object.keys(standingsData.teams).forEach(team => {
+  const teams = Object.keys(standingsData.teams);
+  teams.forEach((team, index) => {
     const option = document.createElement("option");
     option.value = team;
     option.textContent = team;
     teamSelect.appendChild(option);
-  });
-}
 
+    // Set the first team as the default selected option
+    if (index === 0) {
+      teamSelect.value = team;
+    }
+  });
+
+  loadTeamPage(); // Load the page for the first team
+}
 // Main Feature Functions
 function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
@@ -337,6 +350,7 @@ function loadTeamPage() {
     defaultOption.textContent = "All Races";
     trackSelect.appendChild(defaultOption);
 
+    let lastValidTrackIndex = 0;
     // Add each track
     standingsData.weeks.forEach((week, index) => {
       if (week.track && week.track.trim() !== "") {
@@ -344,8 +358,12 @@ function loadTeamPage() {
         option.value = index;
         option.textContent = week.track;
         trackSelect.appendChild(option);
+        lastValidTrackIndex = index;
       }
     });
+
+    // Set the default selected option to the last valid track
+    trackSelect.value = lastValidTrackIndex;
   }
 
   // Calculate driver points based on track selection
@@ -385,7 +403,7 @@ function loadTeamPage() {
     teamRoster.appendChild(row);
   });
 
- const totalRow = document.createElement("tr");
+  const totalRow = document.createElement("tr");
   totalRow.className = "total-row";
   totalRow.innerHTML = `
     <td><strong>Total Team Points</strong></td>
