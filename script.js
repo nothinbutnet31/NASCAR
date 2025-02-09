@@ -479,16 +479,27 @@ function initializeApp() {
   populateWeekDropdown();
   populateTeamDropdown();
   
+  // Load all data first
+  loadOverallStandings();
+  loadWeeklyStandings();
+  
   // Hide all tabs initially
   const tabcontents = document.querySelectorAll(".tabcontent");
   tabcontents.forEach(tab => tab.style.display = "none");
   
-  // Load all standings data
-  loadOverallStandings();
-  loadWeeklyStandings();
+  // Show weekly standings tab and mark it as active
+  const weeklyTab = document.getElementById("weekly-standings");
+  if (weeklyTab) {
+    weeklyTab.style.display = "block";
+  }
   
-  // Explicitly open weekly standings first
-  openTab("weekly-standings");
+  // Mark the weekly standings tab button as active
+  const tablinks = document.querySelectorAll(".tablink");
+  tablinks.forEach(link => link.classList.remove("active"));
+  const weeklyTabLink = document.querySelector(`[onclick="openTab('weekly-standings')"]`);
+  if (weeklyTabLink) {
+    weeklyTabLink.classList.add("active");
+  }
 }
 
 
