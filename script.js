@@ -275,16 +275,32 @@ function loadTeamPage() {
   const teamSelect = document.getElementById("team-select");
   const selectedTeam = teamSelect.value;
   const teamRoster = document.querySelector("#team-roster tbody");
+  const teamImage = document.getElementById("team-image");
+  const teamStatsContainer = document.getElementById("team-stats");
 
   if (!standingsData.teams[selectedTeam]) return;
 
+  // Clear previous content
   teamRoster.innerHTML = "";
+  
+  // Load team image
+  if (teamImage) {
+    const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${selectedTeam.replace(/\s+/g, '_')}.png`;
+    teamImage.src = teamImageUrl;
+    teamImage.alt = `${selectedTeam} Logo`;
+    teamImage.onerror = function() {
+      this.src = "https://via.placeholder.com/100";
+    };
+  }
 
-  // Add rows for each driver
+  // Calculate and display driver points
+  let totalPoints = 0;
   standingsData.teams[selectedTeam].drivers.forEach(driver => {
     const driverTotalPoints = standingsData.weeks.reduce((total, week) => {
       return total + (week.standings[selectedTeam]?.drivers[driver] || 0);
     }, 0);
+
+    totalPoints += driverTotalPoints;
 
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -295,18 +311,25 @@ function loadTeamPage() {
   });
 
   // Add total row
-  const teamTotal = standingsData.weeks.reduce((total, week) => {
-    return total + (week.standings[selectedTeam]?.total || 0);
-  }, 0);
-
   const totalRow = document.createElement("tr");
+  totalRow.className = "total-row";
   totalRow.innerHTML = `
     <td><strong>Total</strong></td>
-    <td><strong>${teamTotal}</strong></td>
+    <td><strong>${totalPoints}</strong></td>
   `;
   teamRoster.appendChild(totalRow);
-}
 
+  // Update team stats
+  if (teamStatsContainer) {
+    const position = calculateTeamPosition(selectedTeam);
+    teamStatsContainer.innerHTML = `
+      <h3>Team Statistics</h3>
+      <p>Current Position: ${position}</p>
+      <p>Total Points: ${totalPoints}</p>
+      <p>Average Points per Race: ${(totalPoints / standingsData.weeks.length).toFixed(1)}</p>
+    `;
+  }
+}
 // Initialize
 function init() {
   if (!isDataLoaded) return;
@@ -336,7 +359,56 @@ function populateWeekDropdown() {
     generateWeeklyRecap();
   });
 }
+// Modified Weekly Standings
+function loadWeeklyStandings() {
+  const weekSelect = document.getElementById("week-select");
+  const selectedWeek = parseInt(weekSelect.value, 10);
+  const weekData = standingsData.weeks[selectedWeek - 1];
+  const weeklyTable = document.querySelector("#weekly-standings tbody");
+  const trackImage = document.getElementById("track-image");
+  
+  weeklyTable.innerHTML = "";
 
+  // Display track image
+  if (trackImage && weekData) {
+    const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${weekData.track.replace(/\s+/g, '_')}.png`;
+    trackImage.src = trackImageUrl;
+    trackImage.alt = `${weekData.track} Track`;
+    trackImage.onerror = function() {
+      this.src = "https://via.placeholder.com/200";
+    };
+  }
+
+  if (weekData) {
+    const sortedTeams = Object.entries(weekData.standings)
+      .sort((a, b) => b[1].total - a[1].total);
+
+    sortedTeams.forEach(([team, data], index) => {
+      const row = document.createElement("tr");
+      const flag = index === 0 ? '<i class="fas fa-flag-checkered"></i> ' : "";
+      row.innerHTML = `
+        <td>${flag}${team}</td>
+        <td>${data.total}</td>
+      `;
+      weeklyTable.appendChild(row);
+    });
+  }
+}
+
+function calculateTeamPosition(teamName) {
+  const teamPoints = {};
+  Object.keys(standingsData.teams).forEach(team => {
+    teamPoints[team] = standingsData.weeks.reduce((total, week) => {
+      return total + (week.standings[team]?.total || 0);
+    }, 0);
+  });
+  
+  const sortedTeams = Object.entries(teamPoints)
+    .sort((a, b) => b[1] - a[1])
+    .map(([team]) => team);
+    
+  return sortedTeams.indexOf(teamName) + 1;
+}
 function populateTeamDropdown() {
   const teamSelect = document.getElementById("team-select");
   teamSelect.innerHTML = "";
