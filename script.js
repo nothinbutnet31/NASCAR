@@ -420,7 +420,7 @@ function populateWeekDropdown() {
     loadWeeklyStandings();
     generateWeeklyRecap();
   });
-}
+
 // Modified Weekly Standings
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
