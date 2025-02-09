@@ -483,9 +483,14 @@ function initializeApp() {
   const tabcontents = document.querySelectorAll(".tabcontent");
   tabcontents.forEach(tab => tab.style.display = "none");
   
+  // Load all standings data
+  loadOverallStandings();
+  loadWeeklyStandings();
+  
   // Explicitly open weekly standings first
   openTab("weekly-standings");
 }
+
 
 // Initialize the app when the window loads
 window.onload = fetchDataFromGoogleSheets;
