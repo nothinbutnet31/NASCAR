@@ -317,14 +317,33 @@ function loadTeamPage() {
   const trackSelect = document.getElementById("track-select");
   const teamRoster = document.querySelector("#team-roster tbody");
   const teamImage = document.getElementById("team-image");
+  const trackImage = document.getElementById("track-image");
 
-  // Style the select containers to be side by side
-  const selectContainer = document.createElement("div");
-  selectContainer.style.cssText = `
+  // Create container for selects and images
+  const selectImageContainer = document.createElement("div");
+  selectImageContainer.style.cssText = `
     display: flex;
     justify-content: center;
-    gap: 20px;
-    margin-bottom: 20px;
+    gap: 40px;
+    margin: 20px 0;
+  `;
+
+  // Create left container for team select and image
+  const teamContainer = document.createElement("div");
+  teamContainer.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  `;
+
+  // Create right container for track select and image
+  const trackContainer = document.createElement("div");
+  trackContainer.style.cssText = `
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
   `;
 
   // Style the select elements
@@ -338,18 +357,28 @@ function loadTeamPage() {
       width: 200px;
     `;
 
-    // Move selects into the container
-    selectContainer.appendChild(teamSelect);
-    selectContainer.appendChild(trackSelect);
+    teamContainer.appendChild(teamSelect);
+    if (teamImage) {
+      teamImage.style.width = '200px';
+      teamContainer.appendChild(teamImage);
+    }
 
-    // Insert the container before the team roster
+    trackContainer.appendChild(trackSelect);
+    if (trackImage) {
+      trackImage.style.width = '200px';
+      trackContainer.appendChild(trackImage);
+    }
+
+    selectImageContainer.appendChild(teamContainer);
+    selectImageContainer.appendChild(trackContainer);
+
+    // Insert after the title
     const teamContent = document.getElementById("teams");
-    if (teamContent) {
-      const existingContainer = teamContent.querySelector('div[style*="display: flex"]');
-      if (existingContainer) {
-        existingContainer.remove();
-      }
-      teamContent.insertBefore(selectContainer, teamContent.firstChild);
+    const title = teamContent.querySelector("h2");
+    if (title) {
+      title.insertAdjacentElement('afterend', selectImageContainer);
+    } else {
+      teamContent.insertBefore(selectImageContainer, teamContent.firstChild.nextSibling);
     }
   }
 
@@ -383,6 +412,7 @@ function loadTeamPage() {
     // Add change event listener
     trackSelect.addEventListener("change", () => {
       updateTeamRoster(selectedTeam, trackSelect.value);
+      updateTrackImageForTeamPage(trackSelect.value);
     });
   }
 
@@ -401,7 +431,6 @@ function loadTeamPage() {
   updateTeamRoster(selectedTeam, trackSelect ? trackSelect.value : "");
 }
 
-// New function to update team roster based on track selection
 function updateTeamRoster(selectedTeam, selectedTrackIndex) {
   const teamRoster = document.querySelector("#team-roster tbody");
   if (!teamRoster) return;
@@ -432,6 +461,29 @@ function updateTeamRoster(selectedTeam, selectedTrackIndex) {
     `;
     teamRoster.appendChild(row);
   });
+}
+
+// Add new function to update track image in team page
+function updateTrackImageForTeamPage(selectedTrackIndex) {
+  const trackImage = document.getElementById("track-image");
+  if (!trackImage) return;
+
+  if (selectedTrackIndex === "") {
+    trackImage.src = "https://via.placeholder.com/200";
+    trackImage.alt = "All Races";
+    return;
+  }
+
+  const selectedWeek = standingsData.weeks[selectedTrackIndex];
+  if (selectedWeek && selectedWeek.track) {
+    const trackName = selectedWeek.track.replace(/[^a-zA-Z0-9]/g, '_');
+    const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
+    trackImage.src = trackImageUrl;
+    trackImage.alt = `${selectedWeek.track} Track`;
+    trackImage.onerror = function() {
+      this.src = "https://via.placeholder.com/200";
+    };
+  }
 }
 
 // Populate Team Dropdown
