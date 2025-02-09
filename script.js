@@ -392,16 +392,58 @@ function populateWeekDropdown() {
 
   weekSelect.innerHTML = "";
 
-  standingsData.weeks.forEach((week) => {
-    const option = document.createElement("option");
-    option.value = week.week;
-    option.textContent = `Week ${week.week} - ${week.track}`;
-    weekSelect.appendChild(option);
-  });
+  // Add default option
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Select a Week";
+  weekSelect.appendChild(defaultOption);
 
-  if (standingsData.weeks.length > 0) {
-    weekSelect.value = standingsData.weeks[0].week;
+  if (standingsData.weeks && standingsData.weeks.length > 0) {
+    standingsData.weeks.forEach((week) => {
+      if (week.track && week.track.trim() !== "") {
+        const option = document.createElement("option");
+        option.value = week.week;
+        option.textContent = `Week ${week.week} - ${week.track}`;
+        weekSelect.appendChild(option);
+      }
+    });
+
+    // Set to the latest week
+    const latestWeek = findLatestWeekWithData();
+    if (latestWeek) {
+      weekSelect.value = latestWeek;
+      loadWeeklyStandings();
+    }
+  } else {
+    console.warn("No week data available");
+  }
+
+  // Add change event listener
+  weekSelect.addEventListener("change", () => {
     loadWeeklyStandings();
+    generateWeeklyRecap();
+    updateTrackImage();
+  });
+}
+
+// Add this new function to handle track images
+function updateTrackImage() {
+  const weekSelect = document.getElementById("week-select");
+  const trackImage = document.getElementById("track-image");
+  
+  if (!trackImage || !weekSelect.value) return;
+
+  const selectedWeek = standingsData.weeks.find(week => week.week === parseInt(weekSelect.value, 10));
+  
+  if (selectedWeek && selectedWeek.track) {
+    const trackName = selectedWeek.track.replace(/[^a-zA-Z0-9]/g, '_');
+    const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
+    trackImage.src = trackImageUrl;
+    trackImage.alt = `${selectedWeek.track} Track`;
+    trackImage.onerror = function() {
+      this.src = "https://via.placeholder.com/200";
+      console.warn(`Track image not found for ${selectedWeek.track}`);
+    };
   }
 }
 
