@@ -58,15 +58,22 @@ async function fetchDataFromGoogleSheets() {
   }
 }
 function initializeApp() {
-  // Populate dropdowns
+  // Initialize dropdowns
   populateWeekDropdown();
   populateTeamDropdown();
 
   // Load initial data
   loadOverallStandings();
-  loadWeeklyStandings();
-  generateWeeklyRecap();
   
+  // Set up event listeners for dropdowns
+  const weekSelect = document.getElementById("week-select");
+  if (weekSelect) {
+    weekSelect.addEventListener("change", () => {
+      loadWeeklyStandings();
+      generateWeeklyRecap();
+    });
+  }
+
   // Load team page if we're on that tab
   if (document.getElementById("teams").style.display !== "none") {
     loadTeamPage();
@@ -160,15 +167,16 @@ function loadOverallStandings() {
 
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
-  if (!weekSelect) return;
-
-  let selectedWeek = weekSelect.value ? parseInt(weekSelect.value, 10) : standingsData.weeks.length;
-  
-  if (!selectedWeek || selectedWeek < 1) {
-    selectedWeek = standingsData.weeks.length;
-    weekSelect.value = selectedWeek;
+  if (!weekSelect || !weekSelect.value) {
+    // Clear the tables if no week is selected
+    const weeklyTable = document.querySelector("#weekly-standings tbody");
+    if (weeklyTable) weeklyTable.innerHTML = "";
+    const recapContainer = document.getElementById("weekly-recap");
+    if (recapContainer) recapContainer.innerHTML = "";
+    return;
   }
-  
+
+  const selectedWeek = parseInt(weekSelect.value, 10);
   const weekData = standingsData.weeks[selectedWeek - 1];
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const trackImage = document.getElementById("track-image");
@@ -351,13 +359,19 @@ function populateWeekDropdown() {
   
   weekSelect.innerHTML = "";
 
+  // Add a default/placeholder option
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Select a Race";
+  weekSelect.appendChild(defaultOption);
+
   if (!standingsData.weeks || standingsData.weeks.length === 0) {
     console.log('No weeks data available');
     return;
   }
 
   standingsData.weeks.forEach((week, index) => {
-    if (week.track) {
+    if (week.track && week.track.trim() !== "") {
       const option = document.createElement("option");
       option.value = index + 1;
       option.textContent = `Week ${index + 1} - ${week.track}`;
@@ -365,15 +379,14 @@ function populateWeekDropdown() {
     }
   });
 
+  // Set to first week by default if there are weeks available
   if (standingsData.weeks.length > 0) {
-    weekSelect.value = standingsData.weeks.length;
-  }
-
-  weekSelect.addEventListener("change", () => {
+    weekSelect.value = "1";
     loadWeeklyStandings();
     generateWeeklyRecap();
-  });
+  }
 }
+
 
 function populateTeamDropdown() {
   const teamSelect = document.getElementById("team-select");
