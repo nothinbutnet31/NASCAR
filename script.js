@@ -129,7 +129,7 @@ function processRaceData(data) {
       let teamPoints = 0;
       let driverPoints = {};
 
-  / Calculate points for each driver in the team
+  // Calculate points for each driver in the team
       team.drivers.forEach(driver => {
         let points = 0;
 
