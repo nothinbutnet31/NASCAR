@@ -144,21 +144,29 @@ function populateWeekDropdown() {
   defaultOption.textContent = "Select a Week";
   weekSelect.appendChild(defaultOption);
 
-  // Add each week
   let lastValidWeekIndex = 0;
+
+  // Add each week and track the most recent non-zero week
   standingsData.weeks.forEach((week, index) => {
     if (week.track && week.track.trim() !== "") {
-      const option = document.createElement("option");
-      option.value = index + 1;
-      option.textContent = `Week ${index + 1}: ${week.track}`;
-      weekSelect.appendChild(option);
-      lastValidWeekIndex = index + 1;
+      // Check if the week has non-zero data
+      const hasNonZeroData = Object.values(week.standings).some(
+        (teamData) => teamData.total > 0
+      );
+
+      if (hasNonZeroData) {
+        const option = document.createElement("option");
+        option.value = index + 1;
+        option.textContent = `Week ${index + 1}: ${week.track}`;
+        weekSelect.appendChild(option);
+        lastValidWeekIndex = index + 1; // Update the most recent valid week
+      }
     }
   });
 
-  // Set the default selected option to the last valid week
+  // Set the default selected option to the most recent non-zero week
   weekSelect.value = lastValidWeekIndex;
-  loadWeeklyStandings(); // Load the standings for the last valid week
+  loadWeeklyStandings(); // Load the standings for the most recent non-zero week
 }
 
 function populateTeamDropdown() {
@@ -351,37 +359,44 @@ function loadTeamPage() {
     trackSelect.appendChild(defaultOption);
 
     let lastValidTrackIndex = 0;
-    // Add each track
+
+    // Add each track and track the most recent non-zero track
     standingsData.weeks.forEach((week, index) => {
       if (week.track && week.track.trim() !== "") {
-        const option = document.createElement("option");
-        option.value = index;
-        option.textContent = week.track;
-        trackSelect.appendChild(option);
-        lastValidTrackIndex = index;
+        // Check if the track has non-zero data for the selected team
+        const teamData = week.standings[selectedTeam];
+        const hasNonZeroData = teamData && teamData.total > 0;
+
+        if (hasNonZeroData) {
+          const option = document.createElement("option");
+          option.value = index;
+          option.textContent = week.track;
+          trackSelect.appendChild(option);
+          lastValidTrackIndex = index; // Update the most recent valid track
+        }
       }
     });
 
-    // Set the default selected option to the last valid track
+    // Set the default selected option to the most recent non-zero track
     trackSelect.value = lastValidTrackIndex;
   }
 
   // Calculate driver points based on track selection
   const selectedTrackIndex = trackSelect ? trackSelect.value : "";
   const driverTotals = {};
-  
-  standingsData.teams[selectedTeam].drivers.forEach(driver => {
+
+  standingsData.teams[selectedTeam].drivers.forEach((driver) => {
     driverTotals[driver] = 0;
-    
+
     if (selectedTrackIndex === "") {
       // Calculate total points across all races
-      standingsData.weeks.forEach(week => {
+      standingsData.weeks.forEach((week) => {
         if (week.standings[selectedTeam]?.drivers[driver]) {
           driverTotals[driver] += week.standings[selectedTeam].drivers[driver];
         }
       });
     } else {
-      // Calculate points for selected race only
+      // Calculate points for the selected race only
       const week = standingsData.weeks[selectedTrackIndex];
       if (week?.standings[selectedTeam]?.drivers[driver]) {
         driverTotals[driver] = week.standings[selectedTeam].drivers[driver];
@@ -413,11 +428,11 @@ function loadTeamPage() {
 
   // Update team image
   if (teamImage) {
-    const teamImageName = selectedTeam.replace(/[^a-zA-Z0-9]/g, '_');
+    const teamImageName = selectedTeam.replace(/[^a-zA-Z0-9]/g, "_");
     const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${teamImageName}.png`;
     teamImage.src = teamImageUrl;
     teamImage.alt = `${selectedTeam} Logo`;
-    teamImage.onerror = function() {
+    teamImage.onerror = function () {
       this.src = "https://via.placeholder.com/100";
     };
   }
@@ -427,7 +442,7 @@ function loadTeamPage() {
     const position = calculateTeamPosition(selectedTeam);
     const raceCount = selectedTrackIndex === "" ? standingsData.weeks.length : 1;
     const averagePoints = (teamTotal / raceCount).toFixed(1);
-    
+
     teamStatsContainer.innerHTML = `
       <h3>Team Statistics</h3>
       <p>Current Position: ${position}</p>
