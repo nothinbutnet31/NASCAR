@@ -14,7 +14,7 @@ const scoringSystem = {
   "26th": 11, "27th": 10, "28th": 9, "29th": 8, "30th": 7,
   "31st": 6, "32nd": 5, "33rd": 4, "34th": 3, "35th": 2,
   "36th": 1, "37th": 1, "38th": 1, "39th": 1, "40th": 1,
-  "Fastest Lap": 1, "Stage 1 Winner": 10, "Stage 2 Winner": 10, "Pole Winner": 5
+  "Fastest Lap": 1, "Stage 1 Winner": 2, "Stage 2 Winner": 2, "Pole Winner": 2
 };
 
 let standingsData = {
