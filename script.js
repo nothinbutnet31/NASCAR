@@ -61,7 +61,7 @@ async function fetchDataFromGoogleSheets() {
     }
   } catch (error) {
     console.error("Error fetching data:", error);
-    document.body.innerHTML = <div class="error">Error loading data: ${error.message}</div>;
+    document.body.innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
   }
 }
 
