@@ -528,6 +528,8 @@ function populateWeekDropdown() {
   defaultOption.textContent = "Select a Week";
   weekSelect.appendChild(defaultOption);
 
+  let validWeeks = [];
+
   if (standingsData.weeks && standingsData.weeks.length > 0) {
     standingsData.weeks.forEach((week) => {
       // Check if the week has any valid points
@@ -536,6 +538,7 @@ function populateWeekDropdown() {
       );
 
       if (week && week.track && week.track.trim() !== "" && hasValidPoints) {
+        validWeeks.push(week);
         const option = document.createElement("option");
         option.value = week.week;
         option.textContent = `Week ${week.week} - ${week.track}`;
@@ -543,13 +546,11 @@ function populateWeekDropdown() {
       }
     });
 
-    // Find first week with valid points
-    const firstValidWeek = standingsData.weeks.find(week => 
-      Object.values(week.standings).some(teamData => teamData.total > 0)
-    );
+    // Find the last week with valid points
+    const lastValidWeek = validWeeks[validWeeks.length - 1];
 
-    if (firstValidWeek) {
-      weekSelect.value = firstValidWeek.week;
+    if (lastValidWeek) {
+      weekSelect.value = lastValidWeek.week;
       loadWeeklyStandings();
       updateTrackImage();
     }
