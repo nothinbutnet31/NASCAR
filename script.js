@@ -243,33 +243,40 @@ function loadOverallStandings() {
 }
 
 function loadWeeklyStandings() {
+  const weeklyTableContainer = document.getElementById("weekly-standings");
+  if (weeklyTableContainer) {
+    weeklyTableContainer.style.cssText = `
+      width: 90%;
+      margin: 0 auto;
+      padding: 20px;
+    `;
+    
+    const table = weeklyTableContainer.querySelector("table");
+    if (table) {
+      table.style.cssText = `
+        width: 100%;
+        font-size: 28px;
+        border-collapse: collapse;
+        margin: 20px auto;
+      `;
+      
+      const cells = table.querySelectorAll("td, th");
+      cells.forEach(cell => {
+        cell.style.cssText = `
+          padding: 25px 40px;
+          text-align: left;
+          border: 1px solid #ddd;
+        `;
+      });
+    }
+  }
+
   const weekSelect = document.getElementById("week-select");
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const trackImage = document.getElementById("track-image");
   
   if (!weeklyTable) return;
   weeklyTable.innerHTML = "";
-
-  // Set table width and size
-  const weeklyTableContainer = document.getElementById("weekly-standings");
-  if (weeklyTableContainer) {
-    weeklyTableContainer.style.width = "90%";
-    weeklyTableContainer.style.margin = "0 auto";
-    const table = weeklyTableContainer.querySelector("table");
-    if (table) {
-      table.style.width = "100%";
-      table.style.fontSize = "24px";
-      table.style.borderCollapse = "collapse";
-      
-      // Only try to access cells if the table exists
-      const cells = table.querySelectorAll("td, th");
-      if (cells) {
-        cells.forEach(cell => {
-          cell.style.padding = "20px 30px";
-        });
-      }
-    }
-  }
 
   if (!weekSelect?.value) {
     const recapContainer = document.getElementById("weekly-recap");
@@ -482,12 +489,15 @@ function loadTeamPage() {
   // Fix layout for team details section
   const teamDetails = document.getElementById("team-details");
   if (teamDetails) {
-    teamDetails.style.display = "flex";
-    teamDetails.style.flexDirection = "row";
-    teamDetails.style.justifyContent = "center";
-    teamDetails.style.alignItems = "flex-start";
-    teamDetails.style.gap = "50px";  // Reduced gap
-    teamDetails.style.margin = "20px 0";
+    teamDetails.style.cssText = `
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 30px;
+      margin: 20px auto;
+      max-width: 800px;
+    `;
   }
 
   // Style the selection containers
@@ -495,12 +505,14 @@ function loadTeamPage() {
   const trackSelection = document.querySelector(".track-selection");
   if (teamSelection && trackSelection) {
     [teamSelection, trackSelection].forEach(container => {
-      container.style.display = "flex";
-      container.style.flexDirection = "column";
-      container.style.alignItems = "center";
-      container.style.gap = "20px";
-      container.style.minWidth = "250px";  // Reduced minimum width
-      container.style.visibility = "visible";
+      container.style.cssText = `
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        min-width: 200px;
+        visibility: visible;
+      `;
     });
   }
 }
@@ -532,31 +544,37 @@ function openTab(tabName) {
 }
 
 function init() {
-  // Load data first
-  loadOverallStandings();
-  loadWeeklyStandings();
+  if (!isDataLoaded) return;
   
-  // Hide all tabs
+  // First populate dropdowns
+  populateWeekDropdown();
+  populateTeamDropdown();
+  
+  // Load all data
+  loadOverallStandings();
+  
+  // Hide all tabs first
   document.querySelectorAll(".tabcontent").forEach(tab => {
     tab.style.display = "none";
   });
   
-  // Remove active class from all tabs
+  // Show and load weekly standings
+  const weeklyTab = document.getElementById("weekly-standings");
+  if (weeklyTab) {
+    weeklyTab.style.display = "block";
+    loadWeeklyStandings();  // Make sure to load the content
+  }
+  
+  // Update tab states
   document.querySelectorAll(".tablink").forEach(link => {
     link.classList.remove("active");
   });
   
-  // Show weekly standings and mark its tab as active
-  const weeklyTab = document.getElementById("weekly-standings");
   const weeklyTabLink = document.querySelector(`[onclick="openTab('weekly-standings')"]`);
-  
-  if (weeklyTab) {
-    weeklyTab.style.display = "block";
-  }
   if (weeklyTabLink) {
     weeklyTabLink.classList.add("active");
   }
 }
 
-// Make sure to call initializeApp after data is loaded
+// Make sure to call init after data is loaded
 window.onload = fetchDataFromGoogleSheets;
