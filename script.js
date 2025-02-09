@@ -258,11 +258,15 @@ function loadWeeklyStandings() {
       table.style.width = "100%";
       table.style.fontSize = "24px";
       table.style.borderCollapse = "collapse";
+      
+      // Only try to access cells if the table exists
+      const cells = table.querySelectorAll("td, th");
+      if (cells) {
+        cells.forEach(cell => {
+          cell.style.padding = "20px 30px";
+        });
+      }
     }
-    const cells = table.querySelectorAll("td, th");
-    cells.forEach(cell => {
-      cell.style.padding = "20px 30px";
-    });
   }
 
   if (!weekSelect?.value) {
@@ -529,41 +533,35 @@ function openTab(tabName) {
 function initializeApp() {
   if (!isDataLoaded) return;
 
-  // First populate data
+  // First hide all tabs
+  const tabcontents = document.querySelectorAll(".tabcontent");
+  if (tabcontents) {
+    tabcontents.forEach(tab => tab.style.display = "none");
+  }
+
+  // Then populate data
   populateWeekDropdown();
   populateTeamDropdown();
   
-  // Load all data first
+  // Load all data
   loadOverallStandings();
-  loadWeeklyStandings();
   
-  // Hide all tabs initially
-  const tabcontents = document.querySelectorAll(".tabcontent");
-  tabcontents.forEach(tab => tab.style.display = "none");
-  
-  // Show weekly standings tab and mark it as active
+  // Show and load weekly standings
   const weeklyTab = document.getElementById("weekly-standings");
   if (weeklyTab) {
     weeklyTab.style.display = "block";
-    
-    // Make sure the table is properly sized
-    const table = weeklyTab.querySelector("table");
-    if (table) {
-      table.style.width = "100%";
-      table.style.fontSize = "24px";
-    }
+    loadWeeklyStandings();
   }
   
-  // Mark the weekly standings tab button as active
+  // Update tab states
   const tablinks = document.querySelectorAll(".tablink");
-  tablinks.forEach(link => link.classList.remove("active"));
-  const weeklyTabLink = document.querySelector(`[onclick="openTab('weekly-standings')"]`);
-  if (weeklyTabLink) {
-    weeklyTabLink.classList.add("active");
+  if (tablinks) {
+    tablinks.forEach(link => link.classList.remove("active"));
+    const weeklyTabLink = document.querySelector(`[onclick="openTab('weekly-standings')"]`);
+    if (weeklyTabLink) {
+      weeklyTabLink.classList.add("active");
+    }
   }
-
-  // Force load weekly standings
-  loadWeeklyStandings();
 }
 
 // Make sure to call initializeApp after data is loaded
