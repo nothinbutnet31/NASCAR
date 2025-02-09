@@ -248,7 +248,7 @@ function loadWeeklyStandings() {
   if (!weeklyTable) return;
   weeklyTable.innerHTML = "";
 
-  // Set table width
+  // Set table width and size
   const weeklyTableContainer = document.getElementById("weekly-standings");
   if (weeklyTableContainer) {
     weeklyTableContainer.style.width = "90%";
@@ -256,7 +256,13 @@ function loadWeeklyStandings() {
     const table = weeklyTableContainer.querySelector("table");
     if (table) {
       table.style.width = "100%";
+      table.style.fontSize = "24px";
+      table.style.borderCollapse = "collapse";
     }
+    const cells = table.querySelectorAll("td, th");
+    cells.forEach(cell => {
+      cell.style.padding = "20px 30px";
+    });
   }
 
   if (!weekSelect?.value) {
@@ -362,13 +368,13 @@ function loadTeamPage() {
   if (!isDataLoaded) return;
 
   const teamSelect = document.getElementById("team-select");
+  const trackSelect = document.getElementById("track-select");
   if (!teamSelect) return;
 
   const selectedTeam = teamSelect.value;
   const teamRoster = document.querySelector("#team-roster tbody");
   const teamImage = document.getElementById("team-image");
   const teamStatsContainer = document.getElementById("team-stats");
-  const trackSelect = document.getElementById("track-select");
 
   if (!standingsData.teams[selectedTeam] || !teamRoster) return;
 
@@ -472,9 +478,9 @@ function loadTeamPage() {
   if (teamDetails) {
     teamDetails.style.display = "flex";
     teamDetails.style.flexDirection = "row";
-    teamDetails.style.justifyContent = "space-around";
+    teamDetails.style.justifyContent = "center";
     teamDetails.style.alignItems = "flex-start";
-    teamDetails.style.gap = "40px";
+    teamDetails.style.gap = "100px";  // Increased gap
     teamDetails.style.margin = "20px 0";
   }
 
@@ -486,8 +492,10 @@ function loadTeamPage() {
       container.style.display = "flex";
       container.style.flexDirection = "column";
       container.style.alignItems = "center";
-      container.style.gap = "10px";
-      container.style.flex = "1";
+      container.style.gap = "20px";
+      container.style.minWidth = "300px";  // Set minimum width
+      container.style.visibility = "visible";  // Ensure visibility
+      container.style.position = "relative";  // Reset position
     });
   }
 }
@@ -537,6 +545,13 @@ function initializeApp() {
   const weeklyTab = document.getElementById("weekly-standings");
   if (weeklyTab) {
     weeklyTab.style.display = "block";
+    
+    // Make sure the table is properly sized
+    const table = weeklyTab.querySelector("table");
+    if (table) {
+      table.style.width = "100%";
+      table.style.fontSize = "24px";
+    }
   }
   
   // Mark the weekly standings tab button as active
@@ -546,7 +561,10 @@ function initializeApp() {
   if (weeklyTabLink) {
     weeklyTabLink.classList.add("active");
   }
+
+  // Force load weekly standings
+  loadWeeklyStandings();
 }
 
-// Initialize the app when the window loads
+// Make sure to call initializeApp after data is loaded
 window.onload = fetchDataFromGoogleSheets;
