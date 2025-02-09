@@ -314,23 +314,47 @@ function loadTeamPage() {
   }
 
   const teamSelect = document.getElementById("team-select");
+  const trackSelect = document.getElementById("track-select");
+  const teamRoster = document.querySelector("#team-roster tbody");
+  const teamImage = document.getElementById("team-image");
+
   if (!teamSelect || !teamSelect.value) {
     console.warn("No team selected.");
     return;
   }
 
   const selectedTeam = teamSelect.value;
-  const teamRoster = document.querySelector("#team-roster tbody");
-  const teamImage = document.getElementById("team-image");
 
-  if (!standingsData.teams[selectedTeam] || !teamRoster) {
-    console.warn("Team data or roster element not found.");
-    return;
+  // Populate track select dropdown
+  if (trackSelect) {
+    trackSelect.innerHTML = "";
+    
+    // Add "All Races" option
+    const allRacesOption = document.createElement("option");
+    allRacesOption.value = "";
+    allRacesOption.textContent = "All Races";
+    trackSelect.appendChild(allRacesOption);
+
+    // Add each track
+    standingsData.weeks.forEach((week, index) => {
+      if (week && week.track && week.track.trim() !== "") {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = week.track;
+        trackSelect.appendChild(option);
+      }
+    });
+
+    // Add change event listener
+    trackSelect.addEventListener("change", () => {
+      updateTeamRoster(selectedTeam, trackSelect.value);
+    });
   }
 
   // Update team image
   if (teamImage) {
-    const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${selectedTeam.replace(/\s+/g, '_')}.png`;
+    const teamImageName = selectedTeam.replace(/[^a-zA-Z0-9]/g, "_");
+    const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${teamImageName}.png`;
     teamImage.src = teamImageUrl;
     teamImage.alt = `${selectedTeam} Logo`;
     teamImage.onerror = function() {
@@ -338,15 +362,34 @@ function loadTeamPage() {
     };
   }
 
-  // Update roster
+  // Update roster based on selected track or all races
+  updateTeamRoster(selectedTeam, trackSelect ? trackSelect.value : "");
+}
+
+// New function to update team roster based on track selection
+function updateTeamRoster(selectedTeam, selectedTrackIndex) {
+  const teamRoster = document.querySelector("#team-roster tbody");
+  if (!teamRoster) return;
+
   teamRoster.innerHTML = "";
   const drivers = standingsData.teams[selectedTeam].drivers;
   
   drivers.forEach(driver => {
     const row = document.createElement("tr");
-    const totalPoints = standingsData.weeks.reduce((sum, week) => {
-      return sum + (week.standings[selectedTeam]?.drivers[driver] || 0);
-    }, 0);
+    let totalPoints = 0;
+
+    if (selectedTrackIndex === "") {
+      // Calculate total points across all races
+      totalPoints = standingsData.weeks.reduce((sum, week) => {
+        return sum + (week.standings[selectedTeam]?.drivers[driver] || 0);
+      }, 0);
+    } else {
+      // Get points for specific race
+      const week = standingsData.weeks[selectedTrackIndex];
+      if (week && week.standings[selectedTeam]?.drivers[driver]) {
+        totalPoints = week.standings[selectedTeam].drivers[driver];
+      }
+    }
 
     row.innerHTML = `
       <td>${driver}</td>
@@ -356,10 +399,7 @@ function loadTeamPage() {
   });
 
   // Add team total row
-  const teamTotal = standingsData.weeks.reduce((sum, week) => {
-    return sum + (week.standings[selectedTeam]?.total || 0);
-  }, 0);
-
+  const teamTotal = calculateTeamTotal(selectedTeam, selectedTrackIndex);
   const totalRow = document.createElement("tr");
   totalRow.classList.add("total-row");
   totalRow.innerHTML = `
@@ -367,6 +407,18 @@ function loadTeamPage() {
     <td><strong>${teamTotal}</strong></td>
   `;
   teamRoster.appendChild(totalRow);
+}
+
+// Helper function to calculate team total
+function calculateTeamTotal(selectedTeam, selectedTrackIndex) {
+  if (selectedTrackIndex === "") {
+    return standingsData.weeks.reduce((sum, week) => {
+      return sum + (week.standings[selectedTeam]?.total || 0);
+    }, 0);
+  } else {
+    const week = standingsData.weeks[selectedTrackIndex];
+    return week?.standings[selectedTeam]?.total || 0;
+  }
 }
 
 // Populate Team Dropdown
