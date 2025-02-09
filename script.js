@@ -1,30 +1,7 @@
+// Constants and Initial Data
 const sheetId = "19LbY1UwCkPXyVMMnvdu_KrYpyi6WhNcfuC6wjzxeBLI";
 const apiKey = "AIzaSyDWBrtpo54AUuVClU49k0FdrLl-IFPpMdY";
 const driversRange = "Drivers!A1:AA45";
-
-let standingsData = {
-  weeks: [],
-  teams: {
-    Midge: {
-      drivers: ["Denny Hamlin","William Byron","Ricky Stenhouse Jr.", "Ryan Preece", "Shane van Gisbergen"]
-    },
-    Emilia: { 
-      drivers:["Austin Cindric", "Austin Dillon", "Kyle Larson", "AJ Allmendiner", "Alex Bowman"]
-    },
-    Heather: { 
-      drivers:["Kyle Busch", "Chase Elliott", "Erik Jones", "Tyler Reddick", "Michael McDowell"]
-    },
-    Dan: {
-      drivers:["Brad Keselowski", "Chris Buescher", "Noah Gragson", "Joey Logano", "Cole Custer"]
-    },
-    Grace:{
-      drivers:["Ross Chastain", "Chase Briscoe", "Josh Berry", "Bubba Wallace", "Daniel Suarez"]
-    },
-    Edmund:{
-      drivers:["Ryan Blaney", "Christopher Bell", "Riley Herbst", "Ty Gibbs", "Carson Hocevar"]
-    }
-  }
-};
 
 let isDataLoaded = false;
 
@@ -40,6 +17,31 @@ const scoringSystem = {
   "Fastest Lap": 1, "Stage 1 Winner": 10, "Stage 2 Winner": 10, "Pole Winner": 5
 };
 
+let standingsData = {
+  weeks: [],
+  teams: {
+    Midge: {
+      drivers: ["Denny Hamlin", "William Byron", "Ricky Stenhouse Jr.", "Ryan Preece", "Shane van Gisbergen"]
+    },
+    Emilia: { 
+      drivers: ["Austin Cindric", "Austin Dillon", "Kyle Larson", "AJ Allmendiner", "Alex Bowman"]
+    },
+    Heather: { 
+      drivers: ["Kyle Busch", "Chase Elliott", "Erik Jones", "Tyler Reddick", "Michael McDowell"]
+    },
+    Dan: {
+      drivers: ["Brad Keselowski", "Chris Buescher", "Noah Gragson", "Joey Logano", "Cole Custer"]
+    },
+    Grace: {
+      drivers: ["Ross Chastain", "Chase Briscoe", "Josh Berry", "Bubba Wallace", "Daniel Suarez"]
+    },
+    Edmund: {
+      drivers: ["Ryan Blaney", "Christopher Bell", "Riley Herbst", "Ty Gibbs", "Carson Hocevar"]
+    }
+  }
+};
+
+// Core Data Loading Functions
 async function fetchDataFromGoogleSheets() {
   const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
 
@@ -49,25 +51,17 @@ async function fetchDataFromGoogleSheets() {
       throw new Error("Failed to fetch data from Google Sheets");
     }
 
-  
-  // Load team page if we're on that tab
-  if (document.getElementById("teams").style.display !== "none") {
-    loadTeamPage();
-  }
-
-  // Set up the first tab as active by default
-  const defaultTab = document.querySelector(".tablink");
-  if (defaultTab) {
-    defaultTab.click();
-  }
-}
-
-
-function highlightLeader() {
-  const leaderRow = document.querySelector('.leader-row');
-  if (leaderRow) {
-    leaderRow.style.backgroundColor = '#f0f8ff';
-    leaderRow.style.fontWeight = 'bold';
+    const data = await response.json();
+    if (data.values && data.values.length > 0) {
+      processRaceData(data.values);
+      isDataLoaded = true;
+      initializeApp();
+    } else {
+      throw new Error("No data received from Google Sheets");
+    }
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    document.body.innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
   }
 }
 
@@ -113,6 +107,76 @@ function processRaceData(data) {
   });
 }
 
+// Utility Functions
+function calculateTeamPosition(teamName) {
+  const totalPoints = {};
+  
+  standingsData.weeks.forEach((week) => {
+    Object.entries(week.standings).forEach(([team, data]) => {
+      totalPoints[team] = (totalPoints[team] || 0) + data.total;
+    });
+  });
+
+  const sortedTeams = Object.entries(totalPoints)
+    .sort((a, b) => b[1] - a[1])
+    .map(([team]) => team);
+
+  return sortedTeams.indexOf(teamName) + 1;
+}
+
+function highlightLeader() {
+  const leaderRow = document.querySelector('.leader-row');
+  if (leaderRow) {
+    leaderRow.style.backgroundColor = '#f0f8ff';
+    leaderRow.style.fontWeight = 'bold';
+  }
+}
+
+function populateWeekDropdown() {
+  const weekSelect = document.getElementById("week-select");
+  if (!weekSelect) return;
+
+  weekSelect.innerHTML = "";
+
+  // Add default option
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Select a Week";
+  weekSelect.appendChild(defaultOption);
+
+  // Add each week
+  standingsData.weeks.forEach((week, index) => {
+    if (week.track && week.track.trim() !== "") {
+      const option = document.createElement("option");
+      option.value = index + 1;
+      option.textContent = `Week ${index + 1}: ${week.track}`;
+      weekSelect.appendChild(option);
+    }
+  });
+}
+
+function populateTeamDropdown() {
+  const teamSelect = document.getElementById("team-select");
+  if (!teamSelect) return;
+
+  teamSelect.innerHTML = "";
+
+  // Add default option
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Select a Team";
+  teamSelect.appendChild(defaultOption);
+
+  // Add each team
+  Object.keys(standingsData.teams).forEach(team => {
+    const option = document.createElement("option");
+    option.value = team;
+    option.textContent = team;
+    teamSelect.appendChild(option);
+  });
+}
+
+// Main Feature Functions
 function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
   if (!overallTable) return;
@@ -126,11 +190,13 @@ function loadOverallStandings() {
     });
   });
 
-  const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
+  const sortedTeams = Object.entries(totalPoints)
+    .sort((a, b) => b[1] - a[1]);
 
   sortedTeams.forEach(([team, points], index) => {
     const row = document.createElement("tr");
-    const trophy = index === 0 ? '<i class="fas fa-trophy"></i> ' : "";
+    row.className = index === 0 ? 'leader-row' : '';
+    const trophy = index === 0 ? '<i class="fas fa-trophy"></i> ' : '';
     row.innerHTML = `
       <td>${trophy}${team}</td>
       <td>${points}</td>
@@ -143,10 +209,13 @@ function loadOverallStandings() {
 
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
-  if (!weekSelect || !weekSelect.value) {
-    // Clear the tables if no week is selected
-    const weeklyTable = document.querySelector("#weekly-standings tbody");
-    if (weeklyTable) weeklyTable.innerHTML = "";
+  const weeklyTable = document.querySelector("#weekly-standings tbody");
+  const trackImage = document.getElementById("track-image");
+  
+  if (!weeklyTable) return;
+  weeklyTable.innerHTML = "";
+
+  if (!weekSelect?.value) {
     const recapContainer = document.getElementById("weekly-recap");
     if (recapContainer) recapContainer.innerHTML = "";
     return;
@@ -154,11 +223,6 @@ function loadWeeklyStandings() {
 
   const selectedWeek = parseInt(weekSelect.value, 10);
   const weekData = standingsData.weeks[selectedWeek - 1];
-  const weeklyTable = document.querySelector("#weekly-standings tbody");
-  const trackImage = document.getElementById("track-image");
-  
-  if (!weeklyTable) return;
-  weeklyTable.innerHTML = "";
 
   if (weekData) {
     if (trackImage) {
@@ -176,13 +240,16 @@ function loadWeeklyStandings() {
 
     sortedTeams.forEach(([team, data], index) => {
       const row = document.createElement("tr");
-      const flag = index === 0 ? '<i class="fas fa-flag-checkered"></i> ' : "";
+      row.className = index === 0 ? 'leader-row' : '';
+      const flag = index === 0 ? '<i class="fas fa-flag-checkered"></i> ' : '';
       row.innerHTML = `
         <td>${flag}${team}</td>
         <td>${data.total}</td>
       `;
       weeklyTable.appendChild(row);
     });
+
+    generateWeeklyRecap();
   }
 }
 
@@ -318,8 +385,7 @@ function loadTeamPage() {
     teamRoster.appendChild(row);
   });
 
-  // Add total row
-  const totalRow = document.createElement("tr");
+ const totalRow = document.createElement("tr");
   totalRow.className = "total-row";
   totalRow.innerHTML = `
     <td><strong>Total Team Points</strong></td>
@@ -353,66 +419,6 @@ function loadTeamPage() {
   }
 }
 
-function initializeApp() {
-  // Initialize dropdowns
-  populateWeekDropdown();
-  populateTeamDropdown();
-
-  // Load initial data
-  loadOverallStandings();
-  loadWeeklyStandings();
-  generateWeeklyRecap();
-  
-  // Set up event listeners
-  const weekSelect = document.getElementById("week-select");
-  if (weekSelect) {
-    weekSelect.addEventListener("change", () => {
-      loadWeeklyStandings();
-      generateWeeklyRecap();
-    });
-  }
-
-  const teamSelect = document.getElementById("team-select");
-  if (teamSelect) {
-    teamSelect.addEventListener("change", loadTeamPage);
-  }
-
-  const trackSelect = document.getElementById("track-select");
-  if (trackSelect) {
-    trackSelect.addEventListener("change", loadTeamPage);
-  }
-
-  // Load team page if we're on that tab
-  if (document.getElementById("teams").style.display !== "none") {
-    loadTeamPage();
-  }
-
-  // Set up the first tab as active by default
-  const defaultTab = document.querySelector(".tablink");
-  if (defaultTab) {
-    defaultTab.click();
-  }
-}
-function populateTeamDropdown() {
-  const teamSelect = document.getElementById("team-select");
-  if (!teamSelect) return;
-
-  teamSelect.innerHTML = "";
-
-  // Add a default option
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = "Select a Team";
-  teamSelect.appendChild(defaultOption);
-
-  // Add each team
-  Object.keys(standingsData.teams).forEach(team => {
-    const option = document.createElement("option");
-    option.value = team;
-    option.textContent = team;
-    teamSelect.appendChild(option);
-  });
-}
 function openTab(tabName) {
   const tabcontents = document.querySelectorAll(".tabcontent");
   const tablinks = document.querySelectorAll(".tablink");
@@ -428,4 +434,44 @@ function openTab(tabName) {
   }
 }
 
+function highlightLeader() {
+  const leaderRow = document.querySelector('.leader-row');
+  if (leaderRow) {
+    leaderRow.style.backgroundColor = '#f0f8ff';
+    leaderRow.style.fontWeight = 'bold';
+  }
+}
+
+function initializeApp() {
+  if (!isDataLoaded) return;
+
+  populateWeekDropdown();
+  populateTeamDropdown();
+  loadOverallStandings();
+  loadWeeklyStandings();
+  
+  // Set up event listeners
+  const weekSelect = document.getElementById("week-select");
+  if (weekSelect) {
+    weekSelect.addEventListener("change", loadWeeklyStandings);
+  }
+
+  const teamSelect = document.getElementById("team-select");
+  if (teamSelect) {
+    teamSelect.addEventListener("change", loadTeamPage);
+  }
+
+  const trackSelect = document.getElementById("track-select");
+  if (trackSelect) {
+    trackSelect.addEventListener("change", loadTeamPage);
+  }
+
+  // Set up the first tab as active by default
+  const defaultTab = document.querySelector(".tablink");
+  if (defaultTab) {
+    defaultTab.click();
+  }
+}
+
+// Initialize the app when the window loads
 window.onload = fetchDataFromGoogleSheets;
