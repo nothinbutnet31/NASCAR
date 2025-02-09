@@ -49,31 +49,7 @@ async function fetchDataFromGoogleSheets() {
       throw new Error("Failed to fetch data from Google Sheets");
     }
 
-    const data = await response.json();
-    await processRaceData(data.values);
-    isDataLoaded = true;
-    initializeApp();
-  } catch (error) {
-    console.error("Error fetching data:", error);
-  }
-}
-function initializeApp() {
-  // Initialize dropdowns
-  populateWeekDropdown();
-  populateTeamDropdown();
-
-  // Load initial data
-  loadOverallStandings();
   
-  // Set up event listeners for dropdowns
-  const weekSelect = document.getElementById("week-select");
-  if (weekSelect) {
-    weekSelect.addEventListener("change", () => {
-      loadWeeklyStandings();
-      generateWeeklyRecap();
-    });
-  }
-
   // Load team page if we're on that tab
   if (document.getElementById("teams").style.display !== "none") {
     loadTeamPage();
@@ -281,11 +257,77 @@ function loadTeamPage() {
   const teamRoster = document.querySelector("#team-roster tbody");
   const teamImage = document.getElementById("team-image");
   const teamStatsContainer = document.getElementById("team-stats");
+  const trackSelect = document.getElementById("track-select");
 
   if (!standingsData.teams[selectedTeam] || !teamRoster) return;
 
-  teamRoster.innerHTML = "";
+  // Clear and populate track select dropdown
+  if (trackSelect) {
+    trackSelect.innerHTML = "";
+    // Add default option
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "";
+    defaultOption.textContent = "All Races";
+    trackSelect.appendChild(defaultOption);
+
+    // Add each track
+    standingsData.weeks.forEach((week, index) => {
+      if (week.track && week.track.trim() !== "") {
+        const option = document.createElement("option");
+        option.value = index;
+        option.textContent = week.track;
+        trackSelect.appendChild(option);
+      }
+    });
+  }
+
+  // Calculate driver points based on track selection
+  const selectedTrackIndex = trackSelect ? trackSelect.value : "";
+  const driverTotals = {};
   
+  standingsData.teams[selectedTeam].drivers.forEach(driver => {
+    driverTotals[driver] = 0;
+    
+    if (selectedTrackIndex === "") {
+      // Calculate total points across all races
+      standingsData.weeks.forEach(week => {
+        if (week.standings[selectedTeam]?.drivers[driver]) {
+          driverTotals[driver] += week.standings[selectedTeam].drivers[driver];
+        }
+      });
+    } else {
+      // Calculate points for selected race only
+      const week = standingsData.weeks[selectedTrackIndex];
+      if (week?.standings[selectedTeam]?.drivers[driver]) {
+        driverTotals[driver] = week.standings[selectedTeam].drivers[driver];
+      }
+    }
+  });
+
+  // Clear and populate team roster
+  teamRoster.innerHTML = "";
+  let teamTotal = 0;
+
+  Object.entries(driverTotals).forEach(([driver, points]) => {
+    teamTotal += points;
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${driver}</td>
+      <td class="points-cell">${points}</td>
+    `;
+    teamRoster.appendChild(row);
+  });
+
+  // Add total row
+  const totalRow = document.createElement("tr");
+  totalRow.className = "total-row";
+  totalRow.innerHTML = `
+    <td><strong>Total Team Points</strong></td>
+    <td class="points-cell"><strong>${teamTotal}</strong></td>
+  `;
+  teamRoster.appendChild(totalRow);
+
+  // Update team image
   if (teamImage) {
     const teamImageName = selectedTeam.replace(/[^a-zA-Z0-9]/g, '_');
     const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${teamImageName}.png`;
@@ -296,39 +338,12 @@ function loadTeamPage() {
     };
   }
 
-  const driverTotals = {};
-  standingsData.teams[selectedTeam].drivers.forEach(driver => {
-    driverTotals[driver] = 0;
-    
-    standingsData.weeks.forEach(week => {
-      if (week.standings[selectedTeam]?.drivers[driver]) {
-        driverTotals[driver] += week.standings[selectedTeam].drivers[driver];
-      }
-    });
-  });
-
-  const teamTotal = Object.values(driverTotals).reduce((sum, points) => sum + points, 0);
-
-  Object.entries(driverTotals).forEach(([driver, points]) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td>${driver}</td>
-      <td class="points-cell">${points}</td>
-    `;
-    teamRoster.appendChild(row);
-  });
-
-  const totalRow = document.createElement("tr");
-  totalRow.className = "total-row";
-  totalRow.innerHTML = `
-    <td><strong>Total Team Points</strong></td>
-    <td class="points-cell"><strong>${teamTotal}</strong></td>
-  `;
-  teamRoster.appendChild(totalRow);
-
+  // Update team statistics
   if (teamStatsContainer) {
     const position = calculateTeamPosition(selectedTeam);
-    const averagePoints = (teamTotal / standingsData.weeks.length).toFixed(1);
+    const raceCount = selectedTrackIndex === "" ? standingsData.weeks.length : 1;
+    const averagePoints = (teamTotal / raceCount).toFixed(1);
+    
     teamStatsContainer.innerHTML = `
       <h3>Team Statistics</h3>
       <p>Current Position: ${position}</p>
@@ -338,72 +353,66 @@ function loadTeamPage() {
   }
 }
 
-function calculateTeamPosition(teamName) {
-  const teamPoints = {};
-  Object.keys(standingsData.teams).forEach(team => {
-    teamPoints[team] = standingsData.weeks.reduce((total, week) => {
-      return total + (week.standings[team]?.total || 0);
-    }, 0);
-  });
-  
-  const sortedTeams = Object.entries(teamPoints)
-    .sort((a, b) => b[1] - a[1])
-    .map(([team]) => team);
-    
-  return sortedTeams.indexOf(teamName) + 1;
-}
+function initializeApp() {
+  // Initialize dropdowns
+  populateWeekDropdown();
+  populateTeamDropdown();
 
-function populateWeekDropdown() {
+  // Load initial data
+  loadOverallStandings();
+  loadWeeklyStandings();
+  generateWeeklyRecap();
+  
+  // Set up event listeners
   const weekSelect = document.getElementById("week-select");
-  if (!weekSelect) return;
-  
-  weekSelect.innerHTML = "";
-
-  // Add a default/placeholder option
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = "Select a Race";
-  weekSelect.appendChild(defaultOption);
-
-  if (!standingsData.weeks || standingsData.weeks.length === 0) {
-    console.log('No weeks data available');
-    return;
+  if (weekSelect) {
+    weekSelect.addEventListener("change", () => {
+      loadWeeklyStandings();
+      generateWeeklyRecap();
+    });
   }
 
-  standingsData.weeks.forEach((week, index) => {
-    if (week.track && week.track.trim() !== "") {
-      const option = document.createElement("option");
-      option.value = index + 1;
-      option.textContent = `Week ${index + 1} - ${week.track}`;
-      weekSelect.appendChild(option);
-    }
-  });
+  const teamSelect = document.getElementById("team-select");
+  if (teamSelect) {
+    teamSelect.addEventListener("change", loadTeamPage);
+  }
 
-  // Set to first week by default if there are weeks available
-  if (standingsData.weeks.length > 0) {
-    weekSelect.value = "1";
-    loadWeeklyStandings();
-    generateWeeklyRecap();
+  const trackSelect = document.getElementById("track-select");
+  if (trackSelect) {
+    trackSelect.addEventListener("change", loadTeamPage);
+  }
+
+  // Load team page if we're on that tab
+  if (document.getElementById("teams").style.display !== "none") {
+    loadTeamPage();
+  }
+
+  // Set up the first tab as active by default
+  const defaultTab = document.querySelector(".tablink");
+  if (defaultTab) {
+    defaultTab.click();
   }
 }
-
-
 function populateTeamDropdown() {
   const teamSelect = document.getElementById("team-select");
   if (!teamSelect) return;
 
   teamSelect.innerHTML = "";
 
+  // Add a default option
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Select a Team";
+  teamSelect.appendChild(defaultOption);
+
+  // Add each team
   Object.keys(standingsData.teams).forEach(team => {
     const option = document.createElement("option");
     option.value = team;
     option.textContent = team;
     teamSelect.appendChild(option);
   });
-
-  teamSelect.addEventListener("change", loadTeamPage);
 }
-
 function openTab(tabName) {
   const tabcontents = document.querySelectorAll(".tabcontent");
   const tablinks = document.querySelectorAll(".tablink");
