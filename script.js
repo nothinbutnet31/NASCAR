@@ -1,4 +1,4 @@
-const sheetId = "19LbY1UwCkPXyVMMnvdu_KrYpyi6WhNcfuC6wjzxeBLI";
+Fconst sheetId = "19LbY1UwCkPXyVMMnvdu_KrYpyi6WhNcfuC6wjzxeBLI";
 const apiKey = "AIzaSyDWBrtpo54AUuVClU49k0FdrLl-IFPpMdY";
 const driversRange = "Drivers!A1:AA45";
 
@@ -381,7 +381,7 @@ function populateWeekDropdown() {
 
   // Set to first week by default if there are weeks available
   if (standingsData.weeks.length > 0) {
-    weekSelect.value = "2";
+    weekSelect.value = "1";
     loadWeeklyStandings();
     generateWeeklyRecap();
   }
