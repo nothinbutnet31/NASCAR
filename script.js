@@ -318,6 +318,41 @@ function loadTeamPage() {
   const teamRoster = document.querySelector("#team-roster tbody");
   const teamImage = document.getElementById("team-image");
 
+  // Style the select containers to be side by side
+  const selectContainer = document.createElement("div");
+  selectContainer.style.cssText = `
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+  `;
+
+  // Style the select elements
+  if (teamSelect && trackSelect) {
+    teamSelect.style.cssText = `
+      padding: 8px;
+      width: 200px;
+    `;
+    trackSelect.style.cssText = `
+      padding: 8px;
+      width: 200px;
+    `;
+
+    // Move selects into the container
+    selectContainer.appendChild(teamSelect);
+    selectContainer.appendChild(trackSelect);
+
+    // Insert the container before the team roster
+    const teamContent = document.getElementById("teams");
+    if (teamContent) {
+      const existingContainer = teamContent.querySelector('div[style*="display: flex"]');
+      if (existingContainer) {
+        existingContainer.remove();
+      }
+      teamContent.insertBefore(selectContainer, teamContent.firstChild);
+    }
+  }
+
   if (!teamSelect || !teamSelect.value) {
     console.warn("No team selected.");
     return;
@@ -376,49 +411,27 @@ function updateTeamRoster(selectedTeam, selectedTrackIndex) {
   
   drivers.forEach(driver => {
     const row = document.createElement("tr");
-    let totalPoints = 0;
+    let points = 0;
 
     if (selectedTrackIndex === "") {
       // Calculate total points across all races
-      totalPoints = standingsData.weeks.reduce((sum, week) => {
+      points = standingsData.weeks.reduce((sum, week) => {
         return sum + (week.standings[selectedTeam]?.drivers[driver] || 0);
       }, 0);
     } else {
       // Get points for specific race
       const week = standingsData.weeks[selectedTrackIndex];
       if (week && week.standings[selectedTeam]?.drivers[driver]) {
-        totalPoints = week.standings[selectedTeam].drivers[driver];
+        points = week.standings[selectedTeam].drivers[driver];
       }
     }
 
     row.innerHTML = `
       <td>${driver}</td>
-      <td>${totalPoints}</td>
+      <td>${points}</td>
     `;
     teamRoster.appendChild(row);
   });
-
-  // Add team total row
-  const teamTotal = calculateTeamTotal(selectedTeam, selectedTrackIndex);
-  const totalRow = document.createElement("tr");
-  totalRow.classList.add("total-row");
-  totalRow.innerHTML = `
-    <td><strong>Team Total</strong></td>
-    <td><strong>${teamTotal}</strong></td>
-  `;
-  teamRoster.appendChild(totalRow);
-}
-
-// Helper function to calculate team total
-function calculateTeamTotal(selectedTeam, selectedTrackIndex) {
-  if (selectedTrackIndex === "") {
-    return standingsData.weeks.reduce((sum, week) => {
-      return sum + (week.standings[selectedTeam]?.total || 0);
-    }, 0);
-  } else {
-    const week = standingsData.weeks[selectedTrackIndex];
-    return week?.standings[selectedTeam]?.total || 0;
-  }
 }
 
 // Populate Team Dropdown
