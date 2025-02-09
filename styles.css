@@ -201,18 +201,25 @@ footer p {
   }
 #weekly-standings table {
     width: 100%;
-    font-size: 1.2em;
+    font-size: 1.4em !important;
     margin: 20px 0;
+    border-collapse: collapse;
 }
 
 #weekly-standings td, 
 #weekly-standings th {
-    padding: 15px;
+    padding: 20px !important;
     text-align: left;
+    border: 1px solid #ddd;
 }
 
 #weekly-standings tbody tr {
-    line-height: 2;
+    line-height: 2.5 !important;
+}
+
+.tabcontent {
+    width: 80% !important;
+    margin: 0 auto;
 }
   .tablink {
     width: 100%;
