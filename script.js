@@ -203,6 +203,17 @@ function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
   if (!overallTable) return;
   
+  // Set table width
+  const overallTableContainer = document.getElementById("overall-standings");
+  if (overallTableContainer) {
+    overallTableContainer.style.width = "90%";
+    overallTableContainer.style.margin = "0 auto";
+    const table = overallTableContainer.querySelector("table");
+    if (table) {
+      table.style.width = "100%";
+    }
+  }
+
   overallTable.innerHTML = "";
   const totalPoints = {};
 
@@ -236,6 +247,17 @@ function loadWeeklyStandings() {
   
   if (!weeklyTable) return;
   weeklyTable.innerHTML = "";
+
+  // Set table width
+  const weeklyTableContainer = document.getElementById("weekly-standings");
+  if (weeklyTableContainer) {
+    weeklyTableContainer.style.width = "90%";
+    weeklyTableContainer.style.margin = "0 auto";
+    const table = weeklyTableContainer.querySelector("table");
+    if (table) {
+      table.style.width = "100%";
+    }
+  }
 
   if (!weekSelect?.value) {
     const recapContainer = document.getElementById("weekly-recap");
@@ -444,6 +466,30 @@ function loadTeamPage() {
       <p>Average Points per Race: ${averagePoints}</p>
     `;
   }
+
+  // Fix layout for team details section
+  const teamDetails = document.getElementById("team-details");
+  if (teamDetails) {
+    teamDetails.style.display = "flex";
+    teamDetails.style.flexDirection = "row";
+    teamDetails.style.justifyContent = "space-around";
+    teamDetails.style.alignItems = "flex-start";
+    teamDetails.style.gap = "40px";
+    teamDetails.style.margin = "20px 0";
+  }
+
+  // Style the selection containers
+  const teamSelection = document.querySelector(".team-selection");
+  const trackSelection = document.querySelector(".track-selection");
+  if (teamSelection && trackSelection) {
+    [teamSelection, trackSelection].forEach(container => {
+      container.style.display = "flex";
+      container.style.flexDirection = "column";
+      container.style.alignItems = "center";
+      container.style.gap = "10px";
+      container.style.flex = "1";
+    });
+  }
 }
 
 function openTab(tabName) {
@@ -501,7 +547,6 @@ function initializeApp() {
     weeklyTabLink.classList.add("active");
   }
 }
-
 
 // Initialize the app when the window loads
 window.onload = fetchDataFromGoogleSheets;
