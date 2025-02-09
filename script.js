@@ -91,12 +91,26 @@ async function fetchDataFromGoogleSheets() {
     const data = await response.json();
     await processRaceData(data.values);
     isDataLoaded = true;
-    init();
+    populateWeekDropdown();
+    populateTeamDropdown();
+    loadOverallStandings();
+    
+    // Set the latest week as default
+    const weekSelect = document.getElementById("week-select");
+    if (standingsData.weeks.length > 0) {
+      weekSelect.value = standingsData.weeks.length;
+      loadWeeklyStandings();
+      generateWeeklyRecap();
+    }
+ // Load team page with first team as default
+    const teamSelect = document.getElementById("team-select");
+    if (teamSelect && teamSelect.options.length > 0) {
+      loadTeamPage();
+    }
   } catch (error) {
     console.error("Error fetching data:", error);
   }
 }
-
 // Helper function to highlight leader - moved outside
 function highlightLeader() {
   const leaderRow = document.querySelector('.leader-row');
@@ -293,7 +307,8 @@ function loadTeamPage() {
   
   // Load team image
   if (teamImage) {
-    const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${selectedTeam.replace(/\s+/g, '_')}.png`;
+    const teamImageName = selectedTeam.replace(/[^a-zA-Z0-9]/g, '_');
+    const teamImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${teamImageName}.png`;
     teamImage.src = teamImageUrl;
     teamImage.alt = `${selectedTeam} Logo`;
     teamImage.onerror = function() {
@@ -301,27 +316,28 @@ function loadTeamPage() {
     };
   }
 
-  // Initialize total points counter
-  let totalPoints = 0;
-
-  // Add rows for each driver and calculate their points
+  // Calculate points for each driver
+  const driverTotals = {};
   standingsData.teams[selectedTeam].drivers.forEach(driver => {
-    let driverPoints = 0;
+    driverTotals[driver] = 0;
     
-    // Calculate points for this driver across all weeks
+    // Sum up points across all weeks
     standingsData.weeks.forEach(week => {
       if (week.standings[selectedTeam]?.drivers[driver]) {
-        driverPoints += week.standings[selectedTeam].drivers[driver];
+        driverTotals[driver] += week.standings[selectedTeam].drivers[driver];
       }
     });
+  });
 
-    totalPoints += driverPoints;
+  // Calculate team total
+  const teamTotal = Object.values(driverTotals).reduce((sum, points) => sum + points, 0);
 
-    // Create row for this driver
+  // Add driver rows
+  Object.entries(driverTotals).forEach(([driver, points]) => {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td>${driver}</td>
-      <td class="points-cell">${driverPoints}</td>
+      <td class="points-cell">${points}</td>
     `;
     teamRoster.appendChild(row);
   });
@@ -331,18 +347,19 @@ function loadTeamPage() {
   totalRow.className = "total-row";
   totalRow.innerHTML = `
     <td><strong>Total Team Points</strong></td>
-    <td class="points-cell"><strong>${totalPoints}</strong></td>
+    <td class="points-cell"><strong>${teamTotal}</strong></td>
   `;
   teamRoster.appendChild(totalRow);
 
   // Update team stats
   if (teamStatsContainer) {
     const position = calculateTeamPosition(selectedTeam);
+    const averagePoints = (teamTotal / standingsData.weeks.length).toFixed(1);
     teamStatsContainer.innerHTML = `
       <h3>Team Statistics</h3>
       <p>Current Position: ${position}</p>
-      <p>Total Points: ${totalPoints}</p>
-      <p>Average Points per Race: ${(totalPoints / standingsData.weeks.length).toFixed(1)}</p>
+      <p>Total Points: ${teamTotal}</p>
+      <p>Average Points per Race: ${averagePoints}</p>
     `;
   }
 }
@@ -364,11 +381,24 @@ function populateWeekDropdown() {
   const weekSelect = document.getElementById("week-select");
   weekSelect.innerHTML = ""; // Clear existing options
 
-  if (standingsData.weeks.length === 0) {
-    console.log('No weeks data available'); // Debug log
+  if (!standingsData.weeks || standingsData.weeks.length === 0) {
+    console.log('No weeks data available');
     return;
   }
 
+  standingsData.weeks.forEach((week, index) => {
+    if (week.track) {
+      const option = document.createElement("option");
+      option.value = index + 1;
+      option.textContent = `Week ${index + 1} - ${week.track}`;
+      weekSelect.appendChild(option);
+    }
+  });
+  // Set to latest week by default
+  if (standingsData.weeks.length > 0) {
+    weekSelect.value = standingsData.weeks.length;
+  }
+}
   const defaultOption = document.createElement("option");
   defaultOption.value = "";
   defaultOption.textContent = "Select a Track";
@@ -394,24 +424,33 @@ function populateWeekDropdown() {
 // Modified Weekly Standings
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
-  const selectedWeek = parseInt(weekSelect.value, 10);
+  let selectedWeek = weekSelect.value ? parseInt(weekSelect.value, 10) : standingsData.weeks.length;
+  
+  // Ensure selectedWeek is valid
+  if (!selectedWeek || selectedWeek < 1) {
+    selectedWeek = standingsData.weeks.length;
+    weekSelect.value = selectedWeek;
+  }
+  
   const weekData = standingsData.weeks[selectedWeek - 1];
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const trackImage = document.getElementById("track-image");
   
   weeklyTable.innerHTML = "";
 
-  // Display track image
-  if (trackImage && weekData) {
-    const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${weekData.track.replace(/\s+/g, '_')}.png`;
-    trackImage.src = trackImageUrl;
-    trackImage.alt = `${weekData.track} Track`;
-    trackImage.onerror = function() {
-      this.src = "https://via.placeholder.com/200";
-    };
-  }
-
   if (weekData) {
+    // Display track image
+    if (trackImage) {
+      const trackName = weekData.track.replace(/[^a-zA-Z0-9]/g, '_');
+      const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
+      trackImage.src = trackImageUrl;
+      trackImage.alt = `${weekData.track} Track`;
+      trackImage.onerror = function() {
+        this.src = "https://via.placeholder.com/200";
+      };
+    }
+
+    // Sort and display team standings
     const sortedTeams = Object.entries(weekData.standings)
       .sort((a, b) => b[1].total - a[1].total);
 
@@ -425,34 +464,6 @@ function loadWeeklyStandings() {
       weeklyTable.appendChild(row);
     });
   }
-}
-
-function calculateTeamPosition(teamName) {
-  const teamPoints = {};
-  Object.keys(standingsData.teams).forEach(team => {
-    teamPoints[team] = standingsData.weeks.reduce((total, week) => {
-      return total + (week.standings[team]?.total || 0);
-    }, 0);
-  });
-  
-  const sortedTeams = Object.entries(teamPoints)
-    .sort((a, b) => b[1] - a[1])
-    .map(([team]) => team);
-    
-  return sortedTeams.indexOf(teamName) + 1;
-}
-function populateTeamDropdown() {
-  const teamSelect = document.getElementById("team-select");
-  teamSelect.innerHTML = "";
-
-  Object.keys(standingsData.teams).forEach(team => {
-    const option = document.createElement("option");
-    option.value = team;
-    option.textContent = team;
-    teamSelect.appendChild(option);
-  });
-
-  teamSelect.addEventListener("change", loadTeamPage);
 }
 
 function openTab(tabName) {
