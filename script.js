@@ -55,7 +55,9 @@ async function fetchDataFromGoogleSheets() {
     if (data.values && data.values.length > 0) {
       processRaceData(data.values);
       isDataLoaded = true;
-      initializeApp();
+      populateWeekDropdown();
+      populateTeamDropdown();
+      init();  // Call init instead of initializeApp
     } else {
       throw new Error("No data received from Google Sheets");
     }
@@ -484,7 +486,7 @@ function loadTeamPage() {
     teamDetails.style.flexDirection = "row";
     teamDetails.style.justifyContent = "center";
     teamDetails.style.alignItems = "flex-start";
-    teamDetails.style.gap = "100px";  // Increased gap
+    teamDetails.style.gap = "50px";  // Reduced gap
     teamDetails.style.margin = "20px 0";
   }
 
@@ -497,9 +499,8 @@ function loadTeamPage() {
       container.style.flexDirection = "column";
       container.style.alignItems = "center";
       container.style.gap = "20px";
-      container.style.minWidth = "300px";  // Set minimum width
-      container.style.visibility = "visible";  // Ensure visibility
-      container.style.position = "relative";  // Reset position
+      container.style.minWidth = "250px";  // Reduced minimum width
+      container.style.visibility = "visible";
     });
   }
 }
@@ -530,37 +531,30 @@ function openTab(tabName) {
   }
 }
 
-function initializeApp() {
-  if (!isDataLoaded) return;
-
-  // First hide all tabs
-  const tabcontents = document.querySelectorAll(".tabcontent");
-  if (tabcontents) {
-    tabcontents.forEach(tab => tab.style.display = "none");
-  }
-
-  // Then populate data
-  populateWeekDropdown();
-  populateTeamDropdown();
-  
-  // Load all data
+function init() {
+  // Load data first
   loadOverallStandings();
+  loadWeeklyStandings();
   
-  // Show and load weekly standings
+  // Hide all tabs
+  document.querySelectorAll(".tabcontent").forEach(tab => {
+    tab.style.display = "none";
+  });
+  
+  // Remove active class from all tabs
+  document.querySelectorAll(".tablink").forEach(link => {
+    link.classList.remove("active");
+  });
+  
+  // Show weekly standings and mark its tab as active
   const weeklyTab = document.getElementById("weekly-standings");
+  const weeklyTabLink = document.querySelector(`[onclick="openTab('weekly-standings')"]`);
+  
   if (weeklyTab) {
     weeklyTab.style.display = "block";
-    loadWeeklyStandings();
   }
-  
-  // Update tab states
-  const tablinks = document.querySelectorAll(".tablink");
-  if (tablinks) {
-    tablinks.forEach(link => link.classList.remove("active"));
-    const weeklyTabLink = document.querySelector(`[onclick="openTab('weekly-standings')"]`);
-    if (weeklyTabLink) {
-      weeklyTabLink.classList.add("active");
-    }
+  if (weeklyTabLink) {
+    weeklyTabLink.classList.add("active");
   }
 }
 
