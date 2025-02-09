@@ -475,6 +475,7 @@ function openTab(tabName) {
 function initializeApp() {
   if (!isDataLoaded) return;
 
+  // First populate data
   populateWeekDropdown();
   populateTeamDropdown();
   loadOverallStandings();
@@ -495,9 +496,20 @@ function initializeApp() {
     trackSelect.addEventListener("change", loadTeamPage);
   }
 
-  // Open weekly standings tab first and load its content
-  openTab("weekly-standings");
+  // Make sure weekly standings tab is visible and active
+  const weeklyTab = document.getElementById("weekly-standings");
+  if (weeklyTab) {
+    weeklyTab.style.display = "block";
+  }
+  
+  // Load the weekly standings content
   loadWeeklyStandings();
+  
+  // Set the weekly standings tab as active
+  const weeklyTabLink = document.querySelector(`[onclick="openTab('weekly-standings')"]`);
+  if (weeklyTabLink) {
+    weeklyTabLink.classList.add("active");
+  }
 }
 
 // Initialize the app when the window loads
