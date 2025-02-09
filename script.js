@@ -218,31 +218,31 @@ function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
     Object.entries(data.drivers).forEach(([driver, points]) => {
       if (points === 0) return; // Skip drivers with no points
 
-      // Base score is their points for the week
-      let totalScore = points;
+      // Base score starts lower to give other factors more impact
+      let totalScore = points * 0.7; // Reduce base points weight to 70%
 
       // Add bonus for performing above average (if not first week)
       if (previousAverages[driver]) {
         const averagePerformance = previousAverages[driver];
         const performanceBonus = points - averagePerformance;
-        totalScore += (performanceBonus * 0.5); // Weight of 0.5 for performing above average
+        totalScore += (performanceBonus * 0.8); // Increase weight to 80%
       }
 
       // Add bonus for stage wins and fastest lap
       const stagePoints = calculateStagePoints(driver, weekData);
-      totalScore += (stagePoints * 0.3); // Weight of 0.3 for stage performance
+      totalScore += (stagePoints * 0.6); // Increase weight to 60%
 
       // Add bonus for qualifying performance
       const qualifyingBonus = calculateQualifyingBonus(driver, weekData);
-      totalScore += (qualifyingBonus * 0.2); // Weight of 0.2 for qualifying
+      totalScore += (qualifyingBonus * 0.4); // Increase weight to 40%
 
       // Add bonus for fastest lap
       const fastestLapBonus = calculateFastestLapBonus(driver, weekData);
-      totalScore += (fastestLapBonus * 0.1); // Weight of 0.1 for fastest lap
+      totalScore += (fastestLapBonus * 0.3); // Increase weight to 30%
 
       // Calculate percentage of team's points
       const teamContribution = (points / teamTotal) * 100;
-      totalScore += (teamContribution * 0.2); // Weight of 0.2 for team contribution
+      totalScore += (teamContribution * 0.4); // Increase weight to 40%
 
       allDriversPerformance.push({
         driver,
@@ -316,7 +316,7 @@ function calculateFastestLapBonus(driver, weekData) {
   return fastestLapBonus;
 }
 
-// Update generateWeeklyRecap to include the new details
+// Update generateWeeklyRecap to remove total score display
 function generateWeeklyRecap() {
   const recapContainer = document.getElementById("weekly-recap");
   if (!recapContainer) return;
@@ -342,7 +342,7 @@ function generateWeeklyRecap() {
     </ul>
   </div>`;
 
-  // Updated Driver of the Week section with image
+  // Updated Driver of the Week section without total score
   const driverOfTheWeek = calculateDriverOfTheWeek(weekData, selectedWeekNumber);
   const driverImageName = driverOfTheWeek.driver.replace(/[^a-zA-Z0-9]/g, '_');
   
@@ -366,7 +366,6 @@ function generateWeeklyRecap() {
           <li>Fastest Lap: ${driverOfTheWeek.details.fastestLapBonus > 0 ? '✅' : '❌'}</li>
           <li>Team Contribution: ${driverOfTheWeek.details.teamContribution}</li>
           <li>vs Average: ${driverOfTheWeek.details.aboveAverage}</li>
-          <li>Total Score: ${driverOfTheWeek.totalScore}</li>
         </ul>
       </div>
     </div>
