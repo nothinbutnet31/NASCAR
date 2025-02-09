@@ -6,7 +6,7 @@ const driversRange = "Drivers!A1:AA45";
 let isDataLoaded = false;
 
 const scoringSystem = {
-  "1st": 40, "2nd": 35, "3rd": 34, "4th": 33, "5th": 32,
+  "1st": 38, "2nd": 35, "3rd": 34, "4th": 33, "5th": 32,
   "6th": 31, "7th": 30, "8th": 29, "9th": 28, "10th": 27,
   "11th": 26, "12th": 25, "13th": 24, "14th": 23, "15th": 22,
   "16th": 21, "17th": 20, "18th": 19, "19th": 18, "20th": 17,
@@ -14,7 +14,7 @@ const scoringSystem = {
   "26th": 11, "27th": 10, "28th": 9, "29th": 8, "30th": 7,
   "31st": 6, "32nd": 5, "33rd": 4, "34th": 3, "35th": 2,
   "36th": 1, "37th": 1, "38th": 1, "39th": 1, "40th": 1,
-  "Fastest Lap": 1, "Stage 1 Winner": 10, "Stage 2 Winner": 10, "Pole Winner": 5
+  "Fastest Lap": 1, "Stage 1 Winner": 2, "Stage 2 Winner": 2, "Pole Winner": 1
 };
 
 let standingsData = {
@@ -204,7 +204,119 @@ function loadWeeklyStandings() {
   }
 }
 
-// Generate Weekly Recap
+// Add this new function to calculate Driver of the Week score
+function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
+  const allDriversPerformance = [];
+  
+  // Get previous averages if not first week
+  const previousAverages = selectedWeekNumber > 1 ? 
+    calculateDriverAverages(selectedWeekNumber - 1) : {};
+
+  Object.entries(weekData.standings).forEach(([team, data]) => {
+    const teamTotal = data.total;
+    
+    Object.entries(data.drivers).forEach(([driver, points]) => {
+      if (points === 0) return; // Skip drivers with no points
+
+      // Base score is their points for the week
+      let totalScore = points;
+
+      // Add bonus for performing above average (if not first week)
+      if (previousAverages[driver]) {
+        const averagePerformance = previousAverages[driver];
+        const performanceBonus = points - averagePerformance;
+        totalScore += (performanceBonus * 0.5); // Weight of 0.5 for performing above average
+      }
+
+      // Add bonus for stage wins and fastest lap
+      const stagePoints = calculateStagePoints(driver, weekData);
+      totalScore += (stagePoints * 0.3); // Weight of 0.3 for stage performance
+
+      // Add bonus for qualifying performance
+      const qualifyingBonus = calculateQualifyingBonus(driver, weekData);
+      totalScore += (qualifyingBonus * 0.2); // Weight of 0.2 for qualifying
+
+      // Add bonus for fastest lap
+      const fastestLapBonus = calculateFastestLapBonus(driver, weekData);
+      totalScore += (fastestLapBonus * 0.1); // Weight of 0.1 for fastest lap
+
+      // Calculate percentage of team's points
+      const teamContribution = (points / teamTotal) * 100;
+      totalScore += (teamContribution * 0.2); // Weight of 0.2 for team contribution
+
+      allDriversPerformance.push({
+        driver,
+        team,
+        racePoints: points,
+        totalScore: parseFloat(totalScore.toFixed(1)),
+        details: {
+          stagePoints,
+          qualifyingBonus,
+          fastestLapBonus,
+          teamContribution: teamContribution.toFixed(1) + '%',
+          aboveAverage: previousAverages[driver] ? 
+            (points - previousAverages[driver]).toFixed(1) : 'N/A'
+        }
+      });
+    });
+  });
+
+  // Sort by total score and return the highest
+  return allDriversPerformance.sort((a, b) => b.totalScore - a.totalScore)[0];
+}
+
+// Helper function to calculate stage points
+function calculateStagePoints(driver, weekData) {
+  let stagePoints = 0;
+  Object.values(weekData.standings).forEach(teamData => {
+    Object.entries(teamData.drivers).forEach(([driverName, points]) => {
+      if (driverName === driver) {
+        // Check for stage wins (10 points each in scoring system)
+        if (points >= scoringSystem["Stage 1 Winner"]) {
+          stagePoints += scoringSystem["Stage 1 Winner"];
+        }
+        if (points >= scoringSystem["Stage 2 Winner"]) {
+          stagePoints += scoringSystem["Stage 2 Winner"];
+        }
+      }
+    });
+  });
+  return stagePoints;
+}
+
+// Helper function to calculate qualifying bonus
+function calculateQualifyingBonus(driver, weekData) {
+  let qualifyingBonus = 0;
+  Object.values(weekData.standings).forEach(teamData => {
+    Object.entries(teamData.drivers).forEach(([driverName, points]) => {
+      if (driverName === driver) {
+        // Check for pole (5 points in scoring system)
+        if (points >= scoringSystem["Pole Winner"]) {
+          qualifyingBonus += scoringSystem["Pole Winner"];
+        }
+      }
+    });
+  });
+  return qualifyingBonus;
+}
+
+// Add helper function for fastest lap bonus
+function calculateFastestLapBonus(driver, weekData) {
+  let fastestLapBonus = 0;
+  Object.values(weekData.standings).forEach(teamData => {
+    Object.entries(teamData.drivers).forEach(([driverName, points]) => {
+      if (driverName === driver) {
+        // Check for fastest lap (1 point in scoring system)
+        if (points >= scoringSystem["Fastest Lap"]) {
+          fastestLapBonus += scoringSystem["Fastest Lap"];
+        }
+      }
+    });
+  });
+  return fastestLapBonus;
+}
+
+// Update generateWeeklyRecap to include the new details
 function generateWeeklyRecap() {
   const recapContainer = document.getElementById("weekly-recap");
   if (!recapContainer) return;
@@ -228,6 +340,36 @@ function generateWeeklyRecap() {
       <li>Teams Above Average: ${countTeamsAboveAverage(weekData.standings)}</li>
       <li>Point Spread: ${calculatePointSpread(weekData.standings)} points</li>
     </ul>
+  </div>`;
+
+  // Updated Driver of the Week section with image
+  const driverOfTheWeek = calculateDriverOfTheWeek(weekData, selectedWeekNumber);
+  const driverImageName = driverOfTheWeek.driver.replace(/[^a-zA-Z0-9]/g, '_');
+  
+  recapText += `<div class="recap-section">
+    <h4>🌟 Driver of the Week</h4>
+    <div style="display: flex; align-items: start; gap: 20px;">
+      <div style="flex: 0 0 auto;">
+        <img 
+          src="https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png" 
+          alt="${driverOfTheWeek.driver}"
+          style="width: 150px; height: auto; border-radius: 8px;"
+          onerror="this.src='https://via.placeholder.com/150'; this.onerror=null;"
+        />
+      </div>
+      <div style="flex: 1;">
+        <p><strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})</p>
+        <ul>
+          <li>Race Points: ${driverOfTheWeek.racePoints}</li>
+          <li>Stage Points: ${driverOfTheWeek.details.stagePoints}</li>
+          <li>Qualifying Bonus: ${driverOfTheWeek.details.qualifyingBonus}</li>
+          <li>Fastest Lap: ${driverOfTheWeek.details.fastestLapBonus > 0 ? '✅' : '❌'}</li>
+          <li>Team Contribution: ${driverOfTheWeek.details.teamContribution}</li>
+          <li>vs Average: ${driverOfTheWeek.details.aboveAverage}</li>
+          <li>Total Score: ${driverOfTheWeek.totalScore}</li>
+        </ul>
+      </div>
+    </div>
   </div>`;
 
   // Top and Bottom Performers Section
