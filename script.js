@@ -346,25 +346,36 @@ function generateWeeklyRecap() {
   const driverOfTheWeek = calculateDriverOfTheWeek(weekData, selectedWeekNumber);
   const driverImageName = driverOfTheWeek.driver.replace(/[^a-zA-Z0-9]/g, '_');
   
+  console.log('Driver of the Week:', driverOfTheWeek);
+  console.log('Week Data:', weekData);
+  
   // Helper function to get finishing position
-  const getFinishPosition = (points) => {
-    // Create a map of points to positions for race finishes only
-    const finishPositions = {};
-    for (const [pos, pts] of Object.entries(scoringSystem)) {
-      if (pos.match(/^([0-9]+)(st|nd|rd|th)$/)) {
-        finishPositions[pts] = pos;
+  const getFinishPosition = (driver, weekData) => {
+    // Find the driver's base race points (excluding bonuses)
+    let basePoints = 0;
+    Object.values(weekData.standings).forEach(teamData => {
+      if (teamData.drivers[driver]) {
+        basePoints = teamData.drivers[driver];
+        console.log('Found driver points:', basePoints);
+      }
+    });
+    
+    // Match points to position
+    for (const [pos, points] of Object.entries(scoringSystem)) {
+      if (points === basePoints && (pos.includes('st') || pos.includes('nd') || 
+          pos.includes('rd') || pos.includes('th'))) {
+        console.log('Matched position:', pos, 'for points:', points);
+        return pos;
       }
     }
     
-    console.log('Driver Points:', points);
-    console.log('Finish Positions Map:', finishPositions);
-    
-    return finishPositions[points] || 'Unknown position';
+    console.log('No position match found for points:', basePoints);
+    return 'Unknown position';
   };
 
   // Build narrative description
   let achievements = [];
-  let description = `Finished in ${getFinishPosition(driverOfTheWeek.racePoints)}`;
+  let description = `Finished in ${getFinishPosition(driverOfTheWeek.driver, weekData)}`;
   
   if (driverOfTheWeek.details.stagePoints > 0) {
     const stageWins = [];
