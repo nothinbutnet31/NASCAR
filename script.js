@@ -1144,3 +1144,4 @@ window.onload = () => {
   console.log("Window loaded, fetching data...");
   fetchDataFromGoogleSheets();
 };
+
