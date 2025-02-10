@@ -591,30 +591,34 @@ function generateWeeklyRecap() {
   let description = `${driverOfTheWeek.driver} had an outstanding performance`;
   const achievements = [];
 
-  // Add stage wins
+  // Add finishing position
+  achievements.push(`Finished ${getFinishPosition(driverOfTheWeek.racePoints)}`);
+  
+  // Add stage wins if any
   if (driverOfTheWeek.details.stageWins > 0) {
-    const stageWins = driverOfTheWeek.details.stageWins;
-    achievements.push(`Won Stage${stageWins > 1 ? 's' : ''} ${Array.from({length: stageWins}, (_, i) => i + 1).join(' and ')}`);
-  }
-  
-  if (driverOfTheWeek.details.hadPole) {
-    achievements.push("Started from pole position");
-  }
-  
-  if (driverOfTheWeek.details.hadFastestLap) {
-    achievements.push("Set the fastest lap of the race");
-  }
-
-  // Add performance vs expected if not first race
-  if (driverOfTheWeek.details.vsExpected !== 'N/A') {
-    const diff = parseFloat(driverOfTheWeek.details.vsExpected);
-    if (diff > 0) {
-      achievements.push(`Scored ${diff.toFixed(1)} points above their expected average`);
+    if (driverOfTheWeek.details.stageWins === 1) {
+      achievements.push("Won Stage 1");
+    } else if (driverOfTheWeek.details.stageWins === 2) {
+      achievements.push("Won both stages");
     }
   }
-
+  
+  // Add pole and fastest lap
+  if (driverOfTheWeek.details.hadPole) {
+    achievements.push("Started from pole");
+  }
+  if (driverOfTheWeek.details.hadFastestLap) {
+    achievements.push("Set fastest lap");
+  }
+  
+  // Add performance vs average
+  const vsExpected = parseFloat(driverOfTheWeek.details.vsExpected);
+  if (vsExpected > 0) {
+    achievements.push(`${vsExpected.toFixed(1)} points above average`);
+  }
+  
   // Add team contribution
-  achievements.push(`Contributed ${driverOfTheWeek.details.teamContribution} of their team's points`);
+  achievements.push(`Contributed ${driverOfTheWeek.details.teamContribution} of team points`);
 
   // Combine into narrative
   if (achievements.length > 0) {
