@@ -588,62 +588,42 @@ function generateWeeklyRecap() {
   };
 
   // Build achievements list for Driver of the Week
-  let description = `${driverOfTheWeek.driver} had an outstanding performance`;
-  const achievements = [];
-
-  // Add finishing position
-  achievements.push(`Finished ${getFinishPosition(driverOfTheWeek.racePoints)}`);
+  let narrative = `${driverOfTheWeek.driver} finished ${getFinishPosition(driverOfTheWeek.racePoints)}`;
   
-  // Add stage wins if any
+  // Add stage wins
   if (driverOfTheWeek.details.stageWins > 0) {
     if (driverOfTheWeek.details.stageWins === 1) {
-      achievements.push("Won Stage 1");
+      narrative += ", won Stage 1";
     } else if (driverOfTheWeek.details.stageWins === 2) {
-      achievements.push("Won both stages");
+      narrative += ", won both stages";
     }
   }
   
   // Add pole and fastest lap
   if (driverOfTheWeek.details.hadPole) {
-    achievements.push("Started from pole");
+    narrative += ", started from pole";
   }
   if (driverOfTheWeek.details.hadFastestLap) {
-    achievements.push("Set fastest lap");
+    narrative += ", set the fastest lap";
   }
   
   // Add performance vs average
   const vsExpected = parseFloat(driverOfTheWeek.details.vsExpected);
   if (vsExpected > 0) {
-    achievements.push(`${vsExpected.toFixed(1)} points above average`);
+    narrative += `, was ${vsExpected.toFixed(1)} points above average`;
   }
   
   // Add team contribution
-  achievements.push(`Contributed ${driverOfTheWeek.details.teamContribution} of team points`);
+  narrative += `, and contributed ${driverOfTheWeek.details.teamContribution} of team points`;
 
-  // Combine into narrative
-  if (achievements.length > 0) {
-    description += `. ${achievements.join(". ")}.`;
-  }
-  
-  recapText += `<div class="recap-section">
-    <h4>🌟 Driver of the Week</h4>
-    <div style="display: flex; align-items: start; gap: 20px;">
-      <div style="flex: 0 0 auto;">
-        <img 
-          src="https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverOfTheWeek.driver.replace(/[^a-zA-Z0-9]/g, '_')}.png" 
-          alt="${driverOfTheWeek.driver}"
-          style="width: 150px; height: auto; border-radius: 8px;"
-          onerror="this.src='https://via.placeholder.com/150'; this.onerror=null;"
-        />
-      </div>
-      <div style="flex: 1;">
-        <p style="font-size: 1.2em; margin-bottom: 15px;">
-          <strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})
-        </p>
-        <p style="line-height: 1.6; margin-bottom: 10px;">${description}</p>
-      </div>
+  recapText += `
+    <div class="recap-section">
+      <h4>🏆 Driver of the Week</h4>
+      <p><strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})</p>
+      <p>${narrative}.</p>
+      <p class="score-details">Performance Score: ${driverOfTheWeek.totalScore.toFixed(1)}</p>
     </div>
-  </div>`;
+  `;
 
   // Top and Bottom Performers Section
   const allDriversScores = [];
