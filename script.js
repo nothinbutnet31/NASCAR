@@ -347,15 +347,21 @@ function generateWeeklyRecap() {
   const driverImageName = driverOfTheWeek.driver.replace(/[^a-zA-Z0-9]/g, '_');
   
   // Helper function to get finishing position
-  const getFinishPosition = (points) => {
-    return Object.entries(scoringSystem).find(([pos, pts]) => 
-      pts === points && pos.includes('th') || pos.includes('st') || pos.includes('nd') || pos.includes('rd')
-    )?.[0] || 'Unknown position';
+  const getFinishPosition = (driver, weekData) => {
+    // Look through each position in the race data
+    for (let row of weekData.standings) {
+      if (row[0].includes('th') || row[0].includes('st') || row[0].includes('nd') || row[0].includes('rd')) {
+        if (row[1] === driver) {
+          return row[0];
+        }
+      }
+    }
+    return 'Unknown position';
   };
 
   // Build narrative description
   let achievements = [];
-  let description = `Finished in ${getFinishPosition(driverOfTheWeek.racePoints)}`;
+  let description = `Finished in ${getFinishPosition(driverOfTheWeek.driver, weekData)}`;
   
   if (driverOfTheWeek.details.stagePoints > 0) {
     const stageWins = [];
