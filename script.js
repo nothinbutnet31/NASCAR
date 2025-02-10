@@ -5,7 +5,7 @@ const driversRange = "Drivers!A1:AA45";
 
 let isDataLoaded = false;
 
-const scoringSystem = {
+window.scoringSystem = {
   "1st": 38, "2nd": 34, "3rd": 33, "4th": 32, "5th": 31,
   "6th": 30, "7th": 29, "8th": 28, "9th": 27, "10th": 26,
   "11th": 25, "12th": 24, "13th": 23, "14th": 22, "15th": 21,
