@@ -288,69 +288,64 @@ function calculateDriverAverages(weekNumber) {
 function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
   const allDriversPerformance = [];
   
-  // Get previous averages if not first week
-  const previousAverages = selectedWeekNumber > 1 ? 
-    calculateDriverAverages(selectedWeekNumber - 1) : {};
-
   Object.entries(weekData.standings).forEach(([team, data]) => {
     Object.entries(data.drivers).forEach(([driver, points]) => {
-      if (points === 0) return; // Skip drivers with no points
+      if (points === 0) return;
 
-      // Calculate base score - heavily weight finishing position
-      let totalScore = points * 1.2; // Increase base points weight to 120%
-
-      // Add significant bonus for winning
-      if (points === 38) {
-        totalScore += 15; // Big bonus for winning
-      } else if (points >= 34) {
-        totalScore += 10; // Bonus for podium finish
-      } else if (points >= 31) {
-        totalScore += 5; // Bonus for top 5
-      }
-
-      // Add bonus for stage wins and fastest lap
-      const stagePoints = calculateStagePoints(driver, weekData);
-      totalScore += (stagePoints * 2); // Double stage points impact
-
-      // Add qualifying bonus
-      const qualifyingBonus = calculateQualifyingBonus(driver, weekData);
-      totalScore += (qualifyingBonus * 1.5);
-
-      // Add fastest lap bonus
-      const fastestLapBonus = calculateFastestLapBonus(driver, weekData);
-      totalScore += (fastestLapBonus * 1.0);
-
-      // Add smaller bonus for performing above average
-      if (previousAverages[driver]) {
-        const averagePerformance = previousAverages[driver];
-        const performanceBonus = points - averagePerformance;
-        if (performanceBonus > 0) {
-          totalScore += (performanceBonus * 0.5); // Reduced weight of above-average bonus
+      // Calculate base race points (finish position only)
+      let basePoints = 0;
+      for (const [pos, pts] of Object.entries(scoringSystem)) {
+        if (points >= pts && (pos.includes('st') || pos.includes('nd') || 
+            pos.includes('rd') || pos.includes('th'))) {
+          basePoints = pts;
+          break;
         }
       }
 
-      // Calculate percentage of team's points but with less weight
+      let totalScore = basePoints * 1.2;
+
+      // Add bonuses for finishing position
+      if (basePoints === 38) totalScore += 15;
+      else if (basePoints >= 34) totalScore += 10;
+      else if (basePoints >= 31) totalScore += 5;
+
+      // Calculate bonuses
+      const stagePoints = calculateStagePoints(driver, weekData);
+      const qualifyingBonus = calculateQualifyingBonus(driver, weekData);
+      const fastestLapBonus = calculateFastestLapBonus(driver, weekData);
+      
+      totalScore += (stagePoints * 2);
+      totalScore += (qualifyingBonus * 1.5);
+      totalScore += (fastestLapBonus * 1.0);
+
+      // Add other scoring factors...
+      const driverAverages = calculateDriverAverages(selectedWeekNumber);
+      const expectedPoints = driverAverages[driver] || 15;
+      const performanceBonus = points - expectedPoints;
+      if (performanceBonus > 0) {
+        totalScore += (performanceBonus * 0.5);
+      }
+
       const teamContribution = (points / data.total) * 100;
-      totalScore += (teamContribution * 0.3); // Reduced weight of team contribution
+      totalScore += (teamContribution * 0.3);
 
       allDriversPerformance.push({
         driver,
         team,
         racePoints: points,
+        basePoints: basePoints, // Store base points separately
         totalScore: parseFloat(totalScore.toFixed(1)),
         details: {
           stagePoints,
           qualifyingBonus,
           fastestLapBonus,
           teamContribution: teamContribution.toFixed(1) + '%',
-          aboveAverage: previousAverages[driver] ? 
-            (points - previousAverages[driver]).toFixed(1) : 'N/A'
+          vsExpected: performanceBonus.toFixed(1)
         }
       });
     });
   });
 
-  // Sort by total score and return the highest
   return allDriversPerformance.sort((a, b) => b.totalScore - a.totalScore)[0];
 }
 
@@ -532,10 +527,18 @@ function generateWeeklyRecap() {
   
   // Helper function to get finishing position
   const getFinishPosition = (points) => {
-    console.log('Driver of Week details:', driverOfTheWeek); // Debug log
-    console.log('Initial points:', points); // Debug log
+    // Use the basePoints directly for position lookup
+    const basePoints = driverOfTheWeek.basePoints;
     
-    // Create a direct mapping of base points to positions
+    console.log('Driver details:', {
+      driver: driverOfTheWeek.driver,
+      totalPoints: driverOfTheWeek.racePoints,
+      basePoints: basePoints,
+      stagePoints: driverOfTheWeek.details.stagePoints,
+      qualifyingBonus: driverOfTheWeek.details.qualifyingBonus,
+      fastestLapBonus: driverOfTheWeek.details.fastestLapBonus
+    });
+
     const positionsMap = {
       38: "1st",
       34: "2nd",
@@ -574,17 +577,6 @@ function generateWeeklyRecap() {
       1: "35th"
     };
 
-    // Calculate base race points by subtracting bonus points
-    const bonusPoints = (driverOfTheWeek.details.stagePoints || 0) + 
-                       (driverOfTheWeek.details.qualifyingBonus || 0) + 
-                       (driverOfTheWeek.details.fastestLapBonus || 0);
-    
-    const basePoints = driverOfTheWeek.racePoints - bonusPoints;
-    
-    console.log('Total bonus points:', bonusPoints); // Debug log
-    console.log('Base points after removing bonuses:', basePoints); // Debug log
-    console.log('Position found:', positionsMap[basePoints]); // Debug log
-
     return positionsMap[basePoints] || 'Unknown position';
   };
 
@@ -608,8 +600,8 @@ function generateWeeklyRecap() {
   }
 
   // Add performance vs expected if not first race
-  if (driverOfTheWeek.details.aboveAverage !== 'N/A') {
-    const diff = parseFloat(driverOfTheWeek.details.aboveAverage);
+  if (driverOfTheWeek.details.vsExpected !== 'N/A') {
+    const diff = parseFloat(driverOfTheWeek.details.vsExpected);
     if (diff > 0) {
       achievements.push(`Scored ${diff.toFixed(1)} points above their expected average`);
     }
