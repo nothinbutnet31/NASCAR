@@ -626,10 +626,11 @@ function generateWeeklyRecap() {
   
   // Create image element with fetch
   const imgElement = document.createElement('img');
-  imgElement.style.width = '150px'; // Made image slightly larger
+  imgElement.style.width = '150px';
   imgElement.style.height = '150px';
   imgElement.style.objectFit = 'cover';
-  imgElement.style.border = '2px solid #ddd'; // Added a subtle border
+  imgElement.style.objectPosition = '50% 70%';
+  imgElement.style.border = '2px solid #ddd';
   imgElement.alt = driverOfTheWeek.driver;
 
   console.log('Trying to fetch image:', `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png`);
@@ -654,7 +655,7 @@ function generateWeeklyRecap() {
           <p>${narrative}.</p>
           <p style="
             font-family: 'Impact', sans-serif; 
-            color: #e40000; 
+            color: #1a1a1a; 
             font-size: 1.2em; 
             font-weight: bold;
             margin-top: 10px;
