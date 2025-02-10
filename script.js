@@ -343,14 +343,18 @@ function generateWeeklyRecap() {
 
   // Updated Driver of the Week section with narrative format
   const driverOfTheWeek = calculateDriverOfTheWeek(weekData, selectedWeekNumber);
-  const driverImageName = driverOfTheWeek.driver.replace(/[^a-zA-Z0-9]/g, '_');
-  
-  console.log('Driver of the Week:', driverOfTheWeek);
-  console.log('Week Data:', weekData);
+  console.log('Full Driver of Week data:', driverOfTheWeek);
   
   // Helper function to get finishing position
   const getFinishPosition = (points) => {
-    console.log('Points to find position for:', points);
+    // Remove any bonus points from the total
+    const basePoints = points - 
+      (driverOfTheWeek.details.stagePoints + 
+       driverOfTheWeek.details.qualifyingBonus + 
+       driverOfTheWeek.details.fastestLapBonus);
+    
+    console.log('Original points:', points);
+    console.log('Base points after removing bonuses:', basePoints);
     
     // Direct mapping of points to positions
     const positionsMap = {
@@ -391,8 +395,8 @@ function generateWeeklyRecap() {
       1: "35th"
     };
 
-    const position = positionsMap[points];
-    console.log('Found position:', position);
+    const position = positionsMap[basePoints];
+    console.log('Position found:', position);
     return position || 'Unknown position';
   };
 
@@ -436,7 +440,7 @@ function generateWeeklyRecap() {
     <div style="display: flex; align-items: start; gap: 20px;">
       <div style="flex: 0 0 auto;">
         <img 
-          src="https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png" 
+          src="https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverOfTheWeek.driver.replace(/[^a-zA-Z0-9]/g, '_')}.png" 
           alt="${driverOfTheWeek.driver}"
           style="width: 150px; height: auto; border-radius: 8px;"
           onerror="this.src='https://via.placeholder.com/150'; this.onerror=null;"
