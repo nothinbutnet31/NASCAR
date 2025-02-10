@@ -532,6 +532,9 @@ function generateWeeklyRecap() {
   
   // Helper function to get finishing position
   const getFinishPosition = (points) => {
+    console.log('Driver of Week details:', driverOfTheWeek); // Debug log
+    console.log('Initial points:', points); // Debug log
+    
     // Create a direct mapping of base points to positions
     const positionsMap = {
       38: "1st",
@@ -571,11 +574,10 @@ function generateWeeklyRecap() {
       1: "35th"
     };
 
-    // Remove any bonus points (stage wins, pole, fastest lap)
-    const basePoints = points - 
-      (driverOfTheWeek.details.stagePoints + 
-       driverOfTheWeek.details.qualifyingBonus + 
-       driverOfTheWeek.details.fastestLapBonus);
+    // Get the base race points directly from racePoints
+    const basePoints = driverOfTheWeek.racePoints;
+    console.log('Base points:', basePoints); // Debug log
+    console.log('Position found:', positionsMap[basePoints]); // Debug log
 
     return positionsMap[basePoints] || 'Unknown position';
   };
