@@ -212,41 +212,46 @@ function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
     calculateDriverAverages(selectedWeekNumber - 1) : {};
 
   Object.entries(weekData.standings).forEach(([team, data]) => {
-    const teamTotal = data.total;
-    
     Object.entries(data.drivers).forEach(([driver, points]) => {
       if (points === 0) return; // Skip drivers with no points
 
-      // Base score starts lower to give other factors more impact
-      let totalScore = points * 0.5; // Reduce base points weight to 50%
+      // Calculate base race points (should match our scoring system)
+      let basePoints = 0;
+      for (const [pos, pts] of Object.entries(scoringSystem)) {
+        if (points === pts && (pos.includes('st') || pos.includes('nd') || 
+            pos.includes('rd') || pos.includes('th'))) {
+          basePoints = pts;
+          break;
+        }
+      }
+
+      // Calculate total score for Driver of the Week
+      let totalScore = basePoints * 0.5;
 
       // Add bonus for performing above average (if not first week)
       if (previousAverages[driver]) {
         const averagePerformance = previousAverages[driver];
         const performanceBonus = points - averagePerformance;
-        totalScore += (performanceBonus * 1.2); // Increase weight to 120%
+        totalScore += (performanceBonus * 1.2);
       }
 
-      // Add bonus for stage wins and fastest lap
+      // Add other bonuses
       const stagePoints = calculateStagePoints(driver, weekData);
-      totalScore += (stagePoints * 0.8); // Increase weight to 80%
-
-      // Add bonus for qualifying performance
       const qualifyingBonus = calculateQualifyingBonus(driver, weekData);
-      totalScore += (qualifyingBonus * 0.6); // Increase weight to 60%
-
-      // Add bonus for fastest lap
       const fastestLapBonus = calculateFastestLapBonus(driver, weekData);
-      totalScore += (fastestLapBonus * 0.4); // Increase weight to 40%
+      
+      totalScore += (stagePoints * 0.8);
+      totalScore += (qualifyingBonus * 0.6);
+      totalScore += (fastestLapBonus * 0.4);
 
       // Calculate percentage of team's points
-      const teamContribution = (points / teamTotal) * 100;
-      totalScore += (teamContribution * 0.6); // Increase weight to 60%
+      const teamContribution = (points / data.total) * 100;
+      totalScore += (teamContribution * 0.6);
 
       allDriversPerformance.push({
         driver,
         team,
-        racePoints: points,
+        racePoints: basePoints, // Use the validated base points
         totalScore: parseFloat(totalScore.toFixed(1)),
         details: {
           stagePoints,
