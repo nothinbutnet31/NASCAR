@@ -408,55 +408,17 @@ function calculateFastestLapBonus(driver, weekData) {
 // Add this helper function to check streaks
 function checkStreaks(weekNumber) {
   const streaks = {
-    hot: [], // Teams/drivers scoring 30+ in 3+ consecutive races
-    cold: [] // Teams/drivers scoring under 10 in 3+ consecutive races
+    hot: [], // Only drivers scoring 30+ in 3+ consecutive races
+    cold: [] // Only drivers scoring under 10 in 3+ consecutive races
   };
 
-  // Check each team
+  // Only check individual drivers
   Object.entries(standingsData.teams).forEach(([team, data]) => {
-    let hotStreak = 0;
-    let coldStreak = 0;
-    
-    // Look at last 3 races
-    for (let i = weekNumber; i > weekNumber - 3 && i > 0; i--) {
-      const week = standingsData.weeks.find(w => w.week === i);
-      if (!week) continue;
-      
-      const teamScore = week.standings[team]?.total || 0;
-      
-      if (teamScore >= 30) {
-        hotStreak++;
-        coldStreak = 0;
-      } else if (teamScore < 10) {
-        coldStreak++;
-        hotStreak = 0;
-      } else {
-        hotStreak = 0;
-        coldStreak = 0;
-      }
-    }
-
-    // Check if team has a streak
-    if (hotStreak >= 3) {
-      streaks.hot.push({
-        team,
-        streak: hotStreak,
-        lastScore: standingsData.weeks.find(w => w.week === weekNumber)?.standings[team]?.total
-      });
-    }
-    if (coldStreak >= 3) {
-      streaks.cold.push({
-        team,
-        streak: coldStreak,
-        lastScore: standingsData.weeks.find(w => w.week === weekNumber)?.standings[team]?.total
-      });
-    }
-
-    // Check individual drivers
     data.drivers.forEach(driver => {
       let driverHotStreak = 0;
       let driverColdStreak = 0;
 
+      // Look at last 3 races
       for (let i = weekNumber; i > weekNumber - 3 && i > 0; i--) {
         const week = standingsData.weeks.find(w => w.week === i);
         if (!week) continue;
@@ -570,16 +532,7 @@ function generateWeeklyRecap() {
   
   // Helper function to get finishing position
   const getFinishPosition = (points) => {
-    // Remove any bonus points from the total
-    const basePoints = points - 
-      (driverOfTheWeek.details.stagePoints + 
-       driverOfTheWeek.details.qualifyingBonus + 
-       driverOfTheWeek.details.fastestLapBonus);
-    
-    console.log('Original points:', points);
-    console.log('Base points after removing bonuses:', basePoints);
-    
-    // Direct mapping of points to positions
+    // Create a direct mapping of base points to positions
     const positionsMap = {
       38: "1st",
       34: "2nd",
@@ -618,9 +571,13 @@ function generateWeeklyRecap() {
       1: "35th"
     };
 
-    const position = positionsMap[basePoints];
-    console.log('Position found:', position);
-    return position || 'Unknown position';
+    // Remove any bonus points (stage wins, pole, fastest lap)
+    const basePoints = points - 
+      (driverOfTheWeek.details.stagePoints + 
+       driverOfTheWeek.details.qualifyingBonus + 
+       driverOfTheWeek.details.fastestLapBonus);
+
+    return positionsMap[basePoints] || 'Unknown position';
   };
 
   // Build narrative description using racePoints directly
@@ -1181,4 +1138,3 @@ window.onload = () => {
   console.log("Window loaded, fetching data...");
   fetchDataFromGoogleSheets();
 };
-
