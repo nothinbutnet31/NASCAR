@@ -574,9 +574,15 @@ function generateWeeklyRecap() {
       1: "35th"
     };
 
-    // Get the base race points directly from racePoints
-    const basePoints = driverOfTheWeek.racePoints;
-    console.log('Base points:', basePoints); // Debug log
+    // Calculate base race points by subtracting bonus points
+    const bonusPoints = (driverOfTheWeek.details.stagePoints || 0) + 
+                       (driverOfTheWeek.details.qualifyingBonus || 0) + 
+                       (driverOfTheWeek.details.fastestLapBonus || 0);
+    
+    const basePoints = driverOfTheWeek.racePoints - bonusPoints;
+    
+    console.log('Total bonus points:', bonusPoints); // Debug log
+    console.log('Base points after removing bonuses:', basePoints); // Debug log
     console.log('Position found:', positionsMap[basePoints]); // Debug log
 
     return positionsMap[basePoints] || 'Unknown position';
