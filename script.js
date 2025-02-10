@@ -587,15 +587,14 @@ function generateWeeklyRecap() {
     return positionsMap[basePoints] || 'Unknown position';
   };
 
-  // Build narrative description using racePoints directly
-  let achievements = [];
-  let description = `Finished in ${getFinishPosition(driverOfTheWeek.racePoints)}`;
-  
+  // Build achievements list for Driver of the Week
+  let description = `${driverOfTheWeek.driver} had an outstanding performance`;
+  const achievements = [];
+
+  // Add stage wins
   if (driverOfTheWeek.details.stagePoints > 0) {
-    const stageWins = [];
-    if (driverOfTheWeek.details.stagePoints >= scoringSystem["Stage 1 Winner"]) stageWins.push("Stage 1");
-    if (driverOfTheWeek.details.stagePoints >= scoringSystem["Stage 2 Winner"]) stageWins.push("Stage 2");
-    achievements.push(`Won ${stageWins.join(" and ")}`);
+    const stageWins = driverOfTheWeek.details.stagePoints / 2; // Each stage win is worth 2 points
+    achievements.push(`Won Stage${stageWins > 1 ? 's' : ''} ${Array.from({length: stageWins}, (_, i) => i + 1).join(' and ')}`);
   }
   
   if (driverOfTheWeek.details.qualifyingBonus > 0) {
