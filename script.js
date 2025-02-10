@@ -362,10 +362,13 @@ function generateWeeklyRecap() {
     
     // Match points to position
     for (const [pos, points] of Object.entries(scoringSystem)) {
-      if (points === basePoints && (pos.includes('st') || pos.includes('nd') || 
-          pos.includes('rd') || pos.includes('th'))) {
-        console.log('Matched position:', pos, 'for points:', points);
-        return pos;
+      // Convert both to numbers for comparison
+      if (Number(points) === Number(basePoints)) {
+        // Only return if it's a position (not a bonus)
+        if (pos.match(/^([0-9]+)(st|nd|rd|th)$/)) {
+          console.log('Matched position:', pos, 'for points:', points);
+          return pos;
+        }
       }
     }
     
