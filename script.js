@@ -349,25 +349,10 @@ function generateWeeklyRecap() {
   console.log('Week Data:', weekData);
   
   // Helper function to get finishing position
-  const getFinishPosition = (driver, weekData) => {
-    console.log('Looking for driver:', driver);
-    console.log('Week data standings:', weekData.standings);
+  const getFinishPosition = (points) => {
+    console.log('Points to find position for:', points);
     
-    // Find the driver's base race points (excluding bonuses)
-    let basePoints = null;
-    Object.entries(weekData.standings).forEach(([team, teamData]) => {
-      console.log(`Checking team ${team}:`, teamData.drivers);
-      if (teamData.drivers[driver]) {
-        basePoints = teamData.drivers[driver];
-        console.log(`Found ${driver}'s points:`, basePoints);
-      }
-    });
-    
-    if (basePoints === null) {
-      console.log('No points found for driver');
-      return 'Unknown position';
-    }
-    
+    // Direct mapping of points to positions
     const positionsMap = {
       38: "1st",
       34: "2nd",
@@ -406,17 +391,14 @@ function generateWeeklyRecap() {
       1: "35th"
     };
 
-    console.log('Position map:', positionsMap);
-    console.log('Looking up position for points:', basePoints);
-    const position = positionsMap[basePoints];
+    const position = positionsMap[points];
     console.log('Found position:', position);
-
     return position || 'Unknown position';
   };
 
-  // Build narrative description
+  // Build narrative description using racePoints directly
   let achievements = [];
-  let description = `Finished in ${getFinishPosition(driverOfTheWeek.driver, weekData)}`;
+  let description = `Finished in ${getFinishPosition(driverOfTheWeek.racePoints)}`;
   
   if (driverOfTheWeek.details.stagePoints > 0) {
     const stageWins = [];
