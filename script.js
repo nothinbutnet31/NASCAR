@@ -289,13 +289,13 @@ function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
   const allDriversPerformance = [];
   
   Object.entries(weekData.standings).forEach(([team, data]) => {
-    Object.entries(data.drivers).forEach(([driver, points]) => {
-      if (points === 0) return;
+    Object.entries(data.drivers).forEach(([driver, racePoints]) => {
+      if (racePoints === 0) return;
 
       // Calculate base race points (finish position only)
       let basePoints = 0;
       for (const [pos, pts] of Object.entries(scoringSystem)) {
-        if (points >= pts && (pos.includes('st') || pos.includes('nd') || 
+        if (racePoints >= pts && (pos.includes('st') || pos.includes('nd') || 
             pos.includes('rd') || pos.includes('th'))) {
           basePoints = pts;
           break;
@@ -304,50 +304,50 @@ function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
 
       let totalScore = basePoints * 0.8;
 
-      // Finishing position bonuses
-      if (basePoints === 38) totalScore += 8;
-      else if (basePoints >= 34) totalScore += 5;
-      else if (basePoints >= 31) totalScore += 3;
+      // Check for stage wins
+      const stagePoints = weekData.standings[team]?.drivers[driver] || 0;
+      const stageWins = (stagePoints - basePoints) / 2; // Each stage win is worth 2 points
 
-      // Calculate bonuses
-      const stagePoints = calculateStagePoints(driver, weekData);
-      const qualifyingBonus = calculateQualifyingBonus(driver, weekData);
-      const fastestLapBonus = calculateFastestLapBonus(driver, weekData);
-      
-      totalScore += (stagePoints * 1.0);
-      totalScore += (qualifyingBonus * 0.8);
-      totalScore += (fastestLapBonus * 0.8);
+      // Check for pole and fastest lap
+      const hadPole = weekData.positions?.find(row => 
+        row[0] === "Pole Winner" && row[selectedWeekNumber] === driver);
+      const hadFastestLap = weekData.positions?.find(row => 
+        row[0] === "Fastest Lap" && row[selectedWeekNumber] === driver);
 
-      // Performance vs expectations with adjusted weight
+      // Add bonuses
+      if (basePoints === 38) totalScore += 8; // Win bonus
+      else if (basePoints >= 34) totalScore += 5; // Podium bonus
+      else if (basePoints >= 31) totalScore += 3; // Top-5 bonus
+
+      // Add stage, pole, and fastest lap points
+      totalScore += (stageWins * 2 * 1.0); // Stage points weight
+      if (hadPole) totalScore += (1 * 0.8); // Qualifying bonus weight
+      if (hadFastestLap) totalScore += (1 * 0.8); // Fastest lap bonus weight
+
+      // Calculate performance vs expectations
       const driverAverages = calculateDriverAverages(selectedWeekNumber);
       const expectedPoints = driverAverages[driver] || 15;
-      const performanceBonus = points - expectedPoints;
+      const performanceBonus = racePoints - expectedPoints;
       if (performanceBonus > 0) {
-        totalScore += (performanceBonus * 1.4); // Adjusted from 2.0 to 1.4
-        
-        // Keep bonus for significantly exceeding expectations
-        if (performanceBonus > 10) {
-          totalScore += 5;
-        }
+        totalScore += (performanceBonus * 1.4);
       }
 
-      // Team contribution
-      const teamContribution = (points / data.total) * 100;
+      // Calculate team contribution
+      const teamContribution = (racePoints / data.total) * 100;
       totalScore += (teamContribution * 0.6);
 
       allDriversPerformance.push({
         driver,
         team,
-        racePoints: points,
+        racePoints: racePoints,
         basePoints: basePoints,
         totalScore: parseFloat(totalScore.toFixed(1)),
         details: {
-          stagePoints,
-          qualifyingBonus,
-          fastestLapBonus,
+          stageWins: stageWins,
+          hadPole: hadPole ? true : false,
+          hadFastestLap: hadFastestLap ? true : false,
           teamContribution: teamContribution.toFixed(1) + '%',
-          vsExpected: performanceBonus.toFixed(1),
-          expectedPoints: expectedPoints
+          vsExpected: performanceBonus.toFixed(1)
         }
       });
     });
@@ -541,9 +541,9 @@ function generateWeeklyRecap() {
       driver: driverOfTheWeek.driver,
       totalPoints: driverOfTheWeek.racePoints,
       basePoints: basePoints,
-      stagePoints: driverOfTheWeek.details.stagePoints,
-      qualifyingBonus: driverOfTheWeek.details.qualifyingBonus,
-      fastestLapBonus: driverOfTheWeek.details.fastestLapBonus
+      stagePoints: driverOfTheWeek.details.stageWins,
+      qualifyingBonus: driverOfTheWeek.details.hadPole,
+      fastestLapBonus: driverOfTheWeek.details.hadFastestLap
     });
 
     const positionsMap = {
@@ -592,16 +592,16 @@ function generateWeeklyRecap() {
   const achievements = [];
 
   // Add stage wins
-  if (driverOfTheWeek.details.stagePoints > 0) {
-    const stageWins = driverOfTheWeek.details.stagePoints / 2; // Each stage win is worth 2 points
+  if (driverOfTheWeek.details.stageWins > 0) {
+    const stageWins = driverOfTheWeek.details.stageWins;
     achievements.push(`Won Stage${stageWins > 1 ? 's' : ''} ${Array.from({length: stageWins}, (_, i) => i + 1).join(' and ')}`);
   }
   
-  if (driverOfTheWeek.details.qualifyingBonus > 0) {
+  if (driverOfTheWeek.details.hadPole) {
     achievements.push("Started from pole position");
   }
   
-  if (driverOfTheWeek.details.fastestLapBonus > 0) {
+  if (driverOfTheWeek.details.hadFastestLap) {
     achievements.push("Set the fastest lap of the race");
   }
 
@@ -1144,4 +1144,3 @@ window.onload = () => {
   console.log("Window loaded, fetching data...");
   fetchDataFromGoogleSheets();
 };
-
