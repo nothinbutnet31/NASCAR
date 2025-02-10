@@ -320,6 +320,98 @@ function calculateFastestLapBonus(driver, weekData) {
   return fastestLapBonus;
 }
 
+// Add this helper function to check streaks
+function checkStreaks(weekNumber) {
+  const streaks = {
+    hot: [], // Teams/drivers scoring 30+ in 3+ consecutive races
+    cold: [] // Teams/drivers scoring under 10 in 3+ consecutive races
+  };
+
+  // Check each team
+  Object.entries(standingsData.teams).forEach(([team, data]) => {
+    let hotStreak = 0;
+    let coldStreak = 0;
+    
+    // Look at last 3 races
+    for (let i = weekNumber; i > weekNumber - 3 && i > 0; i--) {
+      const week = standingsData.weeks.find(w => w.week === i);
+      if (!week) continue;
+      
+      const teamScore = week.standings[team]?.total || 0;
+      
+      if (teamScore >= 30) {
+        hotStreak++;
+        coldStreak = 0;
+      } else if (teamScore < 10) {
+        coldStreak++;
+        hotStreak = 0;
+      } else {
+        hotStreak = 0;
+        coldStreak = 0;
+      }
+    }
+
+    // Check if team has a streak
+    if (hotStreak >= 3) {
+      streaks.hot.push({
+        team,
+        streak: hotStreak,
+        lastScore: standingsData.weeks.find(w => w.week === weekNumber)?.standings[team]?.total
+      });
+    }
+    if (coldStreak >= 3) {
+      streaks.cold.push({
+        team,
+        streak: coldStreak,
+        lastScore: standingsData.weeks.find(w => w.week === weekNumber)?.standings[team]?.total
+      });
+    }
+
+    // Check individual drivers
+    data.drivers.forEach(driver => {
+      let driverHotStreak = 0;
+      let driverColdStreak = 0;
+
+      for (let i = weekNumber; i > weekNumber - 3 && i > 0; i--) {
+        const week = standingsData.weeks.find(w => w.week === i);
+        if (!week) continue;
+        
+        const driverScore = week.standings[team]?.drivers[driver] || 0;
+        
+        if (driverScore >= 30) {
+          driverHotStreak++;
+          driverColdStreak = 0;
+        } else if (driverScore < 10) {
+          driverColdStreak++;
+          driverHotStreak = 0;
+        } else {
+          driverHotStreak = 0;
+          driverColdStreak = 0;
+        }
+      }
+
+      if (driverHotStreak >= 3) {
+        streaks.hot.push({
+          driver,
+          team,
+          streak: driverHotStreak,
+          lastScore: standingsData.weeks.find(w => w.week === weekNumber)?.standings[team]?.drivers[driver]
+        });
+      }
+      if (driverColdStreak >= 3) {
+        streaks.cold.push({
+          driver,
+          team,
+          streak: driverColdStreak,
+          lastScore: standingsData.weeks.find(w => w.week === weekNumber)?.standings[team]?.drivers[driver]
+        });
+      }
+    });
+  });
+
+  return streaks;
+}
+
 // Update generateWeeklyRecap to remove total score display
 function generateWeeklyRecap() {
   const recapContainer = document.getElementById("weekly-recap");
@@ -580,6 +672,55 @@ function generateWeeklyRecap() {
       });
       recapText += `</ul></div>`;
     }
+  }
+
+  // Add Hot & Cold Streaks section
+  const streaks = checkStreaks(selectedWeekNumber);
+  
+  if (streaks.hot.length > 0 || streaks.cold.length > 0) {
+    recapText += `
+      <div class="recap-section streaks" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+        <h4>🔥 Hot & Cold Streaks ❄️</h4>
+        
+        ${streaks.hot.length > 0 ? `
+          <div class="hot-streaks" style="margin-bottom: 15px;">
+            <p style="color: #ff4d4d;"><strong>🔥 ON FIRE!</strong></p>
+            ${streaks.hot.map(streak => `
+              <div style="margin-left: 20px;">
+                ${streak.driver ? 
+                  `${streak.driver} (${streak.team})` : 
+                  `Team ${streak.team}`
+                }
+                <br>
+                <small style="color: #666;">
+                  ${streak.streak} races with 30+ points
+                  ${streak.lastScore ? ` - Latest: ${streak.lastScore} points` : ''}
+                </small>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+        
+        ${streaks.cold.length > 0 ? `
+          <div class="cold-streaks">
+            <p style="color: #4d79ff;"><strong>❄️ ICE COLD</strong></p>
+            ${streaks.cold.map(streak => `
+              <div style="margin-left: 20px;">
+                ${streak.driver ? 
+                  `${streak.driver} (${streak.team})` : 
+                  `Team ${streak.team}`
+                }
+                <br>
+                <small style="color: #666;">
+                  ${streak.streak} races under 10 points
+                  ${streak.lastScore ? ` - Latest: ${streak.lastScore} points` : ''}
+                </small>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
   }
 
   recapContainer.innerHTML = recapText;
