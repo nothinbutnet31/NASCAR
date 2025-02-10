@@ -40,6 +40,51 @@ let standingsData = {
   }
 };
 
+// Add this constant for expected averages
+const expectedDriverAverages = {
+  // Top tier drivers (25+ avg)
+  "Kyle Larson": 28,
+  "William Byron": 27,
+  "Ryan Blaney": 26,
+  "Christopher Bell": 26,
+  "Denny Hamlin": 25,
+  
+  
+  // Strong performers (20-24 avg)
+  "Tyler Reddick": 24,
+  "Ross Chastain": 23,
+  "Joey Logano": 23,
+  "Brad Keselowski": 22,
+  "Chase Elliott": 24,
+  "Chris Buescher": 21,
+  "Bubba Wallace": 20,
+  
+  // Mid tier (15-19 avg)
+  "Kyle Busch": 19,
+  "Alex Bowman": 19,
+  "Daniel Suarez": 18,
+  "Chase Briscoe": 17,
+  "Ty Gibbs": 17,
+  "Austin Cindric": 17,
+  "Carson Hocevar": 17,
+  "Erik Jones": 17,
+  "Austin Dillon": 16,
+  "Ryan Preece": 15,
+  "Michael McDowell": 15,
+  "Shane van Gisbergen": 15,
+  // Development/Others (10-14 avg)
+  "Josh Berry": 14,
+  "Ricky Stenhouse Jr": 13,
+  "Riley Herbst": 13,
+  "AJ Allmendinger": 13,
+  "Cole Custer": 13,
+  "Todd Gilliland": 12,
+  "Justin Haley": 12,
+  "Harrison Burton": 11,
+  "Noah Gragson": 10,
+  "Corey LaJoie": 10
+};
+
 // Fetch data from Google Sheets
 async function fetchDataFromGoogleSheets() {
   const driversUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${driversRange}?key=${apiKey}`;
@@ -203,7 +248,43 @@ function loadWeeklyStandings() {
   }
 }
 
-// Add this new function to calculate Driver of the Week score
+// Modify the calculateDriverAverages function
+function calculateDriverAverages(weekNumber) {
+  const averages = {};
+  
+  // If before week 6, use expected averages
+  if (weekNumber < 6) {
+    return expectedDriverAverages;
+  }
+  
+  // After week 5, calculate actual averages
+  Object.entries(standingsData.teams).forEach(([team, data]) => {
+    data.drivers.forEach(driver => {
+      let totalPoints = 0;
+      let raceCount = 0;
+      
+      // Look at all weeks up to current week
+      for (let i = 1; i <= weekNumber; i++) {
+        const week = standingsData.weeks.find(w => w.week === i);
+        if (week && week.standings[team]?.drivers[driver]) {
+          totalPoints += week.standings[team].drivers[driver];
+          raceCount++;
+        }
+      }
+      
+      if (raceCount > 0) {
+        averages[driver] = parseFloat((totalPoints / raceCount).toFixed(1));
+      } else {
+        // Fallback to expected average if no races yet
+        averages[driver] = expectedDriverAverages[driver] || 15; // Default to 15 if no expectation set
+      }
+    });
+  });
+  
+  return averages;
+}
+
+// Update calculateDriverOfTheWeek to use this info
 function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
   const allDriversPerformance = [];
   
@@ -215,43 +296,47 @@ function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
     Object.entries(data.drivers).forEach(([driver, points]) => {
       if (points === 0) return; // Skip drivers with no points
 
-      // Calculate base race points (should match our scoring system)
-      let basePoints = 0;
-      for (const [pos, pts] of Object.entries(scoringSystem)) {
-        if (points === pts && (pos.includes('st') || pos.includes('nd') || 
-            pos.includes('rd') || pos.includes('th'))) {
-          basePoints = pts;
-          break;
-        }
+      // Calculate base score - heavily weight finishing position
+      let totalScore = points * 1.2; // Increase base points weight to 120%
+
+      // Add significant bonus for winning
+      if (points === 38) {
+        totalScore += 15; // Big bonus for winning
+      } else if (points >= 34) {
+        totalScore += 10; // Bonus for podium finish
+      } else if (points >= 31) {
+        totalScore += 5; // Bonus for top 5
       }
 
-      // Calculate total score for Driver of the Week
-      let totalScore = basePoints * 0.5;
+      // Add bonus for stage wins and fastest lap
+      const stagePoints = calculateStagePoints(driver, weekData);
+      totalScore += (stagePoints * 2); // Double stage points impact
 
-      // Add bonus for performing above average (if not first week)
+      // Add qualifying bonus
+      const qualifyingBonus = calculateQualifyingBonus(driver, weekData);
+      totalScore += (qualifyingBonus * 1.5);
+
+      // Add fastest lap bonus
+      const fastestLapBonus = calculateFastestLapBonus(driver, weekData);
+      totalScore += (fastestLapBonus * 1.0);
+
+      // Add smaller bonus for performing above average
       if (previousAverages[driver]) {
         const averagePerformance = previousAverages[driver];
         const performanceBonus = points - averagePerformance;
-        totalScore += (performanceBonus * 1.2);
+        if (performanceBonus > 0) {
+          totalScore += (performanceBonus * 0.5); // Reduced weight of above-average bonus
+        }
       }
 
-      // Add other bonuses
-      const stagePoints = calculateStagePoints(driver, weekData);
-      const qualifyingBonus = calculateQualifyingBonus(driver, weekData);
-      const fastestLapBonus = calculateFastestLapBonus(driver, weekData);
-      
-      totalScore += (stagePoints * 0.8);
-      totalScore += (qualifyingBonus * 0.6);
-      totalScore += (fastestLapBonus * 0.4);
-
-      // Calculate percentage of team's points
+      // Calculate percentage of team's points but with less weight
       const teamContribution = (points / data.total) * 100;
-      totalScore += (teamContribution * 0.6);
+      totalScore += (teamContribution * 0.3); // Reduced weight of team contribution
 
       allDriversPerformance.push({
         driver,
         team,
-        racePoints: basePoints, // Use the validated base points
+        racePoints: points,
         totalScore: parseFloat(totalScore.toFixed(1)),
         details: {
           stagePoints,
@@ -557,11 +642,11 @@ function generateWeeklyRecap() {
     achievements.push("Set the fastest lap of the race");
   }
 
-  // Add performance vs average if not first race
+  // Add performance vs expected if not first race
   if (driverOfTheWeek.details.aboveAverage !== 'N/A') {
     const diff = parseFloat(driverOfTheWeek.details.aboveAverage);
     if (diff > 0) {
-      achievements.push(`Scored ${diff.toFixed(1)} points above their season average`);
+      achievements.push(`Scored ${diff.toFixed(1)} points above their expected average`);
     }
   }
 
@@ -640,16 +725,16 @@ function generateWeeklyRecap() {
     const underPerformer = sortedDeltas[sortedDeltas.length - 1];
 
     recapText += `<div class="recap-section">
-      <h4>📈 Performance vs Average</h4>`;
+      <h4>📈 Performance vs Expected</h4>`;
     
     if (overAchiever) {
       recapText += `<p><strong>Over Achiever:</strong> ${overAchiever.driver} (${overAchiever.team})<br>
-        Scored ${overAchiever.points} points, ${overAchiever.delta.toFixed(1)} above their average</p>`;
+        Scored ${overAchiever.points} points, ${overAchiever.delta.toFixed(1)} above their expected</p>`;
     }
     
     if (underPerformer) {
       recapText += `<p><strong>Under Performer:</strong> ${underPerformer.driver} (${underPerformer.team})<br>
-        Scored ${underPerformer.points} points, ${Math.abs(underPerformer.delta).toFixed(1)} below their average</p>`;
+        Scored ${underPerformer.points} points, ${Math.abs(underPerformer.delta).toFixed(1)} below their expected</p>`;
     }
     recapText += `</div>`;
   }
@@ -724,35 +809,6 @@ function generateWeeklyRecap() {
   }
 
   recapContainer.innerHTML = recapText;
-}
-
-// Helper function to calculate driver averages up to a specific week
-function calculateDriverAverages(upToWeek) {
-  const driverPoints = {};
-  const driverRaces = {};
-
-  for (let i = 0; i < upToWeek; i++) {
-    const week = standingsData.weeks[i];
-    if (week) {
-      Object.values(week.standings).forEach(teamData => {
-        Object.entries(teamData.drivers).forEach(([driver, points]) => {
-          if (points > 0) {
-            driverPoints[driver] = (driverPoints[driver] || 0) + points;
-            driverRaces[driver] = (driverRaces[driver] || 0) + 1;
-          }
-        });
-      });
-    }
-  }
-
-  const averages = {};
-  Object.keys(driverPoints).forEach(driver => {
-    if (driverRaces[driver] > 0) {
-      averages[driver] = driverPoints[driver] / driverRaces[driver];
-    }
-  });
-
-  return averages;
 }
 
 // Helper function to calculate standings after a specific week
@@ -1125,3 +1181,4 @@ window.onload = () => {
   console.log("Window loaded, fetching data...");
   fetchDataFromGoogleSheets();
 };
+
