@@ -616,12 +616,13 @@ function generateWeeklyRecap() {
   // Add team contribution
   narrative += `, and contributed ${driverOfTheWeek.details.teamContribution} of team points`;
 
-  // Create driver image URL (replace spaces with underscores and remove Jr/Sr/etc)
+  // Format driver name for image URL - capitalize each word
   const driverImageName = driverOfTheWeek.driver
-    .replace(/\s+/g, '_')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('_')
     .replace(/\./g, '')
-    .replace(/\s*(Jr|Sr|III|II|IV)\s*$/i, '')
-    .toLowerCase();
+    .replace(/\s*(Jr|Sr|Iii|Ii|Iv)\s*$/i, '');
   
   // Create image element with fetch
   const imgElement = document.createElement('img');
@@ -630,6 +631,8 @@ function generateWeeklyRecap() {
   imgElement.style.objectFit = 'cover';
   imgElement.style.borderRadius = '50%';
   imgElement.alt = driverOfTheWeek.driver;
+
+  console.log('Trying to fetch image:', `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png`);
 
   fetch(`https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png`)
     .then(response => response.blob())
