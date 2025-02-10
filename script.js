@@ -334,7 +334,48 @@ function generateWeeklyRecap() {
     return;
   }
 
+  // Get top team for the week
+  const topTeam = Object.entries(weekData.standings)
+    .sort((a, b) => b[1].total - a[1].total)[0];
+  
+  // Find high-scoring drivers (over 30 points) or highest scoring driver
+  const highScoringDrivers = [];
+  Object.entries(topTeam[1].drivers).forEach(([driver, points]) => {
+    if (points >= 30 || points === Math.max(...Object.values(topTeam[1].drivers))) {
+      highScoringDrivers.push({ driver, points });
+    }
+  });
+
+  // Sort drivers by points
+  highScoringDrivers.sort((a, b) => b.points - a.points);
+
   let recapText = `<h3>Race Recap: ${weekData.track}</h3>`;
+
+  // Top Team Section with emojis and styling
+  const teamImageName = topTeam[0].replace(/[^a-zA-Z0-9]/g, "_");
+  recapText += `
+    <div class="recap-section top-team" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+      <h4>🏆 Team of the Week 🎉</h4>
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <img 
+          src="https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${teamImageName}.png" 
+          alt="${topTeam[0]} Logo"
+          style="width: 150px; height: auto;"
+          onerror="this.src='https://via.placeholder.com/150'; this.onerror=null;"
+        />
+        <div>
+          <p style="font-size: 1.2em; margin-bottom: 10px;">
+            <strong>${topTeam[0]}</strong> with ${topTeam[1].total} points! 🌟
+          </p>
+          <p>Key performers:</p>
+          <ul style="list-style: none; padding-left: 0;">
+            ${highScoringDrivers.map(d => 
+              `<li>🏁 ${d.driver} (${d.points} points)</li>`
+            ).join('')}
+          </ul>
+        </div>
+      </div>
+    </div>`;
 
   // Weekly Overview Section
   recapText += `<div class="recap-section">
