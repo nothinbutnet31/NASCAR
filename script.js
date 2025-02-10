@@ -219,30 +219,30 @@ function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
       if (points === 0) return; // Skip drivers with no points
 
       // Base score starts lower to give other factors more impact
-      let totalScore = points * 0.7; // Reduce base points weight to 70%
+      let totalScore = points * 0.5; // Reduce base points weight to 50%
 
       // Add bonus for performing above average (if not first week)
       if (previousAverages[driver]) {
         const averagePerformance = previousAverages[driver];
         const performanceBonus = points - averagePerformance;
-        totalScore += (performanceBonus * 0.8); // Increase weight to 80%
+        totalScore += (performanceBonus * 1.2); // Increase weight to 120%
       }
 
       // Add bonus for stage wins and fastest lap
       const stagePoints = calculateStagePoints(driver, weekData);
-      totalScore += (stagePoints * 0.6); // Increase weight to 60%
+      totalScore += (stagePoints * 0.8); // Increase weight to 80%
 
       // Add bonus for qualifying performance
       const qualifyingBonus = calculateQualifyingBonus(driver, weekData);
-      totalScore += (qualifyingBonus * 0.4); // Increase weight to 40%
+      totalScore += (qualifyingBonus * 0.6); // Increase weight to 60%
 
       // Add bonus for fastest lap
       const fastestLapBonus = calculateFastestLapBonus(driver, weekData);
-      totalScore += (fastestLapBonus * 0.3); // Increase weight to 30%
+      totalScore += (fastestLapBonus * 0.4); // Increase weight to 40%
 
       // Calculate percentage of team's points
       const teamContribution = (points / teamTotal) * 100;
-      totalScore += (teamContribution * 0.4); // Increase weight to 40%
+      totalScore += (teamContribution * 0.6); // Increase weight to 60%
 
       allDriversPerformance.push({
         driver,
@@ -351,58 +351,68 @@ function generateWeeklyRecap() {
   
   // Helper function to get finishing position
   const getFinishPosition = (driver, weekData) => {
+    console.log('Looking for driver:', driver);
+    console.log('Week data standings:', weekData.standings);
+    
     // Find the driver's base race points (excluding bonuses)
-    let basePoints = 0;
-    Object.values(weekData.standings).forEach(teamData => {
+    let basePoints = null;
+    Object.entries(weekData.standings).forEach(([team, teamData]) => {
+      console.log(`Checking team ${team}:`, teamData.drivers);
       if (teamData.drivers[driver]) {
         basePoints = teamData.drivers[driver];
+        console.log(`Found ${driver}'s points:`, basePoints);
       }
     });
     
-    console.log('Scoring System:', scoringSystem);
-    console.log('Looking for points:', basePoints);
+    if (basePoints === null) {
+      console.log('No points found for driver');
+      return 'Unknown position';
+    }
     
-    // Create a simple map of points to positions
     const positionsMap = {
       38: "1st",
-      35: "2nd",
-      34: "3rd",
-      33: "4th",
-      32: "5th",
-      31: "6th",
-      30: "7th",
-      29: "8th",
-      28: "9th",
-      27: "10th",
-      26: "11th",
-      25: "12th",
-      24: "13th",
-      23: "14th",
-      22: "15th",
-      21: "16th",
-      20: "17th",
-      19: "18th",
-      18: "19th",
-      17: "20th",
-      16: "21st",
-      15: "22nd",
-      14: "23rd",
-      13: "24th",
-      12: "25th",
-      11: "26th",
-      10: "27th",
-      9: "28th",
-      8: "29th",
-      7: "30th",
-      6: "31st",
-      5: "32nd",
-      4: "33rd",
-      3: "34th",
-      2: "35th",
-      1: "36th"
+      34: "2nd",
+      33: "3rd",
+      32: "4th",
+      31: "5th",
+      30: "6th",
+      29: "7th",
+      28: "8th",
+      27: "9th",
+      26: "10th",
+      25: "11th",
+      24: "12th",
+      23: "13th",
+      22: "14th",
+      21: "15th",
+      20: "16th",
+      19: "17th",
+      18: "18th",
+      17: "19th",
+      16: "20th",
+      15: "21st",
+      14: "22nd",
+      13: "23rd",
+      12: "24th",
+      11: "25th",
+      10: "26th",
+      9: "27th",
+      8: "28th",
+      7: "29th",
+      6: "30th",
+      5: "31st",
+      4: "32nd",
+      3: "33rd",
+      2: "34th",
+      1: "35th"
     };
 
-    return positionsMap[basePoints] || 'Unknown position';
+    console.log('Position map:', positionsMap);
+    console.log('Looking up position for points:', basePoints);
+    const position = positionsMap[basePoints];
+    console.log('Found position:', position);
+
+    return position || 'Unknown position';
   };
 
   // Build narrative description
