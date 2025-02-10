@@ -623,16 +623,29 @@ function generateWeeklyRecap() {
     .replace(/\s*(Jr|Sr|III|II|IV)\s*$/i, '')
     .toLowerCase();
   
+  // Create image element with fetch
+  const imgElement = document.createElement('img');
+  imgElement.style.width = '100px';
+  imgElement.style.height = '100px';
+  imgElement.style.objectFit = 'cover';
+  imgElement.style.borderRadius = '50%';
+  imgElement.alt = driverOfTheWeek.driver;
+
+  fetch(`https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png`)
+    .then(response => response.blob())
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      imgElement.src = url;
+    })
+    .catch(() => {
+      imgElement.src = 'path/to/default.png';
+    });
+
   recapText += `
     <div class="recap-section">
       <h4>🏆 Driver of the Week</h4>
       <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
-        <img 
-          src="https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png" 
-          alt="${driverOfTheWeek.driver}"
-          style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;"
-          onerror="this.src='https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/default_driver.png';"
-        >
+        <div id="driver-image-container"></div>
         <div>
           <p><strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})</p>
           <p>${narrative}.</p>
@@ -772,8 +785,19 @@ function generateWeeklyRecap() {
     `;
   }
 
-  recapContainer.innerHTML = recapText;
-  updateTrackImage();
+  // Update the recap content
+  const recapContent = document.getElementById("weekly-recap");
+  if (recapContent) {
+    recapContent.innerHTML = recapText;
+    
+    // Add the image after the HTML is updated
+    const container = document.getElementById('driver-image-container');
+    if (container) {
+      container.appendChild(imgElement);
+    }
+    
+    updateTrackImage();
+  }
 }
 
 // Helper function to calculate standings after a specific week
