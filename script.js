@@ -302,38 +302,39 @@ function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
         }
       }
 
-      let totalScore = basePoints * 1.2;
+      let totalScore = basePoints * 1.0;
 
-      // Add bonuses for finishing position
-      if (basePoints === 38) totalScore += 15;
-      else if (basePoints >= 34) totalScore += 10;
-      else if (basePoints >= 31) totalScore += 5;
+      // Reduced bonuses for finishing position
+      if (basePoints === 38) totalScore += 10;
+      else if (basePoints >= 34) totalScore += 7;
+      else if (basePoints >= 31) totalScore += 4;
 
       // Calculate bonuses
       const stagePoints = calculateStagePoints(driver, weekData);
       const qualifyingBonus = calculateQualifyingBonus(driver, weekData);
       const fastestLapBonus = calculateFastestLapBonus(driver, weekData);
       
-      totalScore += (stagePoints * 2);
-      totalScore += (qualifyingBonus * 1.5);
+      totalScore += (stagePoints * 1.5);
+      totalScore += (qualifyingBonus * 1.0);
       totalScore += (fastestLapBonus * 1.0);
 
-      // Add other scoring factors...
+      // Increase weight of performance vs expectations
       const driverAverages = calculateDriverAverages(selectedWeekNumber);
       const expectedPoints = driverAverages[driver] || 15;
       const performanceBonus = points - expectedPoints;
       if (performanceBonus > 0) {
-        totalScore += (performanceBonus * 0.5);
+        totalScore += (performanceBonus * 0.8);
       }
 
+      // Slightly increase team contribution weight
       const teamContribution = (points / data.total) * 100;
-      totalScore += (teamContribution * 0.3);
+      totalScore += (teamContribution * 0.4);
 
       allDriversPerformance.push({
         driver,
         team,
         racePoints: points,
-        basePoints: basePoints, // Store base points separately
+        basePoints: basePoints,
         totalScore: parseFloat(totalScore.toFixed(1)),
         details: {
           stagePoints,
