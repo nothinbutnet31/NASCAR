@@ -356,24 +356,53 @@ function generateWeeklyRecap() {
     Object.values(weekData.standings).forEach(teamData => {
       if (teamData.drivers[driver]) {
         basePoints = teamData.drivers[driver];
-        console.log('Found driver points:', basePoints);
       }
     });
     
-    // Match points to position
-    for (const [pos, points] of Object.entries(scoringSystem)) {
-      // Convert both to numbers for comparison
-      if (Number(points) === Number(basePoints)) {
-        // Only return if it's a position (not a bonus)
-        if (pos.match(/^([0-9]+)(st|nd|rd|th)$/)) {
-          console.log('Matched position:', pos, 'for points:', points);
-          return pos;
-        }
-      }
-    }
+    console.log('Scoring System:', scoringSystem);
+    console.log('Looking for points:', basePoints);
     
-    console.log('No position match found for points:', basePoints);
-    return 'Unknown position';
+    // Create a simple map of points to positions
+    const positionsMap = {
+      38: "1st",
+      35: "2nd",
+      34: "3rd",
+      33: "4th",
+      32: "5th",
+      31: "6th",
+      30: "7th",
+      29: "8th",
+      28: "9th",
+      27: "10th",
+      26: "11th",
+      25: "12th",
+      24: "13th",
+      23: "14th",
+      22: "15th",
+      21: "16th",
+      20: "17th",
+      19: "18th",
+      18: "19th",
+      17: "20th",
+      16: "21st",
+      15: "22nd",
+      14: "23rd",
+      13: "24th",
+      12: "25th",
+      11: "26th",
+      10: "27th",
+      9: "28th",
+      8: "29th",
+      7: "30th",
+      6: "31st",
+      5: "32nd",
+      4: "33rd",
+      3: "34th",
+      2: "35th",
+      1: "36th"
+    };
+
+    return positionsMap[basePoints] || 'Unknown position';
   };
 
   // Build narrative description
