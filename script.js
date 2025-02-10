@@ -342,9 +342,51 @@ function generateWeeklyRecap() {
     </ul>
   </div>`;
 
-  // Updated Driver of the Week section without total score
+  // Updated Driver of the Week section with narrative format
   const driverOfTheWeek = calculateDriverOfTheWeek(weekData, selectedWeekNumber);
   const driverImageName = driverOfTheWeek.driver.replace(/[^a-zA-Z0-9]/g, '_');
+  
+  // Helper function to get finishing position
+  const getFinishPosition = (points) => {
+    return Object.entries(scoringSystem).find(([pos, pts]) => 
+      pts === points && pos.includes('th') || pos.includes('st') || pos.includes('nd') || pos.includes('rd')
+    )?.[0] || 'Unknown position';
+  };
+
+  // Build narrative description
+  let achievements = [];
+  let description = `Finished in ${getFinishPosition(driverOfTheWeek.racePoints)}`;
+  
+  if (driverOfTheWeek.details.stagePoints > 0) {
+    const stageWins = [];
+    if (driverOfTheWeek.details.stagePoints >= scoringSystem["Stage 1 Winner"]) stageWins.push("Stage 1");
+    if (driverOfTheWeek.details.stagePoints >= scoringSystem["Stage 2 Winner"]) stageWins.push("Stage 2");
+    achievements.push(`Won ${stageWins.join(" and ")}`);
+  }
+  
+  if (driverOfTheWeek.details.qualifyingBonus > 0) {
+    achievements.push("Started from pole position");
+  }
+  
+  if (driverOfTheWeek.details.fastestLapBonus > 0) {
+    achievements.push("Set the fastest lap of the race");
+  }
+
+  // Add performance vs average if not first race
+  if (driverOfTheWeek.details.aboveAverage !== 'N/A') {
+    const diff = parseFloat(driverOfTheWeek.details.aboveAverage);
+    if (diff > 0) {
+      achievements.push(`Scored ${diff.toFixed(1)} points above their season average`);
+    }
+  }
+
+  // Add team contribution
+  achievements.push(`Contributed ${driverOfTheWeek.details.teamContribution} of their team's points`);
+
+  // Combine into narrative
+  if (achievements.length > 0) {
+    description += `. ${achievements.join(". ")}.`;
+  }
   
   recapText += `<div class="recap-section">
     <h4>🌟 Driver of the Week</h4>
@@ -358,15 +400,10 @@ function generateWeeklyRecap() {
         />
       </div>
       <div style="flex: 1;">
-        <p><strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})</p>
-        <ul>
-          <li>Race Points: ${driverOfTheWeek.racePoints}</li>
-          <li>Stage Points: ${driverOfTheWeek.details.stagePoints}</li>
-          <li>Qualifying Bonus: ${driverOfTheWeek.details.qualifyingBonus}</li>
-          <li>Fastest Lap: ${driverOfTheWeek.details.fastestLapBonus > 0 ? '✅' : '❌'}</li>
-          <li>Team Contribution: ${driverOfTheWeek.details.teamContribution}</li>
-          <li>vs Average: ${driverOfTheWeek.details.aboveAverage}</li>
-        </ul>
+        <p style="font-size: 1.2em; margin-bottom: 15px;">
+          <strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})
+        </p>
+        <p style="line-height: 1.6; margin-bottom: 10px;">${description}</p>
       </div>
     </div>
   </div>`;
