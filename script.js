@@ -616,12 +616,29 @@ function generateWeeklyRecap() {
   // Add team contribution
   narrative += `, and contributed ${driverOfTheWeek.details.teamContribution} of team points`;
 
+  // Create driver image URL (replace spaces with underscores and remove Jr/Sr/etc)
+  const driverImageName = driverOfTheWeek.driver
+    .replace(/\s+/g, '_')
+    .replace(/\./g, '')
+    .replace(/\s*(Jr|Sr|III|II|IV)\s*$/i, '')
+    .toLowerCase();
+  
   recapText += `
     <div class="recap-section">
       <h4>🏆 Driver of the Week</h4>
-      <p><strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})</p>
-      <p>${narrative}.</p>
-      <p class="score-details">Performance Score: ${driverOfTheWeek.totalScore.toFixed(1)}</p>
+      <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
+        <img 
+          src="https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png" 
+          alt="${driverOfTheWeek.driver}"
+          style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;"
+          onerror="this.src='https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/default_driver.png';"
+        >
+        <div>
+          <p><strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})</p>
+          <p>${narrative}.</p>
+          <p class="score-details">Performance Score: ${driverOfTheWeek.totalScore.toFixed(1)}</p>
+        </div>
+      </div>
     </div>
   `;
 
@@ -756,6 +773,7 @@ function generateWeeklyRecap() {
   }
 
   recapContainer.innerHTML = recapText;
+  updateTrackImage();
 }
 
 // Helper function to calculate standings after a specific week
