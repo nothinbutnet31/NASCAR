@@ -302,33 +302,38 @@ function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
         }
       }
 
-      let totalScore = basePoints * 1.0;
+      let totalScore = basePoints * 0.8;
 
-      // Reduced bonuses for finishing position
-      if (basePoints === 38) totalScore += 10;
-      else if (basePoints >= 34) totalScore += 7;
-      else if (basePoints >= 31) totalScore += 4;
+      // Finishing position bonuses
+      if (basePoints === 38) totalScore += 8;
+      else if (basePoints >= 34) totalScore += 5;
+      else if (basePoints >= 31) totalScore += 3;
 
       // Calculate bonuses
       const stagePoints = calculateStagePoints(driver, weekData);
       const qualifyingBonus = calculateQualifyingBonus(driver, weekData);
       const fastestLapBonus = calculateFastestLapBonus(driver, weekData);
       
-      totalScore += (stagePoints * 1.5);
-      totalScore += (qualifyingBonus * 1.0);
-      totalScore += (fastestLapBonus * 1.0);
+      totalScore += (stagePoints * 1.0);
+      totalScore += (qualifyingBonus * 0.8);
+      totalScore += (fastestLapBonus * 0.8);
 
-      // Increase weight of performance vs expectations
+      // Performance vs expectations with adjusted weight
       const driverAverages = calculateDriverAverages(selectedWeekNumber);
       const expectedPoints = driverAverages[driver] || 15;
       const performanceBonus = points - expectedPoints;
       if (performanceBonus > 0) {
-        totalScore += (performanceBonus * 0.8);
+        totalScore += (performanceBonus * 1.4); // Adjusted from 2.0 to 1.4
+        
+        // Keep bonus for significantly exceeding expectations
+        if (performanceBonus > 10) {
+          totalScore += 5;
+        }
       }
 
-      // Slightly increase team contribution weight
+      // Team contribution
       const teamContribution = (points / data.total) * 100;
-      totalScore += (teamContribution * 0.4);
+      totalScore += (teamContribution * 0.6);
 
       allDriversPerformance.push({
         driver,
@@ -341,7 +346,8 @@ function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
           qualifyingBonus,
           fastestLapBonus,
           teamContribution: teamContribution.toFixed(1) + '%',
-          vsExpected: performanceBonus.toFixed(1)
+          vsExpected: performanceBonus.toFixed(1),
+          expectedPoints: expectedPoints
         }
       });
     });
