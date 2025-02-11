@@ -1234,18 +1234,21 @@ function updateTrackImage() {
 
 // Open Tabs (for switching between pages/sections)
 function openTab(tabName) {
+  console.log("Opening tab:", tabName);
   const tabcontents = document.querySelectorAll(".tabcontent");
   const tablinks = document.querySelectorAll(".tablink");
 
   tabcontents.forEach(tab => tab.style.display = "none");
   tablinks.forEach(link => link.classList.remove("active"));
 
-  document.getElementById(tabName).style.display = "block";
-  document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
+  const selectedTab = document.getElementById(tabName);
+  if (selectedTab) {
+    selectedTab.style.display = "block";
+    document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
+  }
 
   if (tabName === "weekly") {
     populateWeekDropdown();
-    loadWeeklyStandings();
   } else if (tabName === "teams") {
     populateTeamDropdown();
     loadTeamPage();
@@ -1255,17 +1258,23 @@ function openTab(tabName) {
 // Initialize the Page after data is loaded
 function init() {
   if (isDataLoaded) {
-    // Make sure elements exist before trying to access them
-    const weeklyTable = document.querySelector("#weekly-standings tbody");
-    if (weeklyTable) {
-      loadOverallStandings();
-      loadWeeklyStandings();
-      createLiveNewsTicker();
-      // Open weekly tab by default
-      openTab('weekly');
-    } else {
-      console.error("Weekly standings table not found");
-    }
+    console.log("Initializing with loaded data...");
+    
+    // First open the weekly tab to ensure elements are visible
+    openTab('weekly');
+    
+    // Then try to load the standings after a short delay to ensure DOM is updated
+    setTimeout(() => {
+      const weeklyTable = document.querySelector("#weekly-standings tbody");
+      if (weeklyTable) {
+        console.log("Found weekly table, loading standings...");
+        loadOverallStandings();
+        loadWeeklyStandings();
+        createLiveNewsTicker();
+      } else {
+        console.error("Weekly standings table not found. DOM structure:", document.querySelector("#weekly"));
+      }
+    }, 100);
   }
 }
 
