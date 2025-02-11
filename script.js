@@ -43,19 +43,18 @@ let standingsData = {
 // Add this constant for expected averages
 const expectedDriverAverages = {
   // Top tier drivers (25+ avg)
-  "Kyle Larson": 28,
-  "William Byron": 27,
-  "Ryan Blaney": 26,
-  "Christopher Bell": 26,
-  "Denny Hamlin": 25,
-  
+  "Kyle Larson": 26,
+   "Christopher Bell": 26,
+  "Chase Elliott": 25,
+     "Denny Hamlin": 25,
+  "Tyler Reddick": 25,
+   "William Byron": 25,
   
   // Strong performers (20-24 avg)
-  "Tyler Reddick": 24,
+    "Ryan Blaney": 23,
   "Ross Chastain": 23,
-  "Joey Logano": 23,
-  "Brad Keselowski": 22,
-  "Chase Elliott": 24,
+   "Brad Keselowski": 22,
+     "Joey Logano": 21,
   "Chris Buescher": 21,
   "Bubba Wallace": 20,
   
@@ -68,21 +67,22 @@ const expectedDriverAverages = {
   "Austin Cindric": 17,
   "Carson Hocevar": 17,
   "Erik Jones": 17,
-  "Austin Dillon": 16,
   "Ryan Preece": 15,
-  "Michael McDowell": 15,
-  "Shane van Gisbergen": 15,
-  // Development/Others (10-14 avg)
-  "Josh Berry": 14,
-  "Ricky Stenhouse Jr": 13,
-  "Riley Herbst": 13,
-  "AJ Allmendinger": 13,
-  "Cole Custer": 13,
-  "Todd Gilliland": 12,
-  "Justin Haley": 12,
-  "Harrison Burton": 11,
-  "Noah Gragson": 10,
-  "Corey LaJoie": 10
+  "Shane van Gisbergen": 17,
+ 
+  // Development/Others (17-10 avg)
+  "Josh Berry": 17,
+  "Ricky Stenhouse Jr": 16,
+  "Riley Herbst": 16,
+  "AJ Allmendinger": 16,
+  "Cole Custer": 16,
+  "Todd Gilliland": 16,
+   "Michael McDowell": 15,
+  "Justin Haley": 15,
+  "Harrison Burton": 15,
+  "Noah Gragson": 14,
+  "Austin Dillon": 14,
+  "Corey LaJoie": 13
 };
 
 // Fetch data from Google Sheets
@@ -626,8 +626,8 @@ function generateWeeklyRecap() {
   
   // Create image element with fetch
   const imgElement = document.createElement('img');
-  imgElement.style.width = '150px';
-  imgElement.style.height = '150px';
+  imgElement.style.width = '125px';
+  imgElement.style.height = '125px';
   imgElement.style.objectFit = 'cover';
   imgElement.style.objectPosition = '50% 0%';
   imgElement.style.border = '1px solid #ddd';
