@@ -295,6 +295,8 @@ function loadWeeklyStandings() {
 
     generateWeeklyRecap();
   }
+
+  updateTrackImage();
 }
 
 // Modify the calculateDriverAverages function
@@ -1255,7 +1257,6 @@ window.onload = () => {
 
 // Add this function to fetch and display real NASCAR news
 async function createLiveNewsTicker() {
-  // Create ticker container with loading message
   const tickerContainer = document.createElement('div');
   tickerContainer.id = 'news-ticker-container';
   tickerContainer.style.cssText = `
@@ -1263,15 +1264,15 @@ async function createLiveNewsTicker() {
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #FFD700;  // Changed to yellow
-    color: black;               // Changed text to black for better contrast
-    padding: 10px 0;
+    background-color: #FFD700;
+    color: black;
+    padding: 15px 0;  // Increased padding
     z-index: 1000;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    font-size: 18px;  // Increased font size
   `;
 
-  // Add animation styles
   const styleSheet = document.createElement('style');
   styleSheet.textContent = `
     @keyframes ticker {
@@ -1282,8 +1283,9 @@ async function createLiveNewsTicker() {
     #news-ticker {
       white-space: nowrap;
       display: inline-block;
-      animation: ticker 40s linear infinite;  // Slowed down slightly for more items
+      animation: ticker 40s linear infinite;
       padding-left: 100%;
+      font-size: 18px;  // Increased font size
     }
     
     #news-ticker-container:hover #news-ticker {
@@ -1291,13 +1293,12 @@ async function createLiveNewsTicker() {
     }
     
     body {
-      padding-top: 40px;
+      padding-top: 50px;  // Increased to account for larger ticker
     }
   `;
   document.head.appendChild(styleSheet);
 
   try {
-    // Updated to fetch 8 items
     const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.motorsport.com%2Frss%2Fnascar-cup%2Fnews%2F&api_key=ooehn6ytnuvjctk6a9olwn5gjxf16e7gillph6jt&order_dir=desc&count=8');
     const data = await response.json();
     
@@ -1305,7 +1306,6 @@ async function createLiveNewsTicker() {
       const ticker = document.createElement('div');
       ticker.id = 'news-ticker';
       
-      // Create news items string with black text
       const newsText = data.items
         .map(item => `<a href="${item.link}" target="_blank" style="color: black; text-decoration: none; font-weight: bold;">${item.title}</a>`)
         .join(' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ');
