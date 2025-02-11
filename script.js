@@ -1237,7 +1237,10 @@ function openTab(tabName) {
   const selectedTab = document.getElementById(tabName);
   if (selectedTab) {
     selectedTab.style.display = "block";
-    document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
+    const tabButton = document.querySelector(`[onclick="openTab('${tabName}')"]`);
+    if (tabButton) {
+      tabButton.classList.add("active");
+    }
   }
 
   if (tabName === "teams") {
@@ -1251,26 +1254,36 @@ function init() {
   if (isDataLoaded) {
     console.log("Initializing with loaded data...");
     
-    // First open the weekly tab to ensure elements are visible
-    openTab('weekly');
-    
-    // Then initialize components after a short delay
-    setTimeout(() => {
-      console.log("Loading components...");
+    // First make sure the weekly tab is visible
+    const weeklyTab = document.getElementById('weekly');
+    if (weeklyTab) {
+      weeklyTab.style.display = 'block';
       
-      // Verify weekly table exists
-      const weeklyTable = document.querySelector("#weekly-standings tbody");
-      if (weeklyTable) {
-        console.log("Weekly table found, proceeding with initialization");
-        loadOverallStandings();
-        populateWeekDropdown();
-        loadWeeklyStandings();
-      } else {
-        console.error("Weekly table still not found after delay");
-      }
-      
-      createLiveNewsTicker();
-    }, 100);
+      // Then initialize components after the tab is visible
+      setTimeout(() => {
+        console.log("Loading components...");
+        
+        // Verify weekly table exists
+        const weeklyTable = document.querySelector("#weekly-standings tbody");
+        if (weeklyTable) {
+          console.log("Weekly table found, proceeding with initialization");
+          loadOverallStandings();
+          populateWeekDropdown();
+          loadWeeklyStandings();
+          createLiveNewsTicker();
+          
+          // Finally, open the weekly tab
+          openTab('weekly');
+        } else {
+          console.error("Weekly table structure:", {
+            weeklyTab: document.getElementById('weekly')?.innerHTML,
+            weeklyStandings: document.getElementById('weekly-standings')?.innerHTML
+          });
+        }
+      }, 200); // Increased delay to ensure DOM is ready
+    } else {
+      console.error("Weekly tab not found");
+    }
   }
 }
 
@@ -1361,4 +1374,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
+
+
 
