@@ -182,15 +182,7 @@ function processRaceData(data) {
 
 // Load Overall Standings
 function loadOverallStandings() {
-  console.log("Loading overall standings...");
   const overallTable = document.querySelector("#overall-standings tbody");
-  
-  if (!overallTable) {
-    console.error("Could not find overall standings table");
-    return;
-  }
-  
-  console.log("Found table, clearing contents...");
   overallTable.innerHTML = "";
 
   // Add CSS if it doesn't exist
@@ -212,7 +204,8 @@ function loadOverallStandings() {
       }
       
       #overall-standings th {
-        background-color: #E53935;
+        background-color: #1976D2;  // Changed to match tab blue color
+        color: white;  // White text for better contrast
         font-weight: bold;
       }
       
@@ -1238,6 +1231,8 @@ function init() {
     loadOverallStandings();
     loadWeeklyStandings();
     createLiveNewsTicker();
+    // Open weekly tab by default
+    openTab('weekly');
   }
 }
 
@@ -1253,6 +1248,8 @@ window.onload = () => {
     loadOverallStandings();
     loadWeeklyStandings();
     createLiveNewsTicker();
+    // Open weekly tab by default
+    openTab('weekly');
   }
 };
 
@@ -1266,8 +1263,8 @@ async function createLiveNewsTicker() {
     top: 0;
     left: 0;
     width: 100%;
-    background-color: #E53935;
-    color: white;
+    background-color: #FFD700;  // Changed to yellow
+    color: black;               // Changed text to black for better contrast
     padding: 10px 0;
     z-index: 1000;
     overflow: hidden;
@@ -1285,7 +1282,7 @@ async function createLiveNewsTicker() {
     #news-ticker {
       white-space: nowrap;
       display: inline-block;
-      animation: ticker 30s linear infinite;
+      animation: ticker 40s linear infinite;  // Slowed down slightly for more items
       padding-left: 100%;
     }
     
@@ -1300,17 +1297,17 @@ async function createLiveNewsTicker() {
   document.head.appendChild(styleSheet);
 
   try {
-    // Use Motorsport.com NASCAR feed
-    const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.motorsport.com%2Frss%2Fnascar-cup%2Fnews%2F&api_key=ooehn6ytnuvjctk6a9olwn5gjxf16e7gillph6jt&order_dir=desc&count=5');
+    // Updated to fetch 8 items
+    const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.motorsport.com%2Frss%2Fnascar-cup%2Fnews%2F&api_key=ooehn6ytnuvjctk6a9olwn5gjxf16e7gillph6jt&order_dir=desc&count=8');
     const data = await response.json();
     
     if (data && data.items && data.items.length > 0) {
       const ticker = document.createElement('div');
       ticker.id = 'news-ticker';
       
-      // Create news items string
+      // Create news items string with black text
       const newsText = data.items
-        .map(item => `<a href="${item.link}" target="_blank" style="color: white; text-decoration: none;">${item.title}</a>`)
+        .map(item => `<a href="${item.link}" target="_blank" style="color: black; text-decoration: none; font-weight: bold;">${item.title}</a>`)
         .join(' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ');
       
       ticker.innerHTML = newsText + ' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ';
@@ -1318,11 +1315,10 @@ async function createLiveNewsTicker() {
     }
   } catch (error) {
     console.error('Error fetching NASCAR news:', error);
-    // Fallback to static news if API fails
     const ticker = document.createElement('div');
     ticker.id = 'news-ticker';
     ticker.innerHTML = `
-      <span style="color: white;">
+      <span style="color: black; font-weight: bold;">
         NASCAR News Loading... Please check back in a moment...
       </span>
     `;
@@ -1340,4 +1336,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
+
+
 
