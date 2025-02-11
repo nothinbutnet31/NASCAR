@@ -1569,9 +1569,9 @@ function animateWeek() {
 function updateCarPositions(weekData) {
   if (!weekData || !weekData.standings) return;
   
-  const radius = 300;
-  const trackWidth = 800;
-  const trackHeight = 600;
+  const radius = 800; // Much larger radius
+  const trackWidth = 1600; // Wider track
+  const trackHeight = 1200; // Taller track
   
   const steps = 50;
   let step = 0;
@@ -1579,7 +1579,7 @@ function updateCarPositions(weekData) {
   const animate = () => {
     if (step <= steps && isAnimating) {
       const progress = step / steps;
-      const angle = progress * Math.PI;
+      const angle = progress * 2 * Math.PI; // Full 360-degree rotation
       
       Object.entries(weekData.standings)
         .sort((a, b) => b[1].total - a[1].total)
@@ -1589,15 +1589,16 @@ function updateCarPositions(weekData) {
             // Calculate wider oval path
             const x = radius * Math.cos(angle) + trackWidth/2;
             const y = (radius/2) * Math.sin(angle) + trackHeight/2;
-            const rotation = (angle * (180/Math.PI) + 180) % 360;
+            
+            // Adjust rotation to start at 90 degrees (pointing right)
+            const rotation = (angle * (180/Math.PI) + 90) % 360;
             
             // Offset each car slightly based on position
-            const offset = index * 20;
+            const offset = index * 40; // Increased spacing between cars
             const offsetX = x + (Math.cos(angle) * offset);
             const offsetY = y + (Math.sin(angle) * offset);
             
             car.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg)`;
-            console.log(`Car ${team}: x=${offsetX}, y=${offsetY}, rotation=${rotation}`);
           }
         });
       
