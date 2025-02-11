@@ -196,9 +196,31 @@ function loadOverallStandings() {
   // Sort teams by points descending
   const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
 
+  // Create race cars if they don't exist
+  if (!document.querySelector('[id^="car-"]')) {
+    const container = createRaceCars();
+    // Insert before the overall standings table
+    const standingsTable = document.querySelector("#overall-standings");
+    standingsTable.parentNode.insertBefore(container, standingsTable);
+  }
+
+  // Update car positions based on overall standings
+  const maxPoints = Math.max(...Object.values(totalPoints));
+  const containerWidth = document.querySelector('#overall-standings').offsetWidth - 50;
+
+  sortedTeams.forEach(([team, points], index) => {
+    const car = document.getElementById(`car-${team}`);
+    if (car) {
+      const verticalPosition = 30 + (index * 25);
+      const horizontalPosition = (points / maxPoints) * containerWidth;
+      car.style.left = `${horizontalPosition}px`;
+      car.style.top = `${verticalPosition}px`;
+    }
+  });
+
+  // Continue with the existing table population
   sortedTeams.forEach(([team, points], index) => {
     const row = document.createElement("tr");
-    // Add trophy icon for first place
     const trophy = index === 0 ? '<i class="fas fa-trophy"></i> ' : "";
     row.innerHTML = `
       <td>${trophy}${team}</td>
@@ -1208,7 +1230,7 @@ function createRaceCars() {
   container.style.cssText = `
     position: relative;
     width: 100%;
-    height: 200px;
+    height: 300px;
     background: #333;
     border-radius: 10px;
     margin: 20px 0;
@@ -1233,26 +1255,31 @@ function createRaceCars() {
     car.id = `car-${team}`;
     car.style.cssText = `
       position: absolute;
-      width: 40px;
-      height: 20px;
+      width: 80px;
+      height: 35px;
       background: ${details.color};
       border-radius: 5px;
-      transition: left 1s ease-in-out;
+      transition: all 1s ease-in-out;
       left: 0;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       color: white;
       font-weight: bold;
       font-size: 12px;
+      padding: 5px;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
     `;
-    car.textContent = details.number;
+    
+    // Add number and team name
+    car.innerHTML = `
+      <div style="font-size: 14px;">#${details.number}</div>
+      <div style="font-size: 11px; white-space: nowrap;">${team}</div>
+    `;
+    
     container.appendChild(car);
   });
-
-  // Add container before the weekly recap
-  const recapSection = document.getElementById('weekly-recap');
-  recapSection.parentNode.insertBefore(container, recapSection);
 
   return container;
 }
