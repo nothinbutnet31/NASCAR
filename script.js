@@ -792,7 +792,6 @@ function generateWeeklyRecap() {
     Object.entries(data.drivers).forEach(([driver, points]) => {
       allDriversScores.push({ team, driver, points });
     });
-  });
   const sortedDrivers = allDriversScores.sort((a, b) => b.points - a.points);
   const topDrivers = sortedDrivers.slice(0, 3);
   const bottomDrivers = sortedDrivers.filter(d => d.points > 0).slice(-3).reverse();
@@ -1473,14 +1472,11 @@ function createRaceCars() {
 
 // Add this function to calculate car positions around the oval
 function calculateCarPosition(progress, lane) {
-  // Track dimensions as percentages of container
-  const trackWidth = 80;  // 80% of container width
-  const trackHeight = 70; // 70% of container height
-  const margin = 10;      // 10% margin from edges
-  
-  // Calculate center point
-  const centerX = margin + (trackWidth / 2);
-  const centerY = margin + (trackHeight / 2);
+  const margin = 100;
+  const trackWidth = 1600;
+  const trackHeight = 1200;
+  const centerX = trackWidth / 2;
+  const centerY = trackHeight / 2;
   
   // Calculate lane offset (move cars slightly based on their position)
   const laneOffset = lane * 2;
