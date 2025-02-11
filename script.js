@@ -212,7 +212,7 @@ function loadOverallStandings() {
       }
       
       #overall-standings th {
-        background-color: #1E88E5;
+        background-color: #E53935;
         font-weight: bold;
       }
       
@@ -1234,9 +1234,10 @@ function openTab(tabName) {
 
 // Initialize the Page after data is loaded
 function init() {
-  console.log("Init called, isDataLoaded:", isDataLoaded);
   if (isDataLoaded) {
+    loadOverallStandings();
     loadWeeklyStandings();
+    createLiveNewsTicker();
   }
 }
 
@@ -1250,5 +1251,84 @@ window.onload = () => {
   console.log("Window loaded, checking data...");
   if (isDataLoaded) {
     loadOverallStandings();
+    loadWeeklyStandings();
+    createLiveNewsTicker();
   }
 };
+
+// Add this function to fetch and display real NASCAR news
+async function createLiveNewsTicker() {
+  // Create ticker container with loading message
+  const tickerContainer = document.createElement('div');
+  tickerContainer.id = 'news-ticker-container';
+  tickerContainer.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #E53935;
+    color: white;
+    padding: 10px 0;
+    z-index: 1000;
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  `;
+
+  // Add animation styles
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = `
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    
+    #news-ticker {
+      white-space: nowrap;
+      display: inline-block;
+      animation: ticker 30s linear infinite;
+      padding-left: 100%;
+    }
+    
+    #news-ticker-container:hover #news-ticker {
+      animation-play-state: paused;
+    }
+    
+    body {
+      padding-top: 40px;
+    }
+  `;
+  document.head.appendChild(styleSheet);
+
+  try {
+    // Use a CORS proxy to fetch NASCAR news
+    const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.nascar.com%2Frss%2Fheadlines%2F');
+    const data = await response.json();
+    
+    if (data.items && data.items.length > 0) {
+      const ticker = document.createElement('div');
+      ticker.id = 'news-ticker';
+      
+      // Create news items string
+      const newsText = data.items
+        .map(item => `<a href="${item.link}" target="_blank" style="color: white; text-decoration: none;">${item.title}</a>`)
+        .join(' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ');
+      
+      ticker.innerHTML = newsText + ' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ';
+      tickerContainer.appendChild(ticker);
+    }
+  } catch (error) {
+    console.error('Error fetching NASCAR news:', error);
+    tickerContainer.innerHTML = '<div style="text-align: center;">Unable to load NASCAR news</div>';
+  }
+
+  document.body.insertBefore(tickerContainer, document.body.firstChild);
+}
+
+// Refresh news every 5 minutes
+setInterval(async () => {
+  const oldTicker = document.getElementById('news-ticker-container');
+  if (oldTicker) {
+    oldTicker.remove();
+  }
+  await createLiveNewsTicker();
+}, 300000);
