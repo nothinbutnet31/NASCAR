@@ -1265,22 +1265,23 @@ function init() {
         
         // Verify weekly table exists
         const weeklyTable = document.querySelector("#weekly-standings tbody");
-        if (weeklyTable) {
-          console.log("Weekly table found, proceeding with initialization");
-          loadOverallStandings();
-          populateWeekDropdown();
-          loadWeeklyStandings();
-          createLiveNewsTicker();
-          
-          // Finally, open the weekly tab
-          openTab('weekly');
-        } else {
-          console.error("Weekly table structure:", {
-            weeklyTab: document.getElementById('weekly')?.innerHTML,
-            weeklyStandings: document.getElementById('weekly-standings')?.innerHTML
-          });
+        if (!weeklyTable) {
+          // Create tbody if it doesn't exist
+          const table = document.getElementById('weekly-standings');
+          if (table) {
+            const tbody = document.createElement('tbody');
+            table.appendChild(tbody);
+          }
         }
-      }, 200); // Increased delay to ensure DOM is ready
+        
+        loadOverallStandings();
+        populateWeekDropdown();
+        loadWeeklyStandings();
+        createLiveNewsTicker();
+        
+        // Finally, open the weekly tab
+        openTab('weekly');
+      }, 200);
     } else {
       console.error("Weekly tab not found");
     }
@@ -1374,7 +1375,3 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
-
-
-
-
