@@ -43,45 +43,45 @@ let standingsData = {
 // Add this constant for expected averages
 const expectedDriverAverages = {
   // Top tier drivers (25+ avg)
-  "Kyle Larson": 26,
-   "Christopher Bell": 26,
-  "Chase Elliott": 25,
-     "Denny Hamlin": 25,
-  "Tyler Reddick": 25,
-   "William Byron": 25,
+  "Kyle Larson": 28,
+  "William Byron": 27,
+  "Ryan Blaney": 26,
+  "Christopher Bell": 26,
+  "Denny Hamlin": 25,
+  
   
   // Strong performers (20-24 avg)
-    "Ryan Blaney": 23,
+  "Tyler Reddick": 24,
   "Ross Chastain": 23,
-   "Brad Keselowski": 21,
-     "Joey Logano": 21,
+  "Joey Logano": 23,
+  "Brad Keselowski": 22,
+  "Chase Elliott": 24,
   "Chris Buescher": 21,
   "Bubba Wallace": 20,
   
   // Mid tier (15-19 avg)
-  "Kyle Busch": 17,
+  "Kyle Busch": 19,
   "Alex Bowman": 19,
-  "Daniel Suarez": 16,
+  "Daniel Suarez": 18,
   "Chase Briscoe": 17,
   "Ty Gibbs": 17,
-  "Austin Cindric": 15,
-  "Carson Hocevar": 14,
+  "Austin Cindric": 17,
+  "Carson Hocevar": 17,
   "Erik Jones": 17,
+  "Austin Dillon": 16,
   "Ryan Preece": 15,
-  "Shane van Gisbergen": 17,
- 
-  // Development/Others (17-10 avg)
-  "Josh Berry": 12,
-  "Ricky Stenhouse Jr": 12,
+  "Michael McDowell": 15,
+  "Shane van Gisbergen": 15,
+  // Development/Others (10-14 avg)
+  "Josh Berry": 14,
+  "Ricky Stenhouse Jr": 13,
   "Riley Herbst": 13,
-  "AJ Allmendinger": 14,
-  "Cole Custer": 14,
-  "Todd Gilliland": 13,
-   "Michael McDowell": 13,
-  "Justin Haley": 13,
-  "Harrison Burton": 9,
-  "Noah Gragson": 12,
-  "Austin Dillon": 10,
+  "AJ Allmendinger": 13,
+  "Cole Custer": 13,
+  "Todd Gilliland": 12,
+  "Justin Haley": 12,
+  "Harrison Burton": 11,
+  "Noah Gragson": 10,
   "Corey LaJoie": 10
 };
 
@@ -186,19 +186,136 @@ function loadOverallStandings() {
   overallTable.innerHTML = "";
 
   const totalPoints = {};
-
-  standingsData.weeks.forEach((week) => {
-    Object.entries(week.standings).forEach(([team, data]) => {
-      totalPoints[team] = (totalPoints[team] || 0) + data.total;
+  const weeklyPoints = standingsData.weeks
+    .filter(week => Object.values(week.standings).some(data => data.total > 0))
+    .map(week => {
+      const points = {};
+      Object.entries(week.standings).forEach(([team, data]) => {
+        points[team] = (points[team] || 0) + data.total;
+        totalPoints[team] = (totalPoints[team] || 0) + data.total;
+      });
+      return points;
     });
-  });
 
-  // Sort teams by points descending
+  // Sort teams by final points
   const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
 
+  // Create race cars if they don't exist
+  if (!document.querySelector('[id^="car-"]')) {
+    const container = createRaceCars();
+    const standingsTable = document.querySelector("#overall-standings");
+    standingsTable.parentNode.insertBefore(container, standingsTable);
+  }
+
+  // Add lap counter and play button container
+  const controlsContainer = document.createElement('div');
+  controlsContainer.style.cssText = `
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    z-index: 10;
+  `;
+
+  const lapCounter = document.createElement('div');
+  lapCounter.style.cssText = `
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    margin-bottom: 10px;
+  `;
+
+  const playButton = document.createElement('button');
+  playButton.innerHTML = '▶️ Play Race';
+  playButton.style.cssText = `
+    padding: 5px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  `;
+
+  controlsContainer.appendChild(lapCounter);
+  controlsContainer.appendChild(playButton);
+  document.querySelector('#car-Emilia').parentNode.appendChild(controlsContainer);
+
+  let isAnimating = false;
+  let weekIndex = 0;
+
+  const animateWeek = () => {
+    if (!isAnimating) return;
+    
+    const completedWeeks = standingsData.weeks.filter(week => 
+      Object.values(week.standings).some(data => data.total > 0)
+    );
+    
+    if (weekIndex < completedWeeks.length) {
+      const week = completedWeeks[weekIndex];
+      
+      lapCounter.innerHTML = `
+        <div>Lap ${weekIndex + 1}</div>
+        <div style="font-size: 14px;">${week.track}</div>
+      `;
+
+      let progress = 0;
+      const animateLap = () => {
+        progress += 0.005;
+        
+        sortedTeams.forEach(([team], index) => {
+          const car = document.getElementById(`car-${team}`);
+          if (car) {
+            const { x, y, rotation } = calculateCarPosition(progress, index);
+            car.style.transform = `translate(${x}%, ${y}%) rotate(${rotation}deg)`;
+          }
+        });
+
+        if (progress < 1) {
+          requestAnimationFrame(animateLap);
+        } else {
+          if (weekIndex < completedWeeks.length - 1) {
+            weekIndex++;
+            setTimeout(animateWeek, 1000);
+          } else {
+            isAnimating = false;
+            playButton.innerHTML = '🔄 Replay';
+          }
+        }
+      };
+      
+      animateLap();
+    }
+  };
+
+  // Play button click handler
+  playButton.addEventListener('click', () => {
+    if (isAnimating) {
+      isAnimating = false;
+      playButton.innerHTML = '▶️ Play Race';
+    } else {
+      if (weekIndex >= weeklyPoints.length) {
+        weekIndex = 0;
+        sortedTeams.forEach(([team], index) => {
+          const car = document.getElementById(`car-${team}`);
+          if (car) {
+            const { x, y, rotation } = calculateCarPosition(0, index);
+            car.style.transform = `translate(${x}%, ${y}%) rotate(${rotation}deg)`;
+          }
+        });
+      }
+      isAnimating = true;
+      playButton.innerHTML = '⏸️ Pause';
+      animateWeek();
+    }
+  });
+
+  // Populate standings table
   sortedTeams.forEach(([team, points], index) => {
     const row = document.createElement("tr");
-    // Add trophy icon for first place
     const trophy = index === 0 ? '<i class="fas fa-trophy"></i> ' : "";
     row.innerHTML = `
       <td>${trophy}${team}</td>
@@ -626,11 +743,11 @@ function generateWeeklyRecap() {
   
   // Create image element with fetch
   const imgElement = document.createElement('img');
-  imgElement.style.width = '125px';
-  imgElement.style.height = '125px';
+  imgElement.style.width = '150px';
+  imgElement.style.height = '150px';
   imgElement.style.objectFit = 'cover';
-  imgElement.style.objectPosition = '50% 0%';
-  imgElement.style.border = '1px solid #ddd';
+  imgElement.style.objectPosition = '50% 20%';
+  imgElement.style.border = '2px solid #ddd';
   imgElement.alt = driverOfTheWeek.driver;
 
   console.log('Trying to fetch image:', `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png`);
@@ -654,8 +771,8 @@ function generateWeeklyRecap() {
           <p><strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})</p>
           <p>${narrative}.</p>
           <p style="
-            font-family: 'Georgia', sans-serif; 
-            color: #5ced73; 
+            font-family: 'Impact', sans-serif; 
+            color: #1a1a1a; 
             font-size: 1.2em; 
             font-weight: bold;
             margin-top: 10px;
@@ -674,7 +791,6 @@ function generateWeeklyRecap() {
     Object.entries(data.drivers).forEach(([driver, points]) => {
       allDriversScores.push({ team, driver, points });
     });
-  });
 
   const sortedDrivers = allDriversScores.sort((a, b) => b.points - a.points);
   const topDrivers = sortedDrivers.slice(0, 3);
@@ -811,6 +927,23 @@ function generateWeeklyRecap() {
     
     updateTrackImage();
   }
+
+  // Create race cars if they don't exist
+  if (!document.querySelector('[id^="car-"]')) {
+    createRaceCars();
+  }
+
+  // Initialize cars at starting positions
+  const sortedTeams = Object.entries(weekData.standings)
+    .sort((a, b) => b[1].total - a[1].total);
+    
+  sortedTeams.forEach(([team], index) => {
+    const car = document.getElementById(`car-${team}`);
+    if (car) {
+      const { x, y, rotation } = calculateCarPosition(0, index);
+      car.style.transform = `translate(${x}%, ${y}%) rotate(${rotation}deg)`;
+    }
+  });
 }
 
 // Helper function to calculate standings after a specific week
@@ -1183,3 +1316,266 @@ window.onload = () => {
   console.log("Window loaded, fetching data...");
   fetchDataFromGoogleSheets();
 };
+
+// Add this after your existing code
+function createRaceCars() {
+  const raceCars = {
+    Emilia: { color: 'purple', number: '21' },
+    Midge: { color: 'red', number: '11' },
+    Dan: { color: 'blue', number: '26' },
+    Grace: { color: 'pink', number: '24' },
+    Edmund: { color: 'green', number: '31' },
+    Heather: { color: 'indigo', number: '14' }
+  };
+
+  const container = document.createElement('div');
+  container.style.cssText = `
+    position: relative;
+    width: 100%;
+    height: 400px;
+    background: #333;
+    border-radius: 10px;
+    margin: 20px 0;
+    overflow: hidden;
+  `;
+
+  // Create oval track
+  const track = document.createElement('div');
+  track.style.cssText = `
+    position: absolute;
+    width: 80%;
+    height: 70%;
+    top: 15%;
+    left: 10%;
+    border: 4px solid white;
+    border-radius: 200px;
+    box-sizing: border-box;
+  `;
+  
+  // Add start/finish line
+  const startLine = document.createElement('div');
+  startLine.style.cssText = `
+    position: absolute;
+    width: 4px;
+    height: 40px;
+    background: repeating-linear-gradient(
+      to bottom,
+      white,
+      white 4px,
+      black 4px,
+      black 8px
+    );
+    top: 50%;
+    right: 10%;
+    transform: translateY(-50%);
+  `;
+
+  container.appendChild(track);
+  container.appendChild(startLine);
+
+  Object.entries(raceCars).forEach(([team, details]) => {
+    const car = document.createElement('div');
+    car.id = `car-${team}`;
+    
+    // Position cars at starting line, staggered
+    car.style.cssText = `
+      position: absolute;
+      width: 100px;
+      height: 40px;
+      transition: all 0.5s linear;
+      transform-origin: center center;
+      right: 12%;
+    `;
+
+    // Car HTML structure with styling
+    car.innerHTML = `
+      <div style="
+        position: relative;
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+      ">
+        <!-- Car body -->
+        <div style="
+          position: absolute;
+          width: 80px;
+          height: 20px;
+          background: ${details.color};
+          border-radius: 5px;
+          bottom: 0;
+          left: 10px;
+          box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        "></div>
+        
+        <!-- Car roof -->
+        <div style="
+          position: absolute;
+          width: 50px;
+          height: 15px;
+          background: ${details.color};
+          border-radius: 5px 5px 0 0;
+          bottom: 20px;
+          left: 25px;
+          box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        "></div>
+        
+        <!-- Wheels -->
+        <div style="
+          position: absolute;
+          width: 16px;
+          height: 16px;
+          background: #333;
+          border: 2px solid #666;
+          border-radius: 50%;
+          bottom: -8px;
+          left: 15px;
+        "></div>
+        <div style="
+          position: absolute;
+          width: 16px;
+          height: 16px;
+          background: #333;
+          border: 2px solid #666;
+          border-radius: 50%;
+          bottom: -8px;
+          right: 15px;
+        "></div>
+        
+        <!-- Number -->
+        <div style="
+          position: absolute;
+          width: 100%;
+          text-align: center;
+          color: white;
+          font-weight: bold;
+          font-size: 12px;
+          bottom: 3px;
+        ">#${details.number}</div>
+        
+        <!-- Team name -->
+        <div style="
+          position: absolute;
+          width: 100%;
+          text-align: center;
+          color: white;
+          font-size: 10px;
+          bottom: -20px;
+        ">${team}</div>
+      </div>
+    `;
+    
+    container.appendChild(car);
+  });
+
+  return container;
+}
+
+// Add this function to calculate car positions around the oval
+function calculateCarPosition(progress, lane) {
+  const radius = 35; // % of container height
+  const centerX = 50; // % of container width
+  const centerY = 50; // % of container height
+  const trackWidth = 40; // % of container width
+  const trackHeight = 35; // % of container height
+  
+  // Adjust progress to determine position on track
+  let x, y, rotation;
+  
+  if (progress <= 0.25) { // Top straight
+    x = centerX + trackWidth * (0.5 - 2 * progress);
+    y = centerY - trackHeight;
+    rotation = 180;
+  } else if (progress <= 0.5) { // Left turn
+    const turnProgress = (progress - 0.25) * 4;
+    x = centerX - trackWidth/2;
+    y = centerY - trackHeight + 2 * trackHeight * turnProgress;
+    rotation = 180 + 180 * turnProgress;
+  } else if (progress <= 0.75) { // Bottom straight
+    x = centerX - trackWidth * (0.5 - 2 * (progress - 0.5));
+    y = centerY + trackHeight;
+    rotation = 0;
+  } else { // Right turn
+    const turnProgress = (progress - 0.75) * 4;
+    x = centerX + trackWidth/2;
+    y = centerY + trackHeight - 2 * trackHeight * turnProgress;
+    rotation = 0 + 180 * turnProgress;
+  }
+  
+  // Adjust for different lanes
+  const laneOffset = lane * 2; // % offset for each lane
+  if (progress <= 0.25 || progress >= 0.75) {
+    y += laneOffset;
+  } else {
+    y -= laneOffset;
+  }
+  
+  return { x, y, rotation };
+}
+
+// Update the animation function in loadOverallStandings
+function animateWeek() {
+  if (!isAnimating) return;
+  
+  const completedWeeks = standingsData.weeks.filter(week => 
+    Object.values(week.standings).some(data => data.total > 0)
+  );
+  
+  if (weekIndex < completedWeeks.length) {
+    const week = completedWeeks[weekIndex];
+    
+    lapCounter.innerHTML = `
+      <div>Lap ${weekIndex + 1}</div>
+      <div style="font-size: 14px;">${week.track}</div>
+    `;
+
+    // Animate cars around the track
+    let progress = 0;
+    const animateLap = () => {
+      progress += 0.005; // Speed of movement
+      
+      sortedTeams.forEach(([team], index) => {
+        const car = document.getElementById(`car-${team}`);
+        if (car) {
+          const { x, y, rotation } = calculateCarPosition(progress, index);
+          car.style.transform = `translate(${x}%, ${y}%) rotate(${rotation}deg)`;
+        }
+      });
+
+      if (progress < 1) {
+        requestAnimationFrame(animateLap);
+      } else {
+        // Move to final positions for this week
+        updateFinalPositions(week);
+        if (weekIndex < completedWeeks.length - 1) {
+          weekIndex++;
+          setTimeout(animateWeek, 1000);
+        } else {
+          isAnimating = false;
+          playButton.innerHTML = '🔄 Replay';
+        }
+      }
+    };
+    
+    animateLap();
+  }
+}
+
+// Update car positions based on standings
+function updateCarPositions(weekData) {
+  if (!weekData || !weekData.standings) return;
+  
+  const maxPoints = Math.max(...Object.values(weekData.standings).map(data => data.total));
+  const containerWidth = document.querySelector('#overall-standings').offsetWidth - 100;
+  
+  Object.entries(weekData.standings)
+    .sort((a, b) => b[1].total - a[1].total)
+    .forEach(([team, data], index) => {
+      const car = document.getElementById(`car-${team}`);
+      if (car) {
+        const verticalPosition = 40 + (index * 60);
+        const horizontalPosition = ((data.total / maxPoints) * containerWidth);
+        car.style.left = `${horizontalPosition}px`;
+        car.style.top = `${verticalPosition}px`;
+      }
+    });
+}
