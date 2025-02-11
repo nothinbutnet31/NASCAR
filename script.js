@@ -325,11 +325,21 @@ function loadWeeklyStandings() {
       trackImage.onerror = function() {
         this.src = "https://via.placeholder.com/300x200?text=Track+Image+Not+Found";
       };
+      
+      // Make sure the image is visible
+      trackImage.style.display = 'block';
+      console.log("Loading track image:", trackName); // Debug log
     }
 
     generateWeeklyRecap();
   }
 }
+
+// Add event listener for week selection changes
+document.getElementById("week-select").addEventListener("change", function() {
+  loadWeeklyStandings();
+  console.log("Week selection changed"); // Debug log
+});
 
 // Modify the calculateDriverAverages function
 function calculateDriverAverages(weekNumber) {
@@ -1362,7 +1372,6 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
-
 
 
 
