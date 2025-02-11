@@ -780,6 +780,7 @@ function generateWeeklyRecap() {
     Object.entries(data.drivers).forEach(([driver, points]) => {
       allDriversScores.push({ team, driver, points });
     });
+  });
    
   const sortedDrivers = allDriversScores.sort((a, b) => b.points - a.points);
   const topDrivers = sortedDrivers.slice(0, 3);
@@ -814,6 +815,7 @@ function generateWeeklyRecap() {
         performanceDeltas.push({ driver, team, points, delta });
       }
     });
+
 
     const sortedDeltas = performanceDeltas.sort((a, b) => b.delta - a.delta);
     const overAchiever = sortedDeltas[0];
