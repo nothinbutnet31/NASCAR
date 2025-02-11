@@ -1477,36 +1477,29 @@ function calculateCarPosition(progress, lane) {
   const centerY = 50; // % of container height
   const trackWidth = 40; // % of container width
   const trackHeight = 35; // % of container height
+  const laneOffset = lane * 3; // Increase lane spacing
   
-  // Adjust progress to determine position on track
+  // Adjust progress to determine position on track (0 to 1)
   let x, y, rotation;
   
   if (progress <= 0.25) { // Top straight
     x = centerX + trackWidth * (0.5 - 2 * progress);
-    y = centerY - trackHeight;
+    y = centerY - trackHeight - laneOffset;
     rotation = 180;
   } else if (progress <= 0.5) { // Left turn
     const turnProgress = (progress - 0.25) * 4;
     x = centerX - trackWidth/2;
-    y = centerY - trackHeight + 2 * trackHeight * turnProgress;
+    y = centerY - trackHeight + (2 * trackHeight * turnProgress);
     rotation = 180 + 180 * turnProgress;
   } else if (progress <= 0.75) { // Bottom straight
     x = centerX - trackWidth * (0.5 - 2 * (progress - 0.5));
-    y = centerY + trackHeight;
+    y = centerY + trackHeight + laneOffset;
     rotation = 0;
   } else { // Right turn
     const turnProgress = (progress - 0.75) * 4;
     x = centerX + trackWidth/2;
-    y = centerY + trackHeight - 2 * trackHeight * turnProgress;
+    y = centerY + trackHeight - (2 * trackHeight * turnProgress);
     rotation = 0 + 180 * turnProgress;
-  }
-  
-  // Adjust for different lanes
-  const laneOffset = lane * 2; // % offset for each lane
-  if (progress <= 0.25 || progress >= 0.75) {
-    y += laneOffset;
-  } else {
-    y -= laneOffset;
   }
   
   return { x, y, rotation };
