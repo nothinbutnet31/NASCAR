@@ -53,36 +53,36 @@ const expectedDriverAverages = {
   // Strong performers (20-24 avg)
     "Ryan Blaney": 23,
   "Ross Chastain": 23,
-   "Brad Keselowski": 22,
+   "Brad Keselowski": 21,
      "Joey Logano": 21,
   "Chris Buescher": 21,
   "Bubba Wallace": 20,
   
   // Mid tier (15-19 avg)
-  "Kyle Busch": 19,
+  "Kyle Busch": 17,
   "Alex Bowman": 19,
-  "Daniel Suarez": 18,
+  "Daniel Suarez": 16,
   "Chase Briscoe": 17,
   "Ty Gibbs": 17,
-  "Austin Cindric": 17,
-  "Carson Hocevar": 17,
+  "Austin Cindric": 15,
+  "Carson Hocevar": 14,
   "Erik Jones": 17,
   "Ryan Preece": 15,
   "Shane van Gisbergen": 17,
  
   // Development/Others (17-10 avg)
-  "Josh Berry": 17,
-  "Ricky Stenhouse Jr": 16,
-  "Riley Herbst": 16,
-  "AJ Allmendinger": 16,
-  "Cole Custer": 16,
-  "Todd Gilliland": 16,
-   "Michael McDowell": 15,
-  "Justin Haley": 15,
-  "Harrison Burton": 15,
-  "Noah Gragson": 14,
-  "Austin Dillon": 14,
-  "Corey LaJoie": 13
+  "Josh Berry": 12,
+  "Ricky Stenhouse Jr": 12,
+  "Riley Herbst": 13,
+  "AJ Allmendinger": 14,
+  "Cole Custer": 14,
+  "Todd Gilliland": 13,
+   "Michael McDowell": 13,
+  "Justin Haley": 13,
+  "Harrison Burton": 9,
+  "Noah Gragson": 12,
+  "Austin Dillon": 10,
+  "Corey LaJoie": 10
 };
 
 // Fetch data from Google Sheets
