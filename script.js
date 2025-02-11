@@ -244,41 +244,8 @@ function loadOverallStandings() {
   controlsContainer.appendChild(playButton);
   document.querySelector('#car-Emilia').parentNode.appendChild(controlsContainer);
 
-  // Initialize cars at starting position
-  const maxPoints = Math.max(...Object.values(totalPoints));
-  const containerWidth = document.querySelector('#overall-standings').offsetWidth - 100;
-  
-  sortedTeams.forEach(([team], index) => {
-    const car = document.getElementById(`car-${team}`);
-    if (car) {
-      const verticalPosition = 40 + (index * 45);
-      car.style.transform = `translate(90%, ${verticalPosition}px) rotate(-90deg)`;
-    }
-  });
-
-  // Animation function
   let isAnimating = false;
   let weekIndex = 0;
-  
-  const updateFinalPositions = (week) => {
-    const weekPoints = {};
-    standingsData.weeks.slice(0, weekIndex + 1).forEach(w => {
-      Object.entries(w.standings).forEach(([team, data]) => {
-        weekPoints[team] = (weekPoints[team] || 0) + data.total;
-      });
-    });
-
-    const sortedPositions = Object.entries(weekPoints)
-      .sort((a, b) => b[1] - a[1]);
-
-    sortedPositions.forEach(([team], index) => {
-      const car = document.getElementById(`car-${team}`);
-      if (car) {
-        const { x, y, rotation } = calculateCarPosition(0.99, index);
-        car.style.transform = `translate(${x}%, ${y}%) rotate(${rotation}deg)`;
-      }
-    });
-  };
 
   const animateWeek = () => {
     if (!isAnimating) return;
@@ -310,7 +277,6 @@ function loadOverallStandings() {
         if (progress < 1) {
           requestAnimationFrame(animateLap);
         } else {
-          updateFinalPositions(week);
           if (weekIndex < completedWeeks.length - 1) {
             weekIndex++;
             setTimeout(animateWeek, 1000);
@@ -333,7 +299,6 @@ function loadOverallStandings() {
     } else {
       if (weekIndex >= weeklyPoints.length) {
         weekIndex = 0;
-        // Reset cars to starting position
         sortedTeams.forEach(([team], index) => {
           const car = document.getElementById(`car-${team}`);
           if (car) {
