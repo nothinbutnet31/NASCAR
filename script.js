@@ -1236,7 +1236,7 @@ function openTab(tabName) {
 function init() {
   console.log("Init called, isDataLoaded:", isDataLoaded);
   if (isDataLoaded) {
-    loadOverallStandings();
+    loadWeeklyStandings();
   }
 }
 
