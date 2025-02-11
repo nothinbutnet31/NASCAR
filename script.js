@@ -185,15 +185,26 @@ function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
   overallTable.innerHTML = "";
 
+  // Add CSS if it doesn't exist
+  if (!document.getElementById('standings-styles')) {
+    const styles = document.createElement('style');
+    styles.id = 'standings-styles';
+    styles.innerHTML = `
+      .standings-cell {
+        text-align: center !important;
+        vertical-align: middle !important;
+      }
+    `;
+    document.head.appendChild(styles);
+  }
+
   // Calculate total points for each team
   const totalPoints = {};
   
-  // Initialize all teams with 0 points
   Object.keys(standingsData.teams).forEach(team => {
     totalPoints[team] = 0;
   });
 
-  // Add up points from all weeks
   standingsData.weeks.forEach(week => {
     Object.entries(week.standings).forEach(([team, data]) => {
       if (data && data.total) {
@@ -202,17 +213,15 @@ function loadOverallStandings() {
     });
   });
 
-  // Sort teams by points (highest to lowest)
   const sortedTeams = Object.entries(totalPoints)
     .sort((a, b) => b[1] - a[1]);
 
-  // Add rows to standings table with correct column order and alignment
   sortedTeams.forEach(([team, points], index) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td style="text-align: center;">${index + 1}</td>
-      <td style="text-align: center;">${team}</td>
-      <td style="text-align: center;">${points}</td>
+      <td class="standings-cell" style="text-align: center !important;">${index + 1}</td>
+      <td class="standings-cell" style="text-align: center !important;">${team}</td>
+      <td class="standings-cell" style="text-align: center !important;">${points}</td>
     `;
     overallTable.appendChild(row);
   });
