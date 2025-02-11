@@ -667,6 +667,7 @@ function generateWeeklyRecap() {
     Object.entries(data.drivers).forEach(([driver, points]) => {
       allDriversScores.push({ team, driver, points });
     });
+  });
    
   const sortedDrivers = allDriversScores.sort((a, b) => b.points - a.points);
   const topDrivers = sortedDrivers.slice(0, 3);
@@ -810,7 +811,7 @@ function generateWeeklyRecap() {
   }
 
   // Initialize cars at starting positions
-  const sortedTeams = Object.entries(weekData.standings)
+  const sortedTeams = (weekData.standings)
     .sort((a, b) => b[1].total - a[1].total);
     
   sortedTeams.forEach(([team], index) => {
@@ -829,13 +830,13 @@ function calculateStandingsAfterWeek(weekNumber) {
   for (let i = 0; i < weekNumber; i++) {
     const week = standingsData.weeks[i];
     if (week) {
-      Object.entries(week.standings).forEach(([team, data]) => {
+      (week.standings).forEach(([team, data]) => {
         totalPoints[team] = (totalPoints[team] || 0) + data.total;
       });
     }
   }
   
-  return Object.entries(totalPoints)
+  return (totalPoints)
     .sort((a, b) => b[1] - a[1])
     .map(([team], index) => ({ team, position: index + 1 }));
 }
