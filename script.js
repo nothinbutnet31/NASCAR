@@ -48,8 +48,8 @@ const expectedDriverAverages = {
   "Ryan Blaney": 26,
   "Christopher Bell": 26,
   "Denny Hamlin": 25,
-  
-  
+
+
   // Strong performers (20-24 avg)
   "Tyler Reddick": 24,
   "Ross Chastain": 23,
@@ -58,7 +58,7 @@ const expectedDriverAverages = {
   "Chase Elliott": 24,
   "Chris Buescher": 21,
   "Bubba Wallace": 20,
-  
+
   // Mid tier (15-19 avg)
   "Kyle Busch": 19,
   "Alex Bowman": 19,
@@ -103,14 +103,7 @@ async function fetchDataFromGoogleSheets() {
     console.log("Raw data from sheets:", data.values);
     processRaceData(data.values);
     isDataLoaded = true;
-    
-    // Wait for DOM to be ready before initializing
-    if (document.readyState === 'complete') {
-      init();
-    } else {
-      window.addEventListener('load', init);
-    }
-    
+    init();
   } catch (error) {
     console.error("Error fetching data:", error);
     document.body.innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
@@ -141,9 +134,9 @@ function processTotalsData(data) {
 function processRaceData(data) {
   const headerRow = data[0];
   const positions = data.slice(1);
-  
+
   standingsData.weeks = [];
-  
+
   headerRow.slice(1).forEach((track, trackIndex) => {
     if (!track) return;
 
@@ -160,12 +153,12 @@ function processRaceData(data) {
 
       team.drivers.forEach(driver => {
         let driverPoints = 0;
-        
+
         // Check each row for the driver's position and bonus points
         positions.forEach(row => {
           const category = row[0];  // Position or bonus category
           const raceDriver = row[trackIndex + 1];
-          
+
           if (raceDriver === driver && scoringSystem[category]) {
             driverPoints += scoringSystem[category];
           }
@@ -234,9 +227,9 @@ function loadOverallStandings() {
 
   // Calculate total points for each team
   const totalPoints = {};
-  
+
   console.log("Teams data:", standingsData.teams);
-  
+
   if (!standingsData || !standingsData.teams) {
     console.error("No standings data available");
     return;
@@ -273,53 +266,55 @@ function loadOverallStandings() {
     `;
     overallTable.appendChild(row);
   });
-  
+
   console.log("Finished loading standings");
 }
 
 // Load Weekly Standings
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
-  const weeklyTable = document.querySelector("#weekly-standings tbody");
-  
-  if (!weekSelect || !weekSelect.value || !weeklyTable) {
-    console.log("Required elements not ready:", {
-      weekSelect: !!weekSelect,
-      weekSelectValue: weekSelect?.value,
-      weeklyTable: !!weeklyTable
-    });
-    return;
-  }
-
-  console.log("Loading weekly standings...");
   const selectedWeekNumber = parseInt(weekSelect.value, 10);
+  const weeklyTable = document.querySelector("#weekly-standings tbody");
   weeklyTable.innerHTML = "";
 
+  // Create or get track image container
+  let trackImageContainer = document.getElementById("track-image-container");
+  if (!trackImageContainer) {
+    trackImageContainer = document.createElement("div");
+    trackImageContainer.id = "track-image-container";
+    trackImageContainer.style.cssText = `
+      text-align: center;
+      margin: 20px 0;
+    `;
+    // Insert after weekly standings table
+    const weeklyStandings = document.getElementById("weekly-standings");
+    weeklyStandings.parentNode.insertBefore(trackImageContainer, weeklyStandings.nextSibling);
+  }
+  // Always create a new image element
+  trackImageContainer.innerHTML = ''; // Clear existing content
+  const trackImage = document.createElement("img");
+  trackImage.id = "track-image";
+  trackImage.style.cssText = `
+    max-width: 300px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: block;
+    margin: 0 auto;
+  `;
+  trackImageContainer.appendChild(trackImage);
   const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
 
   if (weekData) {
     // Update track image
     const trackImage = document.getElementById("weekly-track-image");
     if (trackImage && weekData.track) {
-      console.log('Original track name:', weekData.track);
-      const trackName = weekData.track.toLowerCase().replace(/\s+/g, '_');
-      console.log('Transformed track name:', trackName);
-      
-      const trackUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
-      console.log('Track image URL:', trackUrl);
-      
-      trackImage.src = trackUrl;
+      const trackName = weekData.track.replace(/[^a-zA-Z0-9]/g, '_');
+      trackImage.src = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
       trackImage.alt = `${weekData.track} Track`;
-      trackImage.style.maxWidth = "200px";
-      trackImage.style.display = "block";
-      trackImage.style.margin = "10px 0";
-      
       trackImage.onerror = function() {
-        console.log('Track image failed to load:', trackUrl);
         this.src = "https://via.placeholder.com/200x200?text=Track+Image+Not+Found";
       };
     }
-
     const sortedStandings = Object.entries(weekData.standings)
       .sort((a, b) => b[1].total - a[1].total);
 
@@ -333,84 +328,53 @@ function loadWeeklyStandings() {
       weeklyTable.appendChild(row);
     });
 
-    // Generate weekly recap
-    const recapDiv = document.getElementById("weekly-recap");
-    if (recapDiv) {
-      let recap = `<h3>Week ${selectedWeekNumber} - ${weekData.track}</h3>`;
-      recap += `<p>Race Results:</p><ul>`;
-      
-      sortedStandings.forEach(([team, data], index) => {
-        const position = index + 1;
-        const suffix = position === 1 ? "st" : position === 2 ? "nd" : position === 3 ? "rd" : "th";
-        recap += `<li>${team} finished ${position}${suffix} with ${data.total} points</li>`;
-      });
-      
-      recap += `</ul>`;
-      recapDiv.innerHTML = recap;
+    // Update track image
+    if (weekData.track) {
+      const trackName = weekData.track.replace(/[^a-zA-Z0-9]/g, '_');
+      console.log('Loading track image for:', trackName);
+      trackImage.src = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
+      trackImage.alt = `${weekData.track} Track`;
+      trackImage.onerror = function() {
+        console.log('Error loading track image:', trackName);
+        this.src = "https://via.placeholder.com/300x200?text=Track+Image+Not+Found";
+      };
+      trackImage.onload = function() {
+        console.log('Track image loaded successfully:', trackName);
+      };
     }
+    generateWeeklyRecap();
   }
 }
 
-// Populate Week Dropdown
-function populateWeekDropdown() {
-  const weekSelect = document.getElementById("week-select");
-  if (!weekSelect) {
-    console.warn("Week select element not found");
-    return;
-  }
+// Make sure to remove any duplicate event listeners
+const weekSelect = document.getElementById("week-select");
+if (weekSelect) {
+  // Remove existing listeners
+  const newWeekSelect = weekSelect.cloneNode(true);
+  weekSelect.parentNode.replaceChild(newWeekSelect, weekSelect);
 
-  weekSelect.innerHTML = "";
-
-  // Add default option
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = "Select a Week";
-  weekSelect.appendChild(defaultOption);
-
-  let validWeeks = [];
-
-  if (standingsData.weeks && standingsData.weeks.length > 0) {
-    standingsData.weeks.forEach((week) => {
-      const hasValidPoints = Object.values(week.standings).some(teamData => 
-        teamData.total > 0
-      );
-
-      if (week && week.track && week.track.trim() !== "" && hasValidPoints) {
-        validWeeks.push(week);
-        const option = document.createElement("option");
-        option.value = week.week;
-        option.textContent = `Week ${week.week} - ${week.track}`;
-        weekSelect.appendChild(option);
-      }
-    });
-
-    // Find the last week with valid points
-    const lastValidWeek = validWeeks[validWeeks.length - 1];
-
-    if (lastValidWeek) {
-      weekSelect.value = lastValidWeek.week;
-      loadWeeklyStandings();
-    }
-  }
-
-  weekSelect.addEventListener("change", loadWeeklyStandings);
+  // Add new listener
+  newWeekSelect.addEventListener("change", function() {
+    console.log("Week selection changed");
+    loadWeeklyStandings();
+  });
 }
 
 // Modify the calculateDriverAverages function
 function calculateDriverAverages(weekNumber) {
   const averages = {};
-  
+
   // If before week 6, use expected averages
   if (weekNumber < 6) {
     return expectedDriverAverages;
   }
-  
+
   // After week 5, calculate actual averages
   Object.entries(standingsData.teams).forEach(([team, data]) => {
     data.drivers.forEach(driver => {
       let totalPoints = 0;
       let raceCount = 0;
-      
+
       // Look at all weeks up to current week
       for (let i = 1; i <= weekNumber; i++) {
         const week = standingsData.weeks.find(w => w.week === i);
@@ -419,7 +383,7 @@ function calculateDriverAverages(weekNumber) {
           raceCount++;
         }
       }
-      
+
       if (raceCount > 0) {
         averages[driver] = parseFloat((totalPoints / raceCount).toFixed(1));
       } else {
@@ -428,14 +392,14 @@ function calculateDriverAverages(weekNumber) {
       }
     });
   });
-  
+
   return averages;
 }
 
 // Update calculateDriverOfTheWeek to use this info
 function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
   const allDriversPerformance = [];
-  
+
   Object.entries(weekData.standings).forEach(([team, data]) => {
     Object.entries(data.drivers).forEach(([driver, racePoints]) => {
       if (racePoints === 0) return;
@@ -572,9 +536,9 @@ function checkStreaks(weekNumber) {
       for (let i = weekNumber; i > weekNumber - 3 && i > 0; i--) {
         const week = standingsData.weeks.find(w => w.week === i);
         if (!week) continue;
-        
+
         const driverScore = week.standings[team]?.drivers[driver] || 0;
-        
+
         if (driverScore >= 30) {
           driverHotStreak++;
           driverColdStreak = 0;
@@ -611,129 +575,363 @@ function checkStreaks(weekNumber) {
 
 // Update generateWeeklyRecap to remove total score display
 function generateWeeklyRecap() {
+  const recapContainer = document.getElementById("weekly-recap");
+  if (!recapContainer) return;
+
   const weekSelect = document.getElementById("week-select");
   const selectedWeekNumber = parseInt(weekSelect.value, 10);
   const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
-  const recapDiv = document.getElementById("weekly-recap");
 
-  if (!weekData || !recapDiv) return;
-
-  let recap = `<div class="weekly-recap-content">`;
-  
-  // Weekly Overview Section
-  recap += `<h3>📊 Weekly Overview - ${weekData.track}</h3>`;
-  
-  // Top Team Performance
-  const sortedTeams = Object.entries(weekData.standings)
-    .sort((a, b) => b[1].total - a[1].total);
-  const topTeam = sortedTeams[0];
-  
-  recap += `<div class="top-team-section">`;
-  recap += `<h4>🏆 Top Team: ${topTeam[0]} (${topTeam[1].total} points)</h4>`;
-  
-  // Drivers over 30 points
-  const highScoringDrivers = Object.entries(topTeam[1].drivers)
-    .filter(([_, points]) => points >= 30)
-    .sort((a, b) => b[1] - a[1]);
-  
-  if (highScoringDrivers.length > 0) {
-    recap += `<p>⭐ Drivers scoring 30+ points:</p><ul>`;
-    highScoringDrivers.forEach(([driver, points]) => {
-      recap += `<li>${driver}: ${points} points 🔥</li>`;
-    });
-    recap += `</ul>`;
+  if (!weekData) {
+    recapContainer.innerHTML = "<p>No data available for this week.</p>";
+    return;
   }
-  recap += `</div>`;
 
-  // Top Driver Performance
-  const allDriverPerformances = [];
+  // Get top team for the week
+  const topTeam = Object.entries(weekData.standings)
+    .sort((a, b) => b[1].total - a[1].total)[0];
+
+  // Find high-scoring drivers (over 30 points) or highest scoring driver
+  const highScoringDrivers = [];
+  Object.entries(topTeam[1].drivers).forEach(([driver, points]) => {
+    if (points >= 30 || points === Math.max(...Object.values(topTeam[1].drivers))) {
+      highScoringDrivers.push({ driver, points });
+    }
+  });
+
+  // Sort drivers by points
+  highScoringDrivers.sort((a, b) => b.points - a.points);
+
+  let recapText = `<h3>Race Recap: ${weekData.track}</h3>`;
+
+  // Top Team Section with emojis and styling
+  const teamImageName = topTeam[0].replace(/[^a-zA-Z0-9]/g, "_");
+  recapText += `
+    <div class="recap-section top-team" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+      <h4>🏆 Team of the Week 🎉</h4>
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <img 
+          src="https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/teams/${teamImageName}.png" 
+          alt="${topTeam[0]} Logo"
+          style="width: 150px; height: auto;"
+          onerror="this.src='https://via.placeholder.com/150'; this.onerror=null;"
+        />
+        <div>
+          <p style="font-size: 1.2em; margin-bottom: 10px;">
+            <strong>${topTeam[0]}</strong> with ${topTeam[1].total} points! 🌟
+          </p>
+          <p>Key performers:</p>
+          <ul style="list-style: none; padding-left: 0;">
+            ${highScoringDrivers.map(d => 
+              `<li>🏁 ${d.driver} (${d.points} points)</li>`
+            ).join('')}
+          </ul>
+        </div>
+      </div>
+    </div>`;
+
+  // Weekly Overview Section
+  recapText += `<div class="recap-section">
+    <h4>📊 Weekly Overview</h4>
+    <ul>
+      <li>Average Team Score: ${calculateAverageTeamScore(weekData.standings)} points</li>
+      <li>Teams Above Average: ${countTeamsAboveAverage(weekData.standings)}</li>
+      <li>Point Spread: ${calculatePointSpread(weekData.standings)} points</li>
+    </ul>
+  </div>`;
+
+  // Updated Driver of the Week section with narrative format
+  const driverOfTheWeek = calculateDriverOfTheWeek(weekData, selectedWeekNumber);
+  console.log('Full Driver of Week data:', driverOfTheWeek);
+
+  // Helper function to get finishing position
+  const getFinishPosition = (points) => {
+    // Use the basePoints directly for position lookup
+    const basePoints = driverOfTheWeek.basePoints;
+
+    console.log('Driver details:', {
+      driver: driverOfTheWeek.driver,
+      totalPoints: driverOfTheWeek.racePoints,
+      basePoints: basePoints,
+      stagePoints: driverOfTheWeek.details.stageWins,
+      qualifyingBonus: driverOfTheWeek.details.hadPole,
+      fastestLapBonus: driverOfTheWeek.details.hadFastestLap
+    });
+
+    const positionsMap = {
+      38: "1st",
+      34: "2nd",
+      33: "3rd",
+      32: "4th",
+      31: "5th",
+      30: "6th",
+      29: "7th",
+      28: "8th",
+      27: "9th",
+      26: "10th",
+      25: "11th",
+      24: "12th",
+      23: "13th",
+      22: "14th",
+      21: "15th",
+      20: "16th",
+      19: "17th",
+      18: "18th",
+      17: "19th",
+      16: "20th",
+      15: "21st",
+      14: "22nd",
+      13: "23rd",
+      12: "24th",
+      11: "25th",
+      10: "26th",
+      9: "27th",
+      8: "28th",
+      7: "29th",
+      6: "30th",
+      5: "31st",
+      4: "32nd",
+      3: "33rd",
+      2: "34th",
+      1: "35th"
+    };
+
+    return positionsMap[basePoints] || 'Unknown position';
+  };
+
+  // Build achievements list for Driver of the Week
+  let narrative = `${driverOfTheWeek.driver} finished ${getFinishPosition(driverOfTheWeek.racePoints)}`;
+
+  // Add stage wins
+  if (driverOfTheWeek.details.stageWins > 0) {
+    if (driverOfTheWeek.details.stageWins === 1) {
+      narrative += ", won Stage 1";
+    } else if (driverOfTheWeek.details.stageWins === 2) {
+      narrative += ", won both stages";
+    }
+  }
+
+  // Add pole and fastest lap
+  if (driverOfTheWeek.details.hadPole) {
+    narrative += ", started from pole";
+  }
+  if (driverOfTheWeek.details.hadFastestLap) {
+    narrative += ", set the fastest lap";
+  }
+
+  // Add performance vs average
+  const vsExpected = parseFloat(driverOfTheWeek.details.vsExpected);
+  if (vsExpected > 0) {
+    narrative += `, was ${vsExpected.toFixed(1)} points above average`;
+  }
+
+  // Add team contribution
+  narrative += `, and contributed ${driverOfTheWeek.details.teamContribution} of team points`;
+
+  // Format driver name for image URL - capitalize each word
+  const driverImageName = driverOfTheWeek.driver
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join('_')
+    .replace(/\./g, '')
+    .replace(/\s*(Jr|Sr|Iii|Ii|Iv)\s*$/i, '');
+
+  // Create image element with fetch
+  const imgElement = document.createElement('img');
+  imgElement.style.width = '150px';
+  imgElement.style.height = '150px';
+  imgElement.style.objectFit = 'cover';
+  imgElement.style.objectPosition = '50% 20%';
+  imgElement.style.border = '2px solid #ddd';
+  imgElement.alt = driverOfTheWeek.driver;
+
+  console.log('Trying to fetch image:', `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png`);
+
+  fetch(`https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png`)
+    .then(response => response.blob())
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      imgElement.src = url;
+    })
+    .catch(() => {
+      imgElement.src = 'path/to/default.png';
+    });
+
+
+  recapText += `
+    <div class="recap-section">
+      <h4>🏆 Driver of the Week</h4>
+      <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
+        <div id="driver-image-container"></div>
+        <div>
+          <p><strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})</p>
+          <p>${narrative}.</p>
+          <p style="
+            font-family: 'Impact', sans-serif; 
+            color: #1a1a1a; 
+            font-size: 1.2em; 
+            font-weight: bold;
+            margin-top: 10px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+          ">
+            Performance Score: ${driverOfTheWeek.totalScore.toFixed(1)}
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Top and Bottom Performers Section
+  const allDriversScores = [];
   Object.entries(weekData.standings).forEach(([team, data]) => {
     Object.entries(data.drivers).forEach(([driver, points]) => {
-      const expectedAvg = expectedDriverAverages[driver] || 15;
-      const performance = ((points - expectedAvg) / expectedAvg * 100).toFixed(1);
-      allDriverPerformances.push({ driver, points, performance: parseFloat(performance) });
+      allDriversScores.push({ team, driver, points });
     });
   });
 
-  const topDriver = allDriverPerformances.sort((a, b) => b.points - a.points)[0];
-  if (topDriver) {
-    recap += `<div class="top-driver-section">`;
-    recap += `<h4>🌟 Top Driver: ${topDriver.driver}</h4>`;
-    recap += `<p>Points: ${topDriver.points}</p>`;
-    recap += `<p>Performance: ${topDriver.performance > 0 ? '+' : ''}${topDriver.performance}% vs Expected</p>`;
-    recap += `</div>`;
+  const sortedDrivers = allDriversScores.sort((a, b) => b.points - a.points);
+  const topDrivers = sortedDrivers.slice(0, 3);
+  const bottomDrivers = sortedDrivers.filter(d => d.points > 0).slice(-3).reverse();
+
+  recapText += `<div class="recap-section">
+    <h4>🏆 Top Performers</h4>
+    <p><strong>${sortedDrivers[0].driver}</strong> led all drivers with ${sortedDrivers[0].points} points!</p>
+    <ul>`;
+  topDrivers.forEach(({ driver, team, points }) => {
+    recapText += `<li>${driver} (${team}) - ${points} points</li>`;
+  });
+  recapText += `</ul>`;
+
+  if (bottomDrivers.length > 0) {
+    recapText += `<h4>📉 Struggling Drivers</h4><ul>`;
+    bottomDrivers.forEach(({ driver, team, points }) => {
+      recapText += `<li>${driver} (${team}) - ${points} points</li>`;
+    });
+    recapText += `</ul>`;
   }
+  recapText += `</div>`;
 
-  // Best and Worst Performers
-  const bestPerformer = allDriverPerformances.sort((a, b) => b.performance - a.performance)[0];
-  const worstPerformer = allDriverPerformances.sort((a, b) => a.performance - b.performance)[0];
+  // Over/Under Performers (compared to previous races)
+  if (selectedWeekNumber > 1) {
+    const driverAverages = calculateDriverAverages(selectedWeekNumber - 1);
+    const performanceDeltas = [];
 
-  recap += `<div class="performance-section">`;
-  recap += `<h4>📈 Performance Analysis</h4>`;
-  recap += `<p>Overachiever: ${bestPerformer.driver} (${bestPerformer.performance > 0 ? '+' : ''}${bestPerformer.performance}%)</p>`;
-  recap += `<p>Underachiever: ${worstPerformer.driver} (${worstPerformer.performance > 0 ? '+' : ''}${worstPerformer.performance}%)</p>`;
-  recap += `</div>`;
-
-  // Hot and Cold Streaks
-  recap += `<div class="streaks-section">`;
-  recap += `<h4>🔥 Hot & Cold Streaks</h4>`;
-  
-  // Calculate streaks (last 3 races)
-  const streaks = calculateStreaks(selectedWeekNumber);
-  
-  if (streaks.hot.length > 0) {
-    recap += `<p>Hot Streak: ${streaks.hot.join(', ')} 🔥</p>`;
-  }
-  if (streaks.cold.length > 0) {
-    recap += `<p>Cold Streak: ${streaks.cold.join(', ')} ❄️</p>`;
-  }
-  
-  recap += `</div>`;
-  recap += `</div>`;
-
-  recapDiv.innerHTML = recap;
-}
-
-function calculateStreaks(currentWeek) {
-  const hot = [];
-  const cold = [];
-  const STREAK_THRESHOLD = 20; // Points above/below expected
-  const RACES_TO_CHECK = 3;
-
-  Object.entries(standingsData.teams).forEach(([team, teamData]) => {
-    teamData.drivers.forEach(driver => {
-      let recentPerformance = 0;
-      let racesChecked = 0;
-
-      // Check last 3 races
-      for (let week = currentWeek; week > currentWeek - RACES_TO_CHECK && week > 0; week--) {
-        const raceData = standingsData.weeks.find(w => w.week === week);
-        if (raceData && raceData.standings[team]?.drivers[driver]) {
-          const points = raceData.standings[team].drivers[driver];
-          const expected = expectedDriverAverages[driver] || 15;
-          recentPerformance += points - expected;
-          racesChecked++;
-        }
-      }
-
-      if (racesChecked >= 2) { // Need at least 2 races for a streak
-        const avgPerformance = recentPerformance / racesChecked;
-        if (avgPerformance >= STREAK_THRESHOLD) {
-          hot.push(driver);
-        } else if (avgPerformance <= -STREAK_THRESHOLD) {
-          cold.push(driver);
-        }
+    allDriversScores.forEach(({ driver, team, points }) => {
+      if (points > 0 && driverAverages[driver]) {
+        const delta = points - driverAverages[driver];
+        performanceDeltas.push({ driver, team, points, delta });
       }
     });
-  });
 
-  return { hot, cold };
+
+    const sortedDeltas = performanceDeltas.sort((a, b) => b.delta - a.delta);
+    const overAchiever = sortedDeltas[0];
+    const underPerformer = sortedDeltas[sortedDeltas.length - 1];
+
+    recapText += `<div class="recap-section">
+      <h4>📈 Performance vs Expected</h4>`;
+
+    if (overAchiever) {
+      recapText += `<p><strong>Over Achiever:</strong> ${overAchiever.driver} (${overAchiever.team})<br>
+        Scored ${overAchiever.points} points, ${overAchiever.delta.toFixed(1)} above their expected</p>`;
+    }
+
+    if (underPerformer) {
+      recapText += `<p><strong>Under Performer:</strong> ${underPerformer.driver} (${underPerformer.team})<br>
+        Scored ${underPerformer.points} points, ${Math.abs(underPerformer.delta).toFixed(1)} below their expected</p>`;
+    }
+    recapText += `</div>`;
+  }
+
+  // Championship Movement
+  if (selectedWeekNumber > 1) {
+    const previousStandings = calculateStandingsAfterWeek(selectedWeekNumber - 1);
+    const currentStandings = calculateStandingsAfterWeek(selectedWeekNumber);
+
+    const movements = calculatePositionChanges(previousStandings, currentStandings);
+    const significantMovements = movements.filter(m => m.positionChange !== 0);
+
+    if (significantMovements.length > 0) {
+      recapText += `<div class="recap-section">
+        <h4>🔄 Championship Movement</h4>
+        <ul>`;
+      significantMovements.forEach(({ team, positionChange }) => {
+        const direction = positionChange > 0 ? "up" : "down";
+        recapText += `<li>${team} moved ${direction} ${Math.abs(positionChange)} position${Math.abs(positionChange) > 1 ? 's' : ''}</li>`;
+      });
+      recapText += `</ul></div>`;
+    }
+  }
+
+  // Add Hot & Cold Streaks section
+  const streaks = checkStreaks(selectedWeekNumber);
+
+  if (streaks.hot.length > 0 || streaks.cold.length > 0) {
+    recapText += `
+      <div class="recap-section streaks" style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+        <h4>🔥 Hot & Cold Streaks ❄️</h4>
+        
+        ${streaks.hot.length > 0 ? `
+          <div class="hot-streaks" style="margin-bottom: 15px;">
+            <p style="color: #ff4d4d;"><strong>🔥 ON FIRE!</strong></p>
+            ${streaks.hot.map(streak => `
+              <div style="margin-left: 20px;">
+                ${streak.driver ? 
+                  `${streak.driver} (${streak.team})` : 
+                  `Team ${streak.team}`
+                }
+                <br>
+                <small style="color: #666;">
+                  ${streak.streak} races with 30+ points
+                  ${streak.lastScore ? ` - Latest: ${streak.lastScore} points` : ''}
+                </small>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+        
+        ${streaks.cold.length > 0 ? `
+          <div class="cold-streaks">
+            <p style="color: #4d79ff;"><strong>❄️ ICE COLD</strong></p>
+            ${streaks.cold.map(streak => `
+              <div style="margin-left: 20px;">
+                ${streak.driver ? 
+                  `${streak.driver} (${streak.team})` : 
+                  `Team ${streak.team}`
+                }
+                <br>
+                <small style="color: #666;">
+                  ${streak.streak} races under 10 points
+                  ${streak.lastScore ? ` - Latest: ${streak.lastScore} points` : ''}
+                </small>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  // Update the recap content
+  const recapContent = document.getElementById("weekly-recap");
+  if (recapContent) {
+    recapContent.innerHTML = recapText;
+
+    // Add the image after the HTML is updated
+    const container = document.getElementById('driver-image-container');
+    if (container) {
+      container.appendChild(imgElement);
+    }
+
+    updateTrackImage();
+  }
 }
+
 
 // Helper function to calculate standings after a specific week
 function calculateStandingsAfterWeek(weekNumber) {
   const totalPoints = {};
-  
+
   // Initialize total points for each team
   Object.keys(standingsData.teams).forEach(team => {
     totalPoints[team] = 0;
@@ -877,7 +1075,7 @@ function loadTeamPage() {
   // Populate track select dropdown
   if (trackSelect) {
     trackSelect.innerHTML = "";
-    
+
     // Add "All Races" option
     const allRacesOption = document.createElement("option");
     allRacesOption.value = "";
@@ -930,7 +1128,7 @@ function updateTeamRoster(selectedTeam, selectedTrackIndex) {
 
   teamRoster.innerHTML = "";
   const drivers = standingsData.teams[selectedTeam].drivers;
-  
+
   drivers.forEach(driver => {
     const row = document.createElement("tr");
     let points = 0;
@@ -1001,25 +1199,85 @@ function populateTeamDropdown() {
   loadTeamPage();
 }
 
+// Populate Week Dropdown
+function populateWeekDropdown() {
+  const weekSelect = document.getElementById("week-select");
+  if (!weekSelect) {
+    console.warn("Week select element not found");
+    return;
+  }
+
+  weekSelect.innerHTML = "";
+
+  // Add default option
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Select a Week";
+  weekSelect.appendChild(defaultOption);
+
+  let validWeeks = [];
+
+  if (standingsData.weeks && standingsData.weeks.length > 0) {
+    standingsData.weeks.forEach((week) => {
+      const hasValidPoints = Object.values(week.standings).some(teamData => 
+        teamData.total > 0
+      );
+
+      if (week && week.track && week.track.trim() !== "" && hasValidPoints) {
+        validWeeks.push(week);
+        const option = document.createElement("option");
+        option.value = week.week;
+        option.textContent = `Week ${week.week} - ${week.track}`;
+        weekSelect.appendChild(option);
+      }
+    });
+
+    // Find the last week with valid points
+    const lastValidWeek = validWeeks[validWeeks.length - 1];
+
+    if (lastValidWeek) {
+      weekSelect.value = lastValidWeek.week;
+      loadWeeklyStandings();
+    }
+  }
+
+  weekSelect.addEventListener("change", loadWeeklyStandings);
+}
+
+// Add this function to handle track images
+function updateTrackImage() {
+  const weekSelect = document.getElementById("week-select");
+  const trackImage = document.getElementById("track-image");
+
+  if (!trackImage || !weekSelect.value) return;
+
+  const selectedWeek = standingsData.weeks.find(week => week.week === parseInt(weekSelect.value, 10));
+  if (selectedWeek && selectedWeek.track) {
+    const trackName = selectedWeek.track.replace(/[^a-zA-Z0-9]/g, '_');
+    const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
+    trackImage.src = trackImageUrl;
+    trackImage.alt = `${selectedWeek.track} Track`;
+    trackImage.onerror = function() {
+      this.src = "https://via.placeholder.com/200";
+    };
+  }
+}
+
 // Open Tabs (for switching between pages/sections)
 function openTab(tabName) {
-  console.log("Opening tab:", tabName);
   const tabcontents = document.querySelectorAll(".tabcontent");
   const tablinks = document.querySelectorAll(".tablink");
 
   tabcontents.forEach(tab => tab.style.display = "none");
   tablinks.forEach(link => link.classList.remove("active"));
 
-  const selectedTab = document.getElementById(tabName);
-  if (selectedTab) {
-    selectedTab.style.display = "block";
-    const tabButton = document.querySelector(`[onclick="openTab('${tabName}')"]`);
-    if (tabButton) {
-      tabButton.classList.add("active");
-    }
-  }
+  document.getElementById(tabName).style.display = "block";
+  document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
 
-  if (tabName === "teams") {
+  if (tabName === "weekly") {
+    populateWeekDropdown();
+    loadWeeklyStandings();
+  } else if (tabName === "teams") {
     populateTeamDropdown();
     loadTeamPage();
   }
@@ -1028,50 +1286,11 @@ function openTab(tabName) {
 // Initialize the Page after data is loaded
 function init() {
   if (isDataLoaded) {
-    console.log("Initializing with loaded data...");
-    
-    // First make sure the weekly tab is visible
-    const weeklyTab = document.getElementById('weekly');
-    if (weeklyTab) {
-      weeklyTab.style.display = 'block';
-      
-      // Then initialize components after the tab is visible
-      setTimeout(() => {
-        console.log("Loading components...");
-        
-        // Create weekly recap div if it doesn't exist
-        let recapDiv = document.getElementById("weekly-recap");
-        if (!recapDiv) {
-          recapDiv = document.createElement("div");
-          recapDiv.id = "weekly-recap";
-          const weeklyStandings = document.getElementById("weekly-standings");
-          if (weeklyStandings) {
-            weeklyStandings.parentNode.insertBefore(recapDiv, weeklyStandings.nextSibling);
-          }
-        }
-        
-        // Verify weekly table exists
-        const weeklyTable = document.querySelector("#weekly-standings tbody");
-        if (!weeklyTable) {
-          // Create tbody if it doesn't exist
-          const table = document.getElementById('weekly-standings');
-          if (table) {
-            const tbody = document.createElement('tbody');
-            table.appendChild(tbody);
-          }
-        }
-        
-        loadOverallStandings();
-        populateWeekDropdown();
-        loadWeeklyStandings();
-        createLiveNewsTicker();
-        
-        // Finally, open the weekly tab
-        openTab('weekly');
-      }, 200);
-    } else {
-      console.error("Weekly tab not found");
-    }
+    loadOverallStandings();
+    loadWeeklyStandings();
+    createLiveNewsTicker();
+    // Open weekly tab by default
+    openTab('weekly');
   }
 }
 
@@ -1080,6 +1299,17 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log("DOM loaded, fetching data...");
   fetchDataFromGoogleSheets();
 });
+
+window.onload = () => {
+  console.log("Window loaded, checking data...");
+  if (isDataLoaded) {
+    loadOverallStandings();
+    loadWeeklyStandings();
+    createLiveNewsTicker();
+    // Open weekly tab by default
+    openTab('weekly');
+  }
+};
 
 // Add this function to fetch and display real NASCAR news
 async function createLiveNewsTicker() {
@@ -1127,15 +1357,15 @@ async function createLiveNewsTicker() {
   try {
     const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.motorsport.com%2Frss%2Fnascar-cup%2Fnews%2F&api_key=ooehn6ytnuvjctk6a9olwn5gjxf16e7gillph6jt&order_dir=desc&count=8');
     const data = await response.json();
-    
+
     if (data && data.items && data.items.length > 0) {
       const ticker = document.createElement('div');
       ticker.id = 'news-ticker';
-      
+
       const newsText = data.items
         .map(item => `<a href="${item.link}" target="_blank" style="color: black; text-decoration: none; font-weight: bold;">${item.title}</a>`)
         .join(' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ');
-      
+
       ticker.innerHTML = newsText + ' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ';
       tickerContainer.appendChild(ticker);
     }
@@ -1162,7 +1392,4 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
-
-
-
 
