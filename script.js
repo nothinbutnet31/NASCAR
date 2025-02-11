@@ -206,13 +206,13 @@ function loadOverallStandings() {
   const sortedTeams = Object.entries(totalPoints)
     .sort((a, b) => b[1] - a[1]);
 
-  // Add rows to standings table with correct column order
+  // Add rows to standings table with correct column order and alignment
   sortedTeams.forEach(([team, points], index) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${team}</td>
-      <td>${index + 1}</td>
-      <td>${points}</td>
+      <td style="text-align: center;">${team}</td>
+      <td style="text-align: center;">${index + 1}</td>
+      <td style="text-align: center;">${points}</td>
     `;
     overallTable.appendChild(row);
   });
