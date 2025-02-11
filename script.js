@@ -1301,7 +1301,7 @@ async function createLiveNewsTicker() {
 
   try {
     // Use NASCAR's official API
-    const response = await fetch('https://www.nascar.com/wp-json/wp/v2/posts?per_page=5');
+    const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.motorsport.com%2Frss%2Fnascar-cup%2Fnews%2F&api_key=ooehn6ytnuvjctk6a9olwn5gjxf16e7gillph6jt&order_dir=desc&count=5);
     const data = await response.json();
     
     if (data && data.length > 0) {
