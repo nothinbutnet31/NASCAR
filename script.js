@@ -182,7 +182,15 @@ function processRaceData(data) {
 
 // Load Overall Standings
 function loadOverallStandings() {
+  console.log("Loading overall standings...");
   const overallTable = document.querySelector("#overall-standings tbody");
+  
+  if (!overallTable) {
+    console.error("Could not find overall standings table");
+    return;
+  }
+  
+  console.log("Found table, clearing contents...");
   overallTable.innerHTML = "";
 
   // Add CSS if it doesn't exist
@@ -227,20 +235,34 @@ function loadOverallStandings() {
   // Calculate total points for each team
   const totalPoints = {};
   
+  console.log("Teams data:", standingsData.teams);
+  
+  if (!standingsData || !standingsData.teams) {
+    console.error("No standings data available");
+    return;
+  }
+
   Object.keys(standingsData.teams).forEach(team => {
     totalPoints[team] = 0;
   });
 
-  standingsData.weeks.forEach(week => {
-    Object.entries(week.standings).forEach(([team, data]) => {
-      if (data && data.total) {
-        totalPoints[team] = (totalPoints[team] || 0) + data.total;
-      }
+  console.log("Processing weekly data...");
+  if (standingsData.weeks) {
+    standingsData.weeks.forEach(week => {
+      Object.entries(week.standings).forEach(([team, data]) => {
+        if (data && data.total) {
+          totalPoints[team] = (totalPoints[team] || 0) + data.total;
+        }
+      });
     });
-  });
+  }
+
+  console.log("Total points calculated:", totalPoints);
 
   const sortedTeams = Object.entries(totalPoints)
     .sort((a, b) => b[1] - a[1]);
+
+  console.log("Sorted teams:", sortedTeams);
 
   sortedTeams.forEach(([team, points], index) => {
     const row = document.createElement("tr");
@@ -251,6 +273,8 @@ function loadOverallStandings() {
     `;
     overallTable.appendChild(row);
   });
+  
+  console.log("Finished loading standings");
 }
 
 // Load Weekly Standings
@@ -1210,20 +1234,21 @@ function openTab(tabName) {
 
 // Initialize the Page after data is loaded
 function init() {
+  console.log("Init called, isDataLoaded:", isDataLoaded);
   if (isDataLoaded) {
-    loadWeeklyStandings();
+    loadOverallStandings();
   }
 }
 
 // Start when page loads
 document.addEventListener('DOMContentLoaded', () => {
+  console.log("DOM loaded, fetching data...");
   fetchDataFromGoogleSheets();
 });
 
-// Make sure window.onload is properly set
 window.onload = () => {
-  console.log("Window loaded, fetching data...");
-  fetchDataFromGoogleSheets();
+  console.log("Window loaded, checking data...");
+  if (isDataLoaded) {
+    loadOverallStandings();
+  }
 };
-
-
