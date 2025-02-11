@@ -1568,18 +1568,42 @@ function animateWeek() {
 function updateCarPositions(weekData) {
   if (!weekData || !weekData.standings) return;
   
-  const maxPoints = Math.max(...Object.values(weekData.standings).map(data => data.total));
-  const containerWidth = document.querySelector('#overall-standings').offsetWidth - 100;
+  const radius = 300;
+  const trackWidth = 800;
+  const trackHeight = 600;
   
-  Object.entries(weekData.standings)
-    .sort((a, b) => b[1].total - a[1].total)
-    .forEach(([team, data], index) => {
-      const car = document.getElementById(`car-${team}`);
-      if (car) {
-        const verticalPosition = 40 + (index * 60);
-        const horizontalPosition = ((data.total / maxPoints) * containerWidth);
-        car.style.left = `${horizontalPosition}px`;
-        car.style.top = `${verticalPosition}px`;
-      }
-    });
+  const steps = 50;
+  let step = 0;
+  
+  const animate = () => {
+    if (step <= steps && isAnimating) {
+      const progress = step / steps;
+      const angle = progress * Math.PI;
+      
+      Object.entries(weekData.standings)
+        .sort((a, b) => b[1].total - a[1].total)
+        .forEach(([team, data], index) => {
+          const car = document.getElementById(`car-${team}`);
+          if (car) {
+            // Calculate wider oval path
+            const x = radius * Math.cos(angle) + trackWidth/2;
+            const y = (radius/2) * Math.sin(angle) + trackHeight/2;
+            const rotation = (angle * (180/Math.PI) + 180) % 360;
+            
+            // Offset each car slightly based on position
+            const offset = index * 20;
+            const offsetX = x + (Math.cos(angle) * offset);
+            const offsetY = y + (Math.sin(angle) * offset);
+            
+            car.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg)`;
+            console.log(`Car ${team}: x=${offsetX}, y=${offsetY}, rotation=${rotation}`);
+          }
+        });
+      
+      step++;
+      requestAnimationFrame(animate);
+    }
+  };
+  
+  animate();
 }
