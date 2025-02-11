@@ -1609,44 +1609,104 @@ function updateCarPositions(weekData) {
 }
 
 function createCars() {
-  const trackContainer = document.getElementById('overall-standings');
-  if (!trackContainer) return;
+  const trackContainer = document.getElementById('track-container');
+  if (!trackContainer) {
+    // Create track container if it doesn't exist
+    const container = document.createElement('div');
+    container.id = 'track-container';
+    container.style.cssText = `
+      position: relative;
+      width: 1600px;
+      height: 1200px;
+      margin: 20px auto;
+      border: 2px solid #333;
+      overflow: hidden;
+    `;
+    document.body.appendChild(container);
+  }
   
-  // Clear existing cars
-  trackContainer.innerHTML = '';
-  
-  // Create cars for each team
+  // Create cars
   Object.entries(standingsData.teams).forEach(([team, data], index) => {
     const car = document.createElement('div');
     car.id = `car-${team}`;
     car.className = 'car';
+    car.innerHTML = team[0]; // First letter of team name
     car.style.cssText = `
       position: absolute;
-      width: 40px;
-      height: 20px;
+      width: 30px;
+      height: 15px;
       background-color: ${getTeamColor(team)};
-      border-radius: 5px;
-      transform-origin: center;
+      color: white;
+      text-align: center;
+      line-height: 15px;
+      font-size: 12px;
+      font-weight: bold;
+      border-radius: 3px;
+      transition: transform 0.1s linear;
       z-index: 100;
     `;
-    
-    // Add car number
-    car.innerHTML = `
-      <div style="
-        position: absolute;
-        width: 100%;
-        text-align: center;
-        color: white;
-        font-weight: bold;
-        font-size: 12px;
-      ">${index + 1}</div>
-    `;
-    
-    trackContainer.appendChild(car);
+    document.getElementById('track-container').appendChild(car);
   });
 }
 
-// Add this helper function for team colors
+function moveCarOnTrack(car, progress, lane) {
+  const trackWidth = 1600;
+  const trackHeight = 1200;
+  const laneOffset = lane * 30;
+  
+  // Calculate position on oval track
+  let x, y;
+  
+  if (progress <= 0.25) { // Top straight
+    x = trackWidth * (0.75 - progress);
+    y = laneOffset;
+  } else if (progress <= 0.5) { // Left turn
+    const angle = (progress - 0.25) * 2 * Math.PI;
+    x = laneOffset;
+    y = trackHeight * (progress - 0.25);
+  } else if (progress <= 0.75) { // Bottom straight
+    x = trackWidth * (progress - 0.5);
+    y = trackHeight - laneOffset;
+  } else { // Right turn
+    const angle = (progress - 0.75) * 2 * Math.PI;
+    x = trackWidth - laneOffset;
+    y = trackHeight * (1 - (progress - 0.75));
+  }
+  
+  car.style.transform = `translate(${x}px, ${y}px)`;
+}
+
+function animateRace() {
+  let progress = 0;
+  const cars = document.querySelectorAll('.car');
+  
+  function animate() {
+    progress += 0.002; // Slower movement
+    
+    cars.forEach((car, index) => {
+      // Offset each car's progress slightly based on position
+      const carProgress = (progress + (index * 0.02)) % 1;
+      moveCarOnTrack(car, carProgress, index);
+    });
+    
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    }
+  }
+  
+  animate();
+}
+
+// Initialize everything
+function init() {
+  createCars();
+  setTimeout(animateRace, 1000); // Start race after 1 second
+}
+
+// Start when page loads
+document.addEventListener('DOMContentLoaded', init);
+
+// Team colors function
 function getTeamColor(team) {
   const colors = {
     'Midge': '#FF0000',    // Red
@@ -1657,14 +1717,4 @@ function getTeamColor(team) {
     'Edmund': '#00FFFF'    // Cyan
   };
   return colors[team] || '#FFFFFF';
-}
-
-// Call createCars before starting animation
-function animateWeek() {
-  if (!isAnimating) return;
-  
-  // Create cars if they don't exist
-  createCars();
-  
-  // Rest of your existing animateWeek code...
 }
