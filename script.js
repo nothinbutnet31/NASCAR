@@ -1472,37 +1472,47 @@ function createRaceCars() {
 
 // Add this function to calculate car positions around the oval
 function calculateCarPosition(progress, lane) {
-  const radius = 35; // % of container height
-  const centerX = 50; // % of container width
-  const centerY = 50; // % of container height
-  const trackWidth = 40; // % of container width
-  const trackHeight = 35; // % of container height
-  const laneOffset = lane * 3; // Increase lane spacing
+  // Track dimensions as percentages of container
+  const trackWidth = 80;  // 80% of container width
+  const trackHeight = 70; // 70% of container height
+  const margin = 10;      // 10% margin from edges
   
-  // Adjust progress to determine position on track (0 to 1)
+  // Calculate center point
+  const centerX = margin + (trackWidth / 2);
+  const centerY = margin + (trackHeight / 2);
+  
+  // Calculate lane offset (move cars slightly based on their position)
+  const laneOffset = lane * 2;
+  
   let x, y, rotation;
   
   if (progress <= 0.25) { // Top straight
-    x = centerX + trackWidth * (0.5 - 2 * progress);
-    y = centerY - trackHeight - laneOffset;
+    x = centerX + (trackWidth/2) * (1 - 4 * progress);
+    y = margin + laneOffset;
     rotation = 180;
   } else if (progress <= 0.5) { // Left turn
     const turnProgress = (progress - 0.25) * 4;
-    x = centerX - trackWidth/2;
-    y = centerY - trackHeight + (2 * trackHeight * turnProgress);
-    rotation = 180 + 180 * turnProgress;
+    const angle = turnProgress * Math.PI;
+    x = margin + laneOffset;
+    y = centerY - (trackHeight/2) * Math.cos(angle);
+    rotation = 180 + (turnProgress * 180);
   } else if (progress <= 0.75) { // Bottom straight
-    x = centerX - trackWidth * (0.5 - 2 * (progress - 0.5));
-    y = centerY + trackHeight + laneOffset;
+    x = centerX - (trackWidth/2) * (1 - 4 * (progress - 0.5));
+    y = margin + trackHeight - laneOffset;
     rotation = 0;
   } else { // Right turn
     const turnProgress = (progress - 0.75) * 4;
-    x = centerX + trackWidth/2;
-    y = centerY + trackHeight - (2 * trackHeight * turnProgress);
-    rotation = 0 + 180 * turnProgress;
+    const angle = turnProgress * Math.PI;
+    x = margin + trackWidth - laneOffset;
+    y = centerY + (trackHeight/2) * Math.cos(angle);
+    rotation = turnProgress * 180;
   }
   
-  return { x, y, rotation };
+  return {
+    x: x,
+    y: y,
+    rotation: rotation
+  };
 }
 
 // Update the animation function in loadOverallStandings
