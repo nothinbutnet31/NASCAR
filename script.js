@@ -286,19 +286,23 @@ function loadWeeklyStandings() {
       text-align: center;
       margin: 20px 0;
     `;
-    const trackImage = document.createElement("img");
-    trackImage.id = "track-image";
-    trackImage.style.cssText = `
-      max-width: 300px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    `;
-    trackImageContainer.appendChild(trackImage);
-    
     // Insert after weekly standings table
     const weeklyStandings = document.getElementById("weekly-standings");
     weeklyStandings.parentNode.insertBefore(trackImageContainer, weeklyStandings.nextSibling);
   }
+
+  // Always create a new image element
+  trackImageContainer.innerHTML = ''; // Clear existing content
+  const trackImage = document.createElement("img");
+  trackImage.id = "track-image";
+  trackImage.style.cssText = `
+    max-width: 300px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    display: block;
+    margin: 0 auto;
+  `;
+  trackImageContainer.appendChild(trackImage);
 
   const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
 
@@ -317,29 +321,37 @@ function loadWeeklyStandings() {
     });
 
     // Update track image
-    const trackImage = document.getElementById("track-image");
-    if (trackImage && weekData.track) {
+    if (weekData.track) {
       const trackName = weekData.track.replace(/[^a-zA-Z0-9]/g, '_');
+      console.log('Loading track image for:', trackName);
       trackImage.src = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
       trackImage.alt = `${weekData.track} Track`;
       trackImage.onerror = function() {
+        console.log('Error loading track image:', trackName);
         this.src = "https://via.placeholder.com/300x200?text=Track+Image+Not+Found";
       };
-      
-      // Make sure the image is visible
-      trackImage.style.display = 'block';
-      console.log("Loading track image:", trackName); // Debug log
+      trackImage.onload = function() {
+        console.log('Track image loaded successfully:', trackName);
+      };
     }
 
     generateWeeklyRecap();
   }
 }
 
-// Add event listener for week selection changes
-document.getElementById("week-select").addEventListener("change", function() {
-  loadWeeklyStandings();
-  console.log("Week selection changed"); // Debug log
-});
+// Make sure to remove any duplicate event listeners
+const weekSelect = document.getElementById("week-select");
+if (weekSelect) {
+  // Remove existing listeners
+  const newWeekSelect = weekSelect.cloneNode(true);
+  weekSelect.parentNode.replaceChild(newWeekSelect, weekSelect);
+  
+  // Add new listener
+  newWeekSelect.addEventListener("change", function() {
+    console.log("Week selection changed");
+    loadWeeklyStandings();
+  });
+}
 
 // Modify the calculateDriverAverages function
 function calculateDriverAverages(weekNumber) {
@@ -768,7 +780,6 @@ function generateWeeklyRecap() {
     Object.entries(data.drivers).forEach(([driver, points]) => {
       allDriversScores.push({ team, driver, points });
     });
-  });
    
   const sortedDrivers = allDriversScores.sort((a, b) => b.points - a.points);
   const topDrivers = sortedDrivers.slice(0, 3);
@@ -1372,6 +1383,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
