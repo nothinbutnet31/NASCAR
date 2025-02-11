@@ -190,6 +190,32 @@ function loadOverallStandings() {
     const styles = document.createElement('style');
     styles.id = 'standings-styles';
     styles.innerHTML = `
+      #overall-standings {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+      
+      #overall-standings th,
+      #overall-standings td {
+        text-align: center !important;
+        padding: 10px;
+        border: 1px solid #ddd;
+      }
+      
+      #overall-standings th {
+        background-color: #f5f5f5;
+        font-weight: bold;
+      }
+      
+      #overall-standings tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+      
+      #overall-standings tr:hover {
+        background-color: #f0f0f0;
+      }
+      
       .standings-cell {
         text-align: center !important;
         vertical-align: middle !important;
@@ -219,9 +245,9 @@ function loadOverallStandings() {
   sortedTeams.forEach(([team, points], index) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td class="standings-cell" style="text-align: center !important;">${index + 1}</td>
-      <td class="standings-cell" style="text-align: center !important;">${team}</td>
-      <td class="standings-cell" style="text-align: center !important;">${points}</td>
+      <td class="standings-cell">${index + 1}</td>
+      <td class="standings-cell">${team}</td>
+      <td class="standings-cell">${points}</td>
     `;
     overallTable.appendChild(row);
   });
