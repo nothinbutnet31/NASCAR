@@ -186,14 +186,16 @@ function loadOverallStandings() {
   overallTable.innerHTML = "";
 
   const totalPoints = {};
-  const weeklyPoints = standingsData.weeks.map(week => {
-    const points = {};
-    Object.entries(week.standings).forEach(([team, data]) => {
-      points[team] = (points[team] || 0) + data.total;
-      totalPoints[team] = (totalPoints[team] || 0) + data.total;
+  const weeklyPoints = standingsData.weeks
+    .filter(week => Object.values(week.standings).some(data => data.total > 0)) // Only include weeks with points
+    .map(week => {
+      const points = {};
+      Object.entries(week.standings).forEach(([team, data]) => {
+        points[team] = (points[team] || 0) + data.total;
+        totalPoints[team] = (totalPoints[team] || 0) + data.total;
+      });
+      return points;
     });
-    return points;
-  });
 
   // Sort teams by final points
   const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
@@ -233,7 +235,10 @@ function loadOverallStandings() {
 
       // Update lap counter
       if (weekIndex < weeklyPoints.length) {
-        const week = standingsData.weeks[weekIndex];
+        const completedWeeks = standingsData.weeks.filter(week => 
+          Object.values(week.standings).some(data => data.total > 0)
+        );
+        const week = completedWeeks[weekIndex];
         lapCounter.innerHTML = `
           <div>Lap ${weekIndex + 1}</div>
           <div style="font-size: 14px;">${week.track}</div>
@@ -253,7 +258,7 @@ function loadOverallStandings() {
       });
 
       weekIndex++;
-      setTimeout(animateWeek, 200); // Sped up to 200ms per week
+      setTimeout(animateWeek, 300); // Slowed down to 300ms per week
     }
   };
 
