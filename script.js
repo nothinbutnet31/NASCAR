@@ -204,7 +204,7 @@ function loadOverallStandings() {
       }
       
       #overall-standings th {
-        background-color: #ff0000;
+        background-color: #E53935;
         font-weight: bold;
       }
       
@@ -1227,7 +1227,7 @@ function openTab(tabName) {
 // Initialize the Page after data is loaded
 function init() {
   if (isDataLoaded) {
-    loadOverallStandings();
+    loadWeeklyStandings();
   }
 }
 
