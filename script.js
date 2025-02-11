@@ -103,7 +103,14 @@ async function fetchDataFromGoogleSheets() {
     console.log("Raw data from sheets:", data.values);
     processRaceData(data.values);
     isDataLoaded = true;
-    init();
+    
+    // Wait for DOM to be ready before initializing
+    if (document.readyState === 'complete') {
+      init();
+    } else {
+      window.addEventListener('load', init);
+    }
+    
   } catch (error) {
     console.error("Error fetching data:", error);
     document.body.innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
@@ -1248,11 +1255,17 @@ function openTab(tabName) {
 // Initialize the Page after data is loaded
 function init() {
   if (isDataLoaded) {
-    loadOverallStandings();
-    loadWeeklyStandings();
-    createLiveNewsTicker();
-    // Open weekly tab by default
-    openTab('weekly');
+    // Make sure elements exist before trying to access them
+    const weeklyTable = document.querySelector("#weekly-standings tbody");
+    if (weeklyTable) {
+      loadOverallStandings();
+      loadWeeklyStandings();
+      createLiveNewsTicker();
+      // Open weekly tab by default
+      openTab('weekly');
+    } else {
+      console.error("Weekly standings table not found");
+    }
   }
 }
 
@@ -1261,17 +1274,6 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log("DOM loaded, fetching data...");
   fetchDataFromGoogleSheets();
 });
-
-window.onload = () => {
-  console.log("Window loaded, checking data...");
-  if (isDataLoaded) {
-    loadOverallStandings();
-    loadWeeklyStandings();
-    createLiveNewsTicker();
-    // Open weekly tab by default
-    openTab('weekly');
-  }
-};
 
 // Add this function to fetch and display real NASCAR news
 async function createLiveNewsTicker() {
@@ -1354,7 +1356,4 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
-
-
-
 
