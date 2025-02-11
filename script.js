@@ -204,12 +204,12 @@ function loadOverallStandings() {
       }
       
       #overall-standings th {
-        background-color: #f5f5f5;
+        background-color: #ff0000;
         font-weight: bold;
       }
       
       #overall-standings tr:nth-child(even) {
-        background-color: #ff0000;
+        background-color: #f9f9f9;
       }
       
       #overall-standings tr:hover {
