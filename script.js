@@ -1569,9 +1569,9 @@ function animateWeek() {
 function updateCarPositions(weekData) {
   if (!weekData || !weekData.standings) return;
   
-  const radius = 800; // Much larger radius
-  const trackWidth = 1600; // Wider track
-  const trackHeight = 1200; // Taller track
+  const trackWidth = 1600;  // Keep track size the same
+  const trackHeight = 1200;
+  const pathScale = 5;  // Scale factor for the car path
   
   const steps = 50;
   let step = 0;
@@ -1579,22 +1579,22 @@ function updateCarPositions(weekData) {
   const animate = () => {
     if (step <= steps && isAnimating) {
       const progress = step / steps;
-      const angle = progress * 2 * Math.PI; // Full 360-degree rotation
+      const angle = progress * 2 * Math.PI;
       
       Object.entries(weekData.standings)
         .sort((a, b) => b[1].total - a[1].total)
         .forEach(([team, data], index) => {
           const car = document.getElementById(`car-${team}`);
           if (car) {
-            // Calculate wider oval path
-            const x = radius * Math.cos(angle) + trackWidth/2;
-            const y = (radius/2) * Math.sin(angle) + trackHeight/2;
+            // Calculate path with scaled movement
+            const x = (trackWidth/4 * Math.cos(angle) * pathScale) + trackWidth/2;
+            const y = (trackHeight/4 * Math.sin(angle) * pathScale) + trackHeight/2;
             
-            // Adjust rotation to start at 90 degrees (pointing right)
-            const rotation = (angle * (180/Math.PI) + 90) % 360;
+            // Keep cars horizontal
+            const rotation = 0;
             
             // Offset each car slightly based on position
-            const offset = index * 40; // Increased spacing between cars
+            const offset = index * 40;
             const offsetX = x + (Math.cos(angle) * offset);
             const offsetY = y + (Math.sin(angle) * offset);
             
