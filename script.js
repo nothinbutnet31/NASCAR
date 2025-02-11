@@ -1300,17 +1300,17 @@ async function createLiveNewsTicker() {
   document.head.appendChild(styleSheet);
 
   try {
-    // Use a CORS proxy to fetch NASCAR news
-    const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.nascar.com%2Frss%2Fheadlines%2F');
+    // Use NASCAR's official API
+    const response = await fetch('https://www.nascar.com/wp-json/wp/v2/posts?per_page=5');
     const data = await response.json();
     
-    if (data.items && data.items.length > 0) {
+    if (data && data.length > 0) {
       const ticker = document.createElement('div');
       ticker.id = 'news-ticker';
       
       // Create news items string
-      const newsText = data.items
-        .map(item => `<a href="${item.link}" target="_blank" style="color: white; text-decoration: none;">${item.title}</a>`)
+      const newsText = data
+        .map(item => `<a href="${item.link}" target="_blank" style="color: white; text-decoration: none;">${item.title.rendered}</a>`)
         .join(' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ');
       
       ticker.innerHTML = newsText + ' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ';
@@ -1318,7 +1318,15 @@ async function createLiveNewsTicker() {
     }
   } catch (error) {
     console.error('Error fetching NASCAR news:', error);
-    tickerContainer.innerHTML = '<div style="text-align: center;">Unable to load NASCAR news</div>';
+    // Fallback to static news if API fails
+    const ticker = document.createElement('div');
+    ticker.id = 'news-ticker';
+    ticker.innerHTML = `
+      <span style="color: white;">
+        NASCAR News Loading... Please check back in a moment...
+      </span>
+    `;
+    tickerContainer.appendChild(ticker);
   }
 
   document.body.insertBefore(tickerContainer, document.body.firstChild);
@@ -1332,3 +1340,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
+
+
+
