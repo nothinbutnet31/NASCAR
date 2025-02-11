@@ -277,6 +277,29 @@ function loadWeeklyStandings() {
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   weeklyTable.innerHTML = "";
 
+  // Create or get track image container
+  let trackImageContainer = document.getElementById("track-image-container");
+  if (!trackImageContainer) {
+    trackImageContainer = document.createElement("div");
+    trackImageContainer.id = "track-image-container";
+    trackImageContainer.style.cssText = `
+      text-align: center;
+      margin: 20px 0;
+    `;
+    const trackImage = document.createElement("img");
+    trackImage.id = "track-image";
+    trackImage.style.cssText = `
+      max-width: 300px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    `;
+    trackImageContainer.appendChild(trackImage);
+    
+    // Insert after weekly standings table
+    const weeklyStandings = document.getElementById("weekly-standings");
+    weeklyStandings.parentNode.insertBefore(trackImageContainer, weeklyStandings.nextSibling);
+  }
+
   const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
 
   if (weekData) {
@@ -293,10 +316,19 @@ function loadWeeklyStandings() {
       weeklyTable.appendChild(row);
     });
 
+    // Update track image
+    const trackImage = document.getElementById("track-image");
+    if (trackImage && weekData.track) {
+      const trackName = weekData.track.replace(/[^a-zA-Z0-9]/g, '_');
+      trackImage.src = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
+      trackImage.alt = `${weekData.track} Track`;
+      trackImage.onerror = function() {
+        this.src = "https://via.placeholder.com/300x200?text=Track+Image+Not+Found";
+      };
+    }
+
     generateWeeklyRecap();
   }
-
-  updateTrackImage();
 }
 
 // Modify the calculateDriverAverages function
@@ -1157,7 +1189,6 @@ function populateWeekDropdown() {
 
   if (standingsData.weeks && standingsData.weeks.length > 0) {
     standingsData.weeks.forEach((week) => {
-      // Check if the week has any valid points
       const hasValidPoints = Object.values(week.standings).some(teamData => 
         teamData.total > 0
       );
@@ -1177,15 +1208,10 @@ function populateWeekDropdown() {
     if (lastValidWeek) {
       weekSelect.value = lastValidWeek.week;
       loadWeeklyStandings();
-      updateTrackImage();
     }
   }
 
-  weekSelect.addEventListener("change", () => {
-    loadWeeklyStandings();
-    generateWeeklyRecap();
-    updateTrackImage();
-  });
+  weekSelect.addEventListener("change", loadWeeklyStandings);
 }
 
 // Add this function to handle track images
