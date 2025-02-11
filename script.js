@@ -277,44 +277,9 @@ function loadWeeklyStandings() {
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   weeklyTable.innerHTML = "";
 
-  // Create or get track image container
-  let trackImageContainer = document.getElementById("track-image-container");
-  if (!trackImageContainer) {
-    trackImageContainer = document.createElement("div");
-    trackImageContainer.id = "track-image-container";
-    trackImageContainer.style.cssText = `
-      text-align: center;
-      margin: 20px 0;
-    `;
-    // Insert after weekly standings table
-    const weeklyStandings = document.getElementById("weekly-standings");
-    weeklyStandings.parentNode.insertBefore(trackImageContainer, weeklyStandings.nextSibling);
-  }
-  // Always create a new image element
-  trackImageContainer.innerHTML = ''; // Clear existing content
-  const trackImage = document.createElement("img");
-  trackImage.id = "track-image";
-  trackImage.style.cssText = `
-    max-width: 300px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    display: block;
-    margin: 0 auto;
-  `;
-  trackImageContainer.appendChild(trackImage);
   const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
 
   if (weekData) {
-    // Update track image
-    const trackImage = document.getElementById("weekly-track-image");
-    if (trackImage && weekData.track) {
-      const trackName = weekData.track.replace(/[^a-zA-Z0-9]/g, '_');
-      trackImage.src = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
-      trackImage.alt = `${weekData.track} Track`;
-      trackImage.onerror = function() {
-        this.src = "https://via.placeholder.com/200x200?text=Track+Image+Not+Found";
-      };
-    }
     const sortedStandings = Object.entries(weekData.standings)
       .sort((a, b) => b[1].total - a[1].total);
 
@@ -328,36 +293,10 @@ function loadWeeklyStandings() {
       weeklyTable.appendChild(row);
     });
 
-    // Update track image
-    if (weekData.track) {
-      const trackName = weekData.track.replace(/[^a-zA-Z0-9]/g, '_');
-      console.log('Loading track image for:', trackName);
-      trackImage.src = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
-      trackImage.alt = `${weekData.track} Track`;
-      trackImage.onerror = function() {
-        console.log('Error loading track image:', trackName);
-        this.src = "https://via.placeholder.com/300x200?text=Track+Image+Not+Found";
-      };
-      trackImage.onload = function() {
-        console.log('Track image loaded successfully:', trackName);
-      };
-    }
     generateWeeklyRecap();
   }
-}
 
-// Make sure to remove any duplicate event listeners
-const weekSelect = document.getElementById("week-select");
-if (weekSelect) {
-  // Remove existing listeners
-  const newWeekSelect = weekSelect.cloneNode(true);
-  weekSelect.parentNode.replaceChild(newWeekSelect, weekSelect);
-
-  // Add new listener
-  newWeekSelect.addEventListener("change", function() {
-    console.log("Week selection changed");
-    loadWeeklyStandings();
-  });
+  updateTrackImage();
 }
 
 // Modify the calculateDriverAverages function
@@ -823,7 +762,6 @@ function generateWeeklyRecap() {
       }
     });
 
-
     const sortedDeltas = performanceDeltas.sort((a, b) => b.delta - a.delta);
     const overAchiever = sortedDeltas[0];
     const underPerformer = sortedDeltas[sortedDeltas.length - 1];
@@ -1219,6 +1157,7 @@ function populateWeekDropdown() {
 
   if (standingsData.weeks && standingsData.weeks.length > 0) {
     standingsData.weeks.forEach((week) => {
+      // Check if the week has any valid points
       const hasValidPoints = Object.values(week.standings).some(teamData => 
         teamData.total > 0
       );
@@ -1238,12 +1177,18 @@ function populateWeekDropdown() {
     if (lastValidWeek) {
       weekSelect.value = lastValidWeek.week;
       loadWeeklyStandings();
+      updateTrackImage();
     }
   }
 
-  weekSelect.addEventListener("change", loadWeeklyStandings);
+  weekSelect.addEventListener("change", () => {
+    loadWeeklyStandings();
+    generateWeeklyRecap();
+    updateTrackImage();
+  });
 }
 
+// Add this new function to handle track images
 // Add this function to handle track images
 function updateTrackImage() {
   const weekSelect = document.getElementById("week-select");
@@ -1322,10 +1267,12 @@ async function createLiveNewsTicker() {
     width: 100%;
     background-color: #FFD700;
     color: black;
+    padding: 15px 0;  // Increased padding
     padding: 15px 0;
     z-index: 1000;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    font-size: 18px;  // Increased font size
     font-size: 18px;
   `;
 
@@ -1339,8 +1286,10 @@ async function createLiveNewsTicker() {
     #news-ticker {
       white-space: nowrap;
       display: inline-block;
+      animation: ticker 40s linear infinite;
       animation: ticker 60s linear infinite;
       padding-left: 100%;
+      font-size: 18px;  // Increased font size
       font-size: 18px;
     }
     
@@ -1349,6 +1298,7 @@ async function createLiveNewsTicker() {
     }
     
     body {
+      padding-top: 50px;  // Increased to account for larger ticker
       padding-top: 50px;
     }
   `;
@@ -1392,4 +1342,3 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
-
