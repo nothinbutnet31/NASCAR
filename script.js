@@ -318,10 +318,6 @@ function loadWeeklyStandings() {
         console.log('Track image failed to load:', trackUrl);
         this.src = "https://via.placeholder.com/200x200?text=Track+Image+Not+Found";
       };
-      
-      trackImage.onload = function() {
-        console.log('Track image loaded successfully:', trackUrl);
-      };
     }
 
     const sortedStandings = Object.entries(weekData.standings)
@@ -337,7 +333,21 @@ function loadWeeklyStandings() {
       weeklyTable.appendChild(row);
     });
 
-    generateWeeklyRecap();
+    // Generate weekly recap
+    const recapDiv = document.getElementById("weekly-recap");
+    if (recapDiv) {
+      let recap = `<h3>Week ${selectedWeekNumber} - ${weekData.track}</h3>`;
+      recap += `<p>Race Results:</p><ul>`;
+      
+      sortedStandings.forEach(([team, data], index) => {
+        const position = index + 1;
+        const suffix = position === 1 ? "st" : position === 2 ? "nd" : position === 3 ? "rd" : "th";
+        recap += `<li>${team} finished ${position}${suffix} with ${data.total} points</li>`;
+      });
+      
+      recap += `</ul>`;
+      recapDiv.innerHTML = recap;
+    }
   }
 }
 
@@ -1263,6 +1273,17 @@ function init() {
       setTimeout(() => {
         console.log("Loading components...");
         
+        // Create weekly recap div if it doesn't exist
+        let recapDiv = document.getElementById("weekly-recap");
+        if (!recapDiv) {
+          recapDiv = document.createElement("div");
+          recapDiv.id = "weekly-recap";
+          const weeklyStandings = document.getElementById("weekly-standings");
+          if (weeklyStandings) {
+            weeklyStandings.parentNode.insertBefore(recapDiv, weeklyStandings.nextSibling);
+          }
+        }
+        
         // Verify weekly table exists
         const weeklyTable = document.querySelector("#weekly-standings tbody");
         if (!weeklyTable) {
@@ -1375,3 +1396,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
+
+
+
