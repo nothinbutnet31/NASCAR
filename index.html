@@ -40,7 +40,27 @@
     </div>
 
     <!-- Weekly Standings -->
-  <div id="weekly" class="tabcontent">
+    <div id="weekly" class="tabcontent" style="display:none;">
+      <h2>Weekly Standings</h2>
+      <label for="week-select">Select Week:</label>
+      <select id="week-select">
+        <!-- Weeks will be populated dynamically -->
+      </select>
+      <table id="weekly-standings">
+        <thead>
+          <tr>
+            <th>Team</th>
+            <th>Points</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Weekly standings will be populated here -->
+        </tbody>
+      </table>
+      <!-- Weekly recap moved outside of the table -->
+      <div id="weekly-recap"></div>
+   <!-- Weekly Standings -->
+<div id="weekly" class="tabcontent" style="display:none;">
   <h2>Weekly Standings</h2>
   <div class="week-selection">
     <label for="week-select">Select Week:</label>
@@ -48,24 +68,14 @@
       <!-- Weeks will be populated dynamically -->
     </select>
     <div id="weekly-track-image-container">
-      <img id="weekly-track-image" src="" alt="Track Layout" style="max-width: 200px; margin: 10px 0;">
+      <img id="weekly-track-image" src="" alt="Track Layout" style="max-width: 200px; margin: 10px 0;" />
     </div>
   </div>
   <table id="weekly-standings">
-    <thead>
-      <tr>
-        <th>Team</th>
-        <th>Points</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Weekly standings will be populated here -->
-    </tbody>
-  </table>
-</div>
+    <!-- rest of your table content -->
 
-<!-- Team Pages (should be a separate tab) -->
-<div id="teams" class="tabcontent" style="display:none;">
+    <!-- Team Pages -->
+    <div id="teams" class="tabcontent" style="display:none;">
       <h2>Team Pages</h2>
 
       <!-- Team and Track Selection -->
