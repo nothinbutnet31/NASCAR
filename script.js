@@ -187,7 +187,7 @@ function loadOverallStandings() {
 
   const totalPoints = {};
   const weeklyPoints = standingsData.weeks
-    .filter(week => Object.values(week.standings).some(data => data.total > 0)) // Only include weeks with points
+    .filter(week => Object.values(week.standings).some(data => data.total > 0))
     .map(week => {
       const points = {};
       Object.entries(week.standings).forEach(([team, data]) => {
@@ -207,27 +207,63 @@ function loadOverallStandings() {
     standingsTable.parentNode.insertBefore(container, standingsTable);
   }
 
-  // Add lap counter
-  const lapCounter = document.createElement('div');
-  lapCounter.style.cssText = `
+  // Add lap counter and play button container
+  const controlsContainer = document.createElement('div');
+  controlsContainer.style.cssText = `
     position: absolute;
     top: 10px;
     left: 50%;
     transform: translateX(-50%);
+    text-align: center;
+    z-index: 10;
+  `;
+
+  const lapCounter = document.createElement('div');
+  lapCounter.style.cssText = `
     color: white;
     font-size: 18px;
     font-weight: bold;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-    z-index: 10;
+    margin-bottom: 10px;
   `;
-  document.querySelector('#car-Emilia').parentNode.appendChild(lapCounter);
 
-  // Animate cars through each week's standings
+  const playButton = document.createElement('button');
+  playButton.innerHTML = '▶️ Play Race';
+  playButton.style.cssText = `
+    padding: 5px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  `;
+
+  controlsContainer.appendChild(lapCounter);
+  controlsContainer.appendChild(playButton);
+  document.querySelector('#car-Emilia').parentNode.appendChild(controlsContainer);
+
+  // Initialize cars at starting position
   const maxPoints = Math.max(...Object.values(totalPoints));
   const containerWidth = document.querySelector('#overall-standings').offsetWidth - 100;
   
+  sortedTeams.forEach(([team], index) => {
+    const car = document.getElementById(`car-${team}`);
+    if (car) {
+      const verticalPosition = 40 + (index * 45);
+      car.style.left = '40px'; // Starting line
+      car.style.top = `${verticalPosition}px`;
+    }
+  });
+
+  // Animation function
+  let isAnimating = false;
   let weekIndex = 0;
+  
   const animateWeek = () => {
+    if (!isAnimating) return;
+    
     if (weekIndex <= weeklyPoints.length) {
       const points = weekIndex === weeklyPoints.length ? 
         totalPoints : 
@@ -245,6 +281,8 @@ function loadOverallStandings() {
         `;
       } else {
         lapCounter.innerHTML = `<div>Final Results</div>`;
+        playButton.innerHTML = '🔄 Replay';
+        isAnimating = false;
       }
 
       sortedTeams.forEach(([team], index) => {
@@ -258,12 +296,33 @@ function loadOverallStandings() {
       });
 
       weekIndex++;
-      setTimeout(animateWeek, 300); // Slowed down to 300ms per week
+      if (isAnimating) {
+        setTimeout(animateWeek, 300);
+      }
     }
   };
 
-  // Start animation
-  animateWeek();
+  // Play button click handler
+  playButton.addEventListener('click', () => {
+    if (isAnimating) {
+      isAnimating = false;
+      playButton.innerHTML = '▶️ Play Race';
+    } else {
+      if (weekIndex >= weeklyPoints.length) {
+        weekIndex = 0;
+        // Reset cars to starting position
+        sortedTeams.forEach(([team], index) => {
+          const car = document.getElementById(`car-${team}`);
+          if (car) {
+            car.style.left = '40px';
+          }
+        });
+      }
+      isAnimating = true;
+      playButton.innerHTML = '⏸️ Pause';
+      animateWeek();
+    }
+  });
 
   // Populate standings table
   sortedTeams.forEach(([team, points], index) => {
@@ -1300,8 +1359,6 @@ function createRaceCars() {
     position: absolute;
     width: 2px;
     height: 100%;
-    background: white;
-    right: 40px;
     background: repeating-linear-gradient(
       to bottom,
       white,
@@ -1309,6 +1366,7 @@ function createRaceCars() {
       black 10px,
       black 20px
     );
+    right: 40px;
   `;
   container.appendChild(finishLine);
 
@@ -1327,28 +1385,92 @@ function createRaceCars() {
   Object.entries(raceCars).forEach(([team, details]) => {
     const car = document.createElement('div');
     car.id = `car-${team}`;
+    
+    // Main car container
     car.style.cssText = `
       position: absolute;
-      width: 80px;
-      height: 35px;
-      background: ${details.color};
-      border-radius: 5px;
+      width: 100px;
+      height: 40px;
       transition: all 0.5s ease-in-out;
       left: 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: bold;
-      font-size: 12px;
-      padding: 5px;
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
     `;
-    
+
+    // Car HTML structure with styling
     car.innerHTML = `
-      <div style="font-size: 14px;">#${details.number}</div>
-      <div style="font-size: 11px; white-space: nowrap;">${team}</div>
+      <div style="
+        position: relative;
+        width: 100%;
+        height: 100%;
+      ">
+        <!-- Car body -->
+        <div style="
+          position: absolute;
+          width: 80px;
+          height: 20px;
+          background: ${details.color};
+          border-radius: 5px;
+          bottom: 0;
+          left: 10px;
+          box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        "></div>
+        
+        <!-- Car roof -->
+        <div style="
+          position: absolute;
+          width: 50px;
+          height: 15px;
+          background: ${details.color};
+          border-radius: 5px 5px 0 0;
+          bottom: 20px;
+          left: 25px;
+          box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+        "></div>
+        
+        <!-- Front wheel -->
+        <div style="
+          position: absolute;
+          width: 16px;
+          height: 16px;
+          background: #333;
+          border: 2px solid #666;
+          border-radius: 50%;
+          bottom: -8px;
+          left: 15px;
+        "></div>
+        
+        <!-- Back wheel -->
+        <div style="
+          position: absolute;
+          width: 16px;
+          height: 16px;
+          background: #333;
+          border: 2px solid #666;
+          border-radius: 50%;
+          bottom: -8px;
+          right: 15px;
+        "></div>
+        
+        <!-- Number -->
+        <div style="
+          position: absolute;
+          width: 100%;
+          text-align: center;
+          color: white;
+          font-weight: bold;
+          font-size: 12px;
+          bottom: 3px;
+        ">#${details.number}</div>
+        
+        <!-- Team name -->
+        <div style="
+          position: absolute;
+          width: 100%;
+          text-align: center;
+          color: white;
+          font-size: 10px;
+          bottom: -20px;
+        ">${team}</div>
+      </div>
     `;
     
     container.appendChild(car);
