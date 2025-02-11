@@ -630,7 +630,7 @@ function generateWeeklyRecap() {
   imgElement.style.height = '150px';
   imgElement.style.objectFit = 'cover';
   imgElement.style.objectPosition = '50% 0%';
-  imgElement.style.border = '2px solid #ddd';
+  imgElement.style.border = '1px solid #ddd';
   imgElement.alt = driverOfTheWeek.driver;
 
   console.log('Trying to fetch image:', `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png`);
@@ -654,8 +654,8 @@ function generateWeeklyRecap() {
           <p><strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})</p>
           <p>${narrative}.</p>
           <p style="
-            font-family: 'Impact', sans-serif; 
-            color: #1a1a1a; 
+            font-family: 'Georgia', sans-serif; 
+            color: #5ced73; 
             font-size: 1.2em; 
             font-weight: bold;
             margin-top: 10px;
