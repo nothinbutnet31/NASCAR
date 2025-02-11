@@ -1300,17 +1300,17 @@ async function createLiveNewsTicker() {
   document.head.appendChild(styleSheet);
 
   try {
-    // Use NASCAR's official API
-    const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.motorsport.com%2Frss%2Fnascar-cup%2Fnews%2F&api_key=ooehn6ytnuvjctk6a9olwn5gjxf16e7gillph6jt&order_dir=desc&count=5);
+    // Use Motorsport.com NASCAR feed
+    const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.motorsport.com%2Frss%2Fnascar-cup%2Fnews%2F&api_key=ooehn6ytnuvjctk6a9olwn5gjxf16e7gillph6jt&order_dir=desc&count=5');
     const data = await response.json();
     
-    if (data && data.length > 0) {
+    if (data && data.items && data.items.length > 0) {
       const ticker = document.createElement('div');
       ticker.id = 'news-ticker';
       
       // Create news items string
-      const newsText = data
-        .map(item => `<a href="${item.link}" target="_blank" style="color: white; text-decoration: none;">${item.title.rendered}</a>`)
+      const newsText = data.items
+        .map(item => `<a href="${item.link}" target="_blank" style="color: white; text-decoration: none;">${item.title}</a>`)
         .join(' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ');
       
       ticker.innerHTML = newsText + ' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ';
@@ -1340,7 +1340,4 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
-
-
-
 
