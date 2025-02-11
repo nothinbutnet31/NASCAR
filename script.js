@@ -277,36 +277,20 @@ function loadWeeklyStandings() {
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   weeklyTable.innerHTML = "";
 
-  // Create or get track image container
-  let trackImageContainer = document.getElementById("track-image-container");
-  if (!trackImageContainer) {
-    trackImageContainer = document.createElement("div");
-    trackImageContainer.id = "track-image-container";
-    trackImageContainer.style.cssText = `
-      text-align: center;
-      margin: 20px 0;
-    `;
-    // Insert after weekly standings table
-    const weeklyStandings = document.getElementById("weekly-standings");
-    weeklyStandings.parentNode.insertBefore(trackImageContainer, weeklyStandings.nextSibling);
-  }
-
-  // Always create a new image element
-  trackImageContainer.innerHTML = ''; // Clear existing content
-  const trackImage = document.createElement("img");
-  trackImage.id = "track-image";
-  trackImage.style.cssText = `
-    max-width: 300px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    display: block;
-    margin: 0 auto;
-  `;
-  trackImageContainer.appendChild(trackImage);
-
   const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
 
   if (weekData) {
+    // Update track image
+    const trackImage = document.getElementById("weekly-track-image");
+    if (trackImage && weekData.track) {
+      const trackName = weekData.track.replace(/[^a-zA-Z0-9]/g, '_');
+      trackImage.src = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
+      trackImage.alt = `${weekData.track} Track`;
+      trackImage.onerror = function() {
+        this.src = "https://via.placeholder.com/200x200?text=Track+Image+Not+Found";
+      };
+    }
+
     const sortedStandings = Object.entries(weekData.standings)
       .sort((a, b) => b[1].total - a[1].total);
 
@@ -319,21 +303,6 @@ function loadWeeklyStandings() {
       `;
       weeklyTable.appendChild(row);
     });
-
-    // Update track image
-    if (weekData.track) {
-      const trackName = weekData.track.replace(/[^a-zA-Z0-9]/g, '_');
-      console.log('Loading track image for:', trackName);
-      trackImage.src = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
-      trackImage.alt = `${weekData.track} Track`;
-      trackImage.onerror = function() {
-        console.log('Error loading track image:', trackName);
-        this.src = "https://via.placeholder.com/300x200?text=Track+Image+Not+Found";
-      };
-      trackImage.onload = function() {
-        console.log('Track image loaded successfully:', trackName);
-      };
-    }
 
     generateWeeklyRecap();
   }
@@ -1385,6 +1354,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
