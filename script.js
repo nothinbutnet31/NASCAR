@@ -1571,7 +1571,7 @@ function updateCarPositions(weekData) {
   
   const trackWidth = 1600;  // Keep track size the same
   const trackHeight = 1200;
-  const pathScale = 5;  // Scale factor for the car path
+  const pathScale = 25;  // Increased from 5 to 25 for much longer path
   
   const steps = 50;
   let step = 0;
@@ -1590,8 +1590,8 @@ function updateCarPositions(weekData) {
             const x = (trackWidth/4 * Math.cos(angle) * pathScale) + trackWidth/2;
             const y = (trackHeight/4 * Math.sin(angle) * pathScale) + trackHeight/2;
             
-            // Keep cars horizontal
-            const rotation = 0;
+            // Rotate cars 90 degrees
+            const rotation = 90;
             
             // Offset each car slightly based on position
             const offset = index * 40;
