@@ -1589,24 +1589,19 @@ function animateWeek() {
 // Update car positions based on standings
 function updateCarPositions(weekData) {
   if (!weekData || !weekData.standings) return;
-
-  // Calculate total points for each team
-  const teamPoints = Object.entries(weekData.standings).map(([team, data]) => ({
-    team,
-    points: data.total
-  })).sort((a, b) => b.points - a.points);
-
-  // Calculate positions
-  const maxPoints = Math.max(...teamPoints.map(t => t.points));
-  const containerWidth = document.querySelector('#weekly-recap').offsetWidth - 50; // Subtract car width
-
-  teamPoints.forEach((teamData, index) => {
-    const car = document.getElementById(`car-${teamData.team}`);
-    if (car) {
-      const verticalPosition = 30 + (index * 25); // Stack cars vertically
-      const horizontalPosition = (teamData.points / maxPoints) * containerWidth;
-      car.style.left = `${horizontalPosition}px`;
-      car.style.top = `${verticalPosition}px`;
-    }
-  });
+  
+  const maxPoints = Math.max(...Object.values(weekData.standings).map(data => data.total));
+  const containerWidth = document.querySelector('#overall-standings').offsetWidth - 100;
+  
+  Object.entries(weekData.standings)
+    .sort((a, b) => b[1].total - a[1].total)
+    .forEach(([team, data], index) => {
+      const car = document.getElementById(`car-${team}`);
+      if (car) {
+        const verticalPosition = 40 + (index * 60);
+        const horizontalPosition = ((data.total / maxPoints) * containerWidth);
+        car.style.left = `${horizontalPosition}px`;
+        car.style.top = `${verticalPosition}px`;
+      }
+    });
 }
