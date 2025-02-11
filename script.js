@@ -280,17 +280,18 @@ function loadOverallStandings() {
 // Load Weekly Standings
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
-  if (!weekSelect || !weekSelect.value) {
-    console.log("Week select not ready");
-    return;
-  }
-
   const weeklyTable = document.querySelector("#weekly-standings tbody");
-  if (!weeklyTable) {
-    console.log("Weekly table not ready");
+  
+  if (!weekSelect || !weekSelect.value || !weeklyTable) {
+    console.log("Required elements not ready:", {
+      weekSelect: !!weekSelect,
+      weekSelectValue: weekSelect?.value,
+      weeklyTable: !!weeklyTable
+    });
     return;
   }
 
+  console.log("Loading weekly standings...");
   const selectedWeekNumber = parseInt(weekSelect.value, 10);
   weeklyTable.innerHTML = "";
 
@@ -300,11 +301,8 @@ function loadWeeklyStandings() {
     // Update track image
     const trackImage = document.getElementById("weekly-track-image");
     if (trackImage && weekData.track) {
-      // Log original track name
       console.log('Original track name:', weekData.track);
-      
-      // Simple transformation - just replace spaces with underscores
-      const trackName = weekData.track.replace(/\s+/g, '_');
+      const trackName = weekData.track.toLowerCase().replace(/\s+/g, '_');
       console.log('Transformed track name:', trackName);
       
       const trackUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
@@ -319,6 +317,10 @@ function loadWeeklyStandings() {
       trackImage.onerror = function() {
         console.log('Track image failed to load:', trackUrl);
         this.src = "https://via.placeholder.com/200x200?text=Track+Image+Not+Found";
+      };
+      
+      trackImage.onload = function() {
+        console.log('Track image loaded successfully:', trackUrl);
       };
     }
 
@@ -1249,20 +1251,25 @@ function init() {
   if (isDataLoaded) {
     console.log("Initializing with loaded data...");
     
-    // First make sure the weekly tab is visible
-    const weeklyTab = document.getElementById('weekly');
-    if (weeklyTab) {
-      weeklyTab.style.display = 'block';
-    }
+    // First open the weekly tab to ensure elements are visible
+    openTab('weekly');
     
-    // Then initialize components
+    // Then initialize components after a short delay
     setTimeout(() => {
-      populateWeekDropdown();
-      loadOverallStandings();
-      createLiveNewsTicker();
+      console.log("Loading components...");
       
-      // Finally, open the weekly tab
-      openTab('weekly');
+      // Verify weekly table exists
+      const weeklyTable = document.querySelector("#weekly-standings tbody");
+      if (weeklyTable) {
+        console.log("Weekly table found, proceeding with initialization");
+        loadOverallStandings();
+        populateWeekDropdown();
+        loadWeeklyStandings();
+      } else {
+        console.error("Weekly table still not found after delay");
+      }
+      
+      createLiveNewsTicker();
     }, 100);
   }
 }
@@ -1354,7 +1361,4 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
-
-
-
 
