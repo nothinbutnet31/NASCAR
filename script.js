@@ -297,17 +297,16 @@ function loadWeeklyStandings() {
   const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
 
   if (weekData) {
-    // Update track image with proper capitalization
+    // Update track image
     const trackImage = document.getElementById("weekly-track-image");
     if (trackImage && weekData.track) {
-      // Capitalize first letter of each word and remove special characters
-      const trackName = weekData.track
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join('_')
-        .replace(/[^a-zA-Z0-9_]/g, '');
+      // Log original track name
+      console.log('Original track name:', weekData.track);
       
-      console.log('Loading track image:', trackName);
+      // Simple transformation - just replace spaces with underscores
+      const trackName = weekData.track.replace(/\s+/g, '_');
+      console.log('Transformed track name:', trackName);
+      
       const trackUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
       console.log('Track image URL:', trackUrl);
       
@@ -1355,6 +1354,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
