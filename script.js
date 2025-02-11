@@ -804,7 +804,23 @@ function generateWeeklyRecap() {
     updateTrackImage();
   }
 
+  // Create race cars if they don't exist
+  if (!document.querySelector('[id^="car-"]')) {
+    createRaceCars();
+  }
 
+  // Initialize cars at starting positions
+  const sortedTeams = Object.entries(weekData.standings)
+    .sort((a, b) => b[1].total - a[1].total);
+    
+  sortedTeams.forEach(([team], index) => {
+    const car = document.getElementById(`car-${team}`);
+    if (car) {
+      const { x, y, rotation } = calculateCarPosition(0, index);
+      car.style.transform = `translate(${x}%, ${y}%) rotate(${rotation}deg)`;
+    }
+  });
+}
 
 // Helper function to calculate standings after a specific week
 function calculateStandingsAfterWeek(weekNumber) {
@@ -1184,6 +1200,5 @@ window.onload = () => {
   console.log("Window loaded, fetching data...");
   fetchDataFromGoogleSheets();
 };
-
 
 
