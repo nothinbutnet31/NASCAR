@@ -270,6 +270,7 @@ function loadOverallStandings() {
           const car = document.getElementById(`car-${team}`);
           if (car) {
             const { x, y, rotation } = calculateCarPosition(progress, index);
+            console.log(`Car ${team}: x=${x}, y=${y}, rotation=${rotation}`);
             car.style.transform = `translate(${x}%, ${y}%) rotate(${rotation}deg)`;
           }
         });
@@ -1534,12 +1535,13 @@ function animateWeek() {
     // Animate cars around the track
     let progress = 0;
     const animateLap = () => {
-      progress += 0.005; // Speed of movement
+      progress += 0.005;
       
       sortedTeams.forEach(([team], index) => {
         const car = document.getElementById(`car-${team}`);
         if (car) {
           const { x, y, rotation } = calculateCarPosition(progress, index);
+          console.log(`Car ${team}: x=${x}, y=${y}, rotation=${rotation}`);
           car.style.transform = `translate(${x}%, ${y}%) rotate(${rotation}deg)`;
         }
       });
