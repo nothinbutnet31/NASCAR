@@ -629,7 +629,7 @@ function generateWeeklyRecap() {
   imgElement.style.width = '150px';
   imgElement.style.height = '150px';
   imgElement.style.objectFit = 'cover';
-  imgElement.style.objectPosition = '50% 20%';
+  imgElement.style.objectPosition = '50% 0%';
   imgElement.style.border = '2px solid #ddd';
   imgElement.alt = driverOfTheWeek.driver;
 
