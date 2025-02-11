@@ -40,8 +40,7 @@
     </div>
 
     <!-- Weekly Standings -->
-   <!-- Weekly Standings -->
-<div id="weekly" class="tabcontent" style="display:none;">
+  <div id="weekly" class="tabcontent">
   <h2>Weekly Standings</h2>
   <div class="week-selection">
     <label for="week-select">Select Week:</label>
@@ -49,14 +48,24 @@
       <!-- Weeks will be populated dynamically -->
     </select>
     <div id="weekly-track-image-container">
-      <img id="weekly-track-image" src="" alt="Track Layout" style="max-width: 200px; margin: 10px 0;" />
+      <img id="weekly-track-image" src="" alt="Track Layout" style="max-width: 200px; margin: 10px 0;">
     </div>
   </div>
   <table id="weekly-standings">
-    <!-- rest of your table content -->
+    <thead>
+      <tr>
+        <th>Team</th>
+        <th>Points</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Weekly standings will be populated here -->
+    </tbody>
+  </table>
+</div>
 
-    <!-- Team Pages -->
-    <div id="teams" class="tabcontent" style="display:none;">
+<!-- Team Pages (should be a separate tab) -->
+<div id="teams" class="tabcontent" style="display:none;">
       <h2>Team Pages</h2>
 
       <!-- Team and Track Selection -->
