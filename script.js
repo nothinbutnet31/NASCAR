@@ -186,39 +186,55 @@ function loadOverallStandings() {
   overallTable.innerHTML = "";
 
   const totalPoints = {};
-
-  standingsData.weeks.forEach((week) => {
+  const weeklyPoints = standingsData.weeks.map(week => {
+    const points = {};
     Object.entries(week.standings).forEach(([team, data]) => {
+      points[team] = (points[team] || 0) + data.total;
       totalPoints[team] = (totalPoints[team] || 0) + data.total;
     });
+    return points;
   });
 
-  // Sort teams by points descending
+  // Sort teams by final points
   const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
 
   // Create race cars if they don't exist
   if (!document.querySelector('[id^="car-"]')) {
     const container = createRaceCars();
-    // Insert before the overall standings table
     const standingsTable = document.querySelector("#overall-standings");
     standingsTable.parentNode.insertBefore(container, standingsTable);
   }
 
-  // Update car positions based on overall standings
+  // Animate cars through each week's standings
   const maxPoints = Math.max(...Object.values(totalPoints));
-  const containerWidth = document.querySelector('#overall-standings').offsetWidth - 50;
+  const containerWidth = document.querySelector('#overall-standings').offsetWidth - 100; // More space from edges
+  
+  let weekIndex = 0;
+  const animateWeek = () => {
+    if (weekIndex <= weeklyPoints.length) {
+      const points = weekIndex === weeklyPoints.length ? 
+        totalPoints : // Final position
+        weeklyPoints[weekIndex]; // Weekly position
 
-  sortedTeams.forEach(([team, points], index) => {
-    const car = document.getElementById(`car-${team}`);
-    if (car) {
-      const verticalPosition = 30 + (index * 25);
-      const horizontalPosition = (points / maxPoints) * containerWidth;
-      car.style.left = `${horizontalPosition}px`;
-      car.style.top = `${verticalPosition}px`;
+      sortedTeams.forEach(([team], index) => {
+        const car = document.getElementById(`car-${team}`);
+        if (car) {
+          const verticalPosition = 40 + (index * 45); // More space between cars
+          const horizontalPosition = ((points[team] || 0) / maxPoints) * containerWidth;
+          car.style.left = `${horizontalPosition}px`;
+          car.style.top = `${verticalPosition}px`;
+        }
+      });
+
+      weekIndex++;
+      setTimeout(animateWeek, 500); // Half second per week
     }
-  });
+  };
 
-  // Continue with the existing table population
+  // Start animation
+  animateWeek();
+
+  // Populate standings table
   sortedTeams.forEach(([team, points], index) => {
     const row = document.createElement("tr");
     const trophy = index === 0 ? '<i class="fas fa-trophy"></i> ' : "";
@@ -1225,7 +1241,6 @@ function createRaceCars() {
     Heather: { color: 'indigo', number: '14' }
   };
 
-  // Create container for race cars
   const container = document.createElement('div');
   container.style.cssText = `
     position: relative;
@@ -1236,6 +1251,35 @@ function createRaceCars() {
     margin: 20px 0;
     overflow: hidden;
   `;
+
+  // Add starting line
+  const startLine = document.createElement('div');
+  startLine.style.cssText = `
+    position: absolute;
+    width: 2px;
+    height: 100%;
+    background: white;
+    left: 40px;
+  `;
+  container.appendChild(startLine);
+
+  // Add finish line
+  const finishLine = document.createElement('div');
+  finishLine.style.cssText = `
+    position: absolute;
+    width: 2px;
+    height: 100%;
+    background: white;
+    right: 40px;
+    background: repeating-linear-gradient(
+      to bottom,
+      white,
+      white 10px,
+      black 10px,
+      black 20px
+    );
+  `;
+  container.appendChild(finishLine);
 
   // Add racing line
   const racingLine = document.createElement('div');
@@ -1249,7 +1293,6 @@ function createRaceCars() {
   `;
   container.appendChild(racingLine);
 
-  // Create and position cars
   Object.entries(raceCars).forEach(([team, details]) => {
     const car = document.createElement('div');
     car.id = `car-${team}`;
@@ -1259,8 +1302,8 @@ function createRaceCars() {
       height: 35px;
       background: ${details.color};
       border-radius: 5px;
-      transition: all 1s ease-in-out;
-      left: 0;
+      transition: all 0.5s ease-in-out;
+      left: 40px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1272,7 +1315,6 @@ function createRaceCars() {
       box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
     `;
     
-    // Add number and team name
     car.innerHTML = `
       <div style="font-size: 14px;">#${details.number}</div>
       <div style="font-size: 11px; white-space: nowrap;">${team}</div>
