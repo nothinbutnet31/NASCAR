@@ -205,21 +205,47 @@ function loadOverallStandings() {
     standingsTable.parentNode.insertBefore(container, standingsTable);
   }
 
+  // Add lap counter
+  const lapCounter = document.createElement('div');
+  lapCounter.style.cssText = `
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    z-index: 10;
+  `;
+  document.querySelector('#car-Emilia').parentNode.appendChild(lapCounter);
+
   // Animate cars through each week's standings
   const maxPoints = Math.max(...Object.values(totalPoints));
-  const containerWidth = document.querySelector('#overall-standings').offsetWidth - 100; // More space from edges
+  const containerWidth = document.querySelector('#overall-standings').offsetWidth - 100;
   
   let weekIndex = 0;
   const animateWeek = () => {
     if (weekIndex <= weeklyPoints.length) {
       const points = weekIndex === weeklyPoints.length ? 
-        totalPoints : // Final position
-        weeklyPoints[weekIndex]; // Weekly position
+        totalPoints : 
+        weeklyPoints[weekIndex];
+
+      // Update lap counter
+      if (weekIndex < weeklyPoints.length) {
+        const week = standingsData.weeks[weekIndex];
+        lapCounter.innerHTML = `
+          <div>Lap ${weekIndex + 1}</div>
+          <div style="font-size: 14px;">${week.track}</div>
+        `;
+      } else {
+        lapCounter.innerHTML = `<div>Final Results</div>`;
+      }
 
       sortedTeams.forEach(([team], index) => {
         const car = document.getElementById(`car-${team}`);
         if (car) {
-          const verticalPosition = 40 + (index * 45); // More space between cars
+          const verticalPosition = 40 + (index * 45);
           const horizontalPosition = ((points[team] || 0) / maxPoints) * containerWidth;
           car.style.left = `${horizontalPosition}px`;
           car.style.top = `${verticalPosition}px`;
@@ -227,7 +253,7 @@ function loadOverallStandings() {
       });
 
       weekIndex++;
-      setTimeout(animateWeek, 500); // Half second per week
+      setTimeout(animateWeek, 200); // Sped up to 200ms per week
     }
   };
 
