@@ -280,8 +280,18 @@ function loadOverallStandings() {
 // Load Weekly Standings
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
-  const selectedWeekNumber = parseInt(weekSelect.value, 10);
+  if (!weekSelect || !weekSelect.value) {
+    console.log("Week select not ready");
+    return;
+  }
+
   const weeklyTable = document.querySelector("#weekly-standings tbody");
+  if (!weeklyTable) {
+    console.log("Weekly table not ready");
+    return;
+  }
+
+  const selectedWeekNumber = parseInt(weekSelect.value, 10);
   weeklyTable.innerHTML = "";
 
   const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
@@ -315,18 +325,49 @@ function loadWeeklyStandings() {
   }
 }
 
-// Make sure to remove any duplicate event listeners
-const weekSelect = document.getElementById("week-select");
-if (weekSelect) {
-  // Remove existing listeners
-  const newWeekSelect = weekSelect.cloneNode(true);
-  weekSelect.parentNode.replaceChild(newWeekSelect, weekSelect);
-  
-  // Add new listener
-  newWeekSelect.addEventListener("change", function() {
-    console.log("Week selection changed");
-    loadWeeklyStandings();
-  });
+// Populate Week Dropdown
+function populateWeekDropdown() {
+  const weekSelect = document.getElementById("week-select");
+  if (!weekSelect) {
+    console.warn("Week select element not found");
+    return;
+  }
+
+  weekSelect.innerHTML = "";
+
+  // Add default option
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Select a Week";
+  weekSelect.appendChild(defaultOption);
+
+  let validWeeks = [];
+
+  if (standingsData.weeks && standingsData.weeks.length > 0) {
+    standingsData.weeks.forEach((week) => {
+      const hasValidPoints = Object.values(week.standings).some(teamData => 
+        teamData.total > 0
+      );
+
+      if (week && week.track && week.track.trim() !== "" && hasValidPoints) {
+        validWeeks.push(week);
+        const option = document.createElement("option");
+        option.value = week.week;
+        option.textContent = `Week ${week.week} - ${week.track}`;
+        weekSelect.appendChild(option);
+      }
+    });
+
+    // Find the last week with valid points
+    const lastValidWeek = validWeeks[validWeeks.length - 1];
+
+    if (lastValidWeek) {
+      weekSelect.value = lastValidWeek.week;
+      loadWeeklyStandings();
+    }
+  }
+
+  weekSelect.addEventListener("change", loadWeeklyStandings);
 }
 
 // Modify the calculateDriverAverages function
@@ -1168,70 +1209,6 @@ function populateTeamDropdown() {
   loadTeamPage();
 }
 
-// Populate Week Dropdown
-function populateWeekDropdown() {
-  const weekSelect = document.getElementById("week-select");
-  if (!weekSelect) {
-    console.warn("Week select element not found");
-    return;
-  }
-
-  weekSelect.innerHTML = "";
-
-  // Add default option
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = "Select a Week";
-  weekSelect.appendChild(defaultOption);
-
-  let validWeeks = [];
-
-  if (standingsData.weeks && standingsData.weeks.length > 0) {
-    standingsData.weeks.forEach((week) => {
-      const hasValidPoints = Object.values(week.standings).some(teamData => 
-        teamData.total > 0
-      );
-
-      if (week && week.track && week.track.trim() !== "" && hasValidPoints) {
-        validWeeks.push(week);
-        const option = document.createElement("option");
-        option.value = week.week;
-        option.textContent = `Week ${week.week} - ${week.track}`;
-        weekSelect.appendChild(option);
-      }
-    });
-
-    // Find the last week with valid points
-    const lastValidWeek = validWeeks[validWeeks.length - 1];
-
-    if (lastValidWeek) {
-      weekSelect.value = lastValidWeek.week;
-      loadWeeklyStandings();
-    }
-  }
-
-  weekSelect.addEventListener("change", loadWeeklyStandings);
-}
-
-// Add this function to handle track images
-function updateTrackImage() {
-  const weekSelect = document.getElementById("week-select");
-  const trackImage = document.getElementById("track-image");
-  
-  if (!trackImage || !weekSelect.value) return;
-
-  const selectedWeek = standingsData.weeks.find(week => week.week === parseInt(weekSelect.value, 10));
-  if (selectedWeek && selectedWeek.track) {
-    const trackName = selectedWeek.track.replace(/[^a-zA-Z0-9]/g, '_');
-    const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
-    trackImage.src = trackImageUrl;
-    trackImage.alt = `${selectedWeek.track} Track`;
-    trackImage.onerror = function() {
-      this.src = "https://via.placeholder.com/200";
-    };
-  }
-}
-
 // Open Tabs (for switching between pages/sections)
 function openTab(tabName) {
   console.log("Opening tab:", tabName);
@@ -1247,9 +1224,7 @@ function openTab(tabName) {
     document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
   }
 
-  if (tabName === "weekly") {
-    populateWeekDropdown();
-  } else if (tabName === "teams") {
+  if (tabName === "teams") {
     populateTeamDropdown();
     loadTeamPage();
   }
@@ -1260,20 +1235,20 @@ function init() {
   if (isDataLoaded) {
     console.log("Initializing with loaded data...");
     
-    // First open the weekly tab to ensure elements are visible
-    openTab('weekly');
+    // First make sure the weekly tab is visible
+    const weeklyTab = document.getElementById('weekly');
+    if (weeklyTab) {
+      weeklyTab.style.display = 'block';
+    }
     
-    // Then try to load the standings after a short delay to ensure DOM is updated
+    // Then initialize components
     setTimeout(() => {
-      const weeklyTable = document.querySelector("#weekly-standings tbody");
-      if (weeklyTable) {
-        console.log("Found weekly table, loading standings...");
-        loadOverallStandings();
-        loadWeeklyStandings();
-        createLiveNewsTicker();
-      } else {
-        console.error("Weekly standings table not found. DOM structure:", document.querySelector("#weekly"));
-      }
+      populateWeekDropdown();
+      loadOverallStandings();
+      createLiveNewsTicker();
+      
+      // Finally, open the weekly tab
+      openTab('weekly');
     }, 100);
   }
 }
