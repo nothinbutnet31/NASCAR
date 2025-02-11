@@ -219,7 +219,6 @@ function loadWeeklyStandings() {
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   weeklyTable.innerHTML = "";
 
-  // Find the week matching the selected week number
   const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
 
   if (weekData) {
@@ -228,7 +227,6 @@ function loadWeeklyStandings() {
 
     sortedStandings.forEach(([team, data], index) => {
       const row = document.createElement("tr");
-      // Add checkered flag icon for first place if points > 0
       const flag = index === 0 && data.total > 0 ? '<i class="fas fa-flag-checkered"></i> ' : "";
       row.innerHTML = `
         <td>${flag}${team}</td>
@@ -637,6 +635,7 @@ function generateWeeklyRecap() {
     .catch(() => {
       imgElement.src = 'path/to/default.png';
     });
+   
 
   recapText += `
     <div class="recap-section">
@@ -811,7 +810,7 @@ function generateWeeklyRecap() {
   }
 
   // Initialize cars at starting positions
-  const sortedTeams = (weekData.standings)
+  const sortedTeams = Object.entries(weekData.standings)
     .sort((a, b) => b[1].total - a[1].total);
     
   sortedTeams.forEach(([team], index) => {
@@ -827,18 +826,28 @@ function generateWeeklyRecap() {
 function calculateStandingsAfterWeek(weekNumber) {
   const totalPoints = {};
   
-  for (let i = 0; i < weekNumber; i++) {
-    const week = standingsData.weeks[i];
-    if (week) {
-      (week.standings).forEach(([team, data]) => {
-        totalPoints[team] = (totalPoints[team] || 0) + data.total;
+  // Initialize total points for each team
+  Object.keys(standingsData.teams).forEach(team => {
+    totalPoints[team] = 0;
+  });
+
+  // Calculate points up to the selected week
+  standingsData.weeks
+    .filter((week, index) => index < weekNumber)
+    .forEach(week => {
+      Object.entries(week.standings).forEach(([team, data]) => {
+        totalPoints[team] += data.total;
       });
-    }
-  }
-  
-  return (totalPoints)
+    });
+
+  // Sort teams by points
+  return Object.entries(totalPoints)
     .sort((a, b) => b[1] - a[1])
-    .map(([team], index) => ({ team, position: index + 1 }));
+    .map(([team, points], position) => ({
+      position: position + 1,
+      team,
+      points
+    }));
 }
 
 // Helper function to calculate position changes
@@ -1191,3 +1200,6 @@ window.onload = () => {
   console.log("Window loaded, fetching data...");
   fetchDataFromGoogleSheets();
 };
+
+
+
