@@ -210,8 +210,8 @@ function loadOverallStandings() {
   sortedTeams.forEach(([team, points], index) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td style="text-align: center;">${team}</td>
       <td style="text-align: center;">${index + 1}</td>
+      <td style="text-align: center;">${team}</td>
       <td style="text-align: center;">${points}</td>
     `;
     overallTable.appendChild(row);
