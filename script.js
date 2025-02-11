@@ -185,27 +185,33 @@ function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
   overallTable.innerHTML = "";
 
+  // Calculate total points for each team
   const totalPoints = {};
-  const weeklyPoints = standingsData.weeks
-    .filter(week => Object.values(week.standings).some(data => data.total > 0))
-    .map(week => {
-      const points = {};
-      Object.entries(week.standings).forEach(([team, data]) => {
-        points[team] = (points[team] || 0) + data.total;
+  
+  // Initialize all teams with 0 points
+  Object.keys(standingsData.teams).forEach(team => {
+    totalPoints[team] = 0;
+  });
+
+  // Add up points from all weeks
+  standingsData.weeks.forEach(week => {
+    Object.entries(week.standings).forEach(([team, data]) => {
+      if (data && data.total) {
         totalPoints[team] = (totalPoints[team] || 0) + data.total;
-      });
-      return points;
+      }
     });
+  });
 
-  // Sort teams by final points
-  const sortedTeams = Object.entries(totalPoints).sort((a, b) => b[1] - a[1]);
+  // Sort teams by points (highest to lowest)
+  const sortedTeams = Object.entries(totalPoints)
+    .sort((a, b) => b[1] - a[1]);
 
-  // Add rows to standings table
+  // Add rows to standings table with correct column order
   sortedTeams.forEach(([team, points], index) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td>${index + 1}</td>
       <td>${team}</td>
+      <td>${index + 1}</td>
       <td>${points}</td>
     `;
     overallTable.appendChild(row);
