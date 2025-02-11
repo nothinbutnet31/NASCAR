@@ -212,7 +212,7 @@ function loadOverallStandings() {
       }
       
       #overall-standings th {
-        background-color: #E53935;
+        background-color: #1E88E5;
         font-weight: bold;
       }
       
