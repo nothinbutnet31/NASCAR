@@ -43,45 +43,45 @@ let standingsData = {
 // Add this constant for expected averages
 const expectedDriverAverages = {
   // Top tier drivers (25+ avg)
-  "Kyle Larson": 26,
-   "Christopher Bell": 26,
-  "Chase Elliott": 25,
-     "Denny Hamlin": 25,
-  "Tyler Reddick": 25,
-   "William Byron": 25,
+  "Kyle Larson": 28,
+  "William Byron": 27,
+  "Ryan Blaney": 26,
+  "Christopher Bell": 26,
+  "Denny Hamlin": 25,
+  
   
   // Strong performers (20-24 avg)
-    "Ryan Blaney": 23,
+  "Tyler Reddick": 24,
   "Ross Chastain": 23,
-   "Brad Keselowski": 21,
-     "Joey Logano": 21,
+  "Joey Logano": 23,
+  "Brad Keselowski": 22,
+  "Chase Elliott": 24,
   "Chris Buescher": 21,
   "Bubba Wallace": 20,
   
   // Mid tier (15-19 avg)
-  "Kyle Busch": 17,
+  "Kyle Busch": 19,
   "Alex Bowman": 19,
-  "Daniel Suarez": 16,
+  "Daniel Suarez": 18,
   "Chase Briscoe": 17,
   "Ty Gibbs": 17,
-  "Austin Cindric": 15,
-  "Carson Hocevar": 14,
+  "Austin Cindric": 17,
+  "Carson Hocevar": 17,
   "Erik Jones": 17,
+  "Austin Dillon": 16,
   "Ryan Preece": 15,
-  "Shane van Gisbergen": 17,
- 
-  // Development/Others (17-10 avg)
-  "Josh Berry": 12,
-  "Ricky Stenhouse Jr": 12,
+  "Michael McDowell": 15,
+  "Shane van Gisbergen": 15,
+  // Development/Others (10-14 avg)
+  "Josh Berry": 14,
+  "Ricky Stenhouse Jr": 13,
   "Riley Herbst": 13,
-  "AJ Allmendinger": 14,
-  "Cole Custer": 14,
-  "Todd Gilliland": 13,
-   "Michael McDowell": 13,
-  "Justin Haley": 13,
-  "Harrison Burton": 9,
-  "Noah Gragson": 12,
-  "Austin Dillon": 10,
+  "AJ Allmendinger": 13,
+  "Cole Custer": 13,
+  "Todd Gilliland": 12,
+  "Justin Haley": 12,
+  "Harrison Burton": 11,
+  "Noah Gragson": 10,
   "Corey LaJoie": 10
 };
 
@@ -626,11 +626,11 @@ function generateWeeklyRecap() {
   
   // Create image element with fetch
   const imgElement = document.createElement('img');
-  imgElement.style.width = '125px';
-  imgElement.style.height = '125px';
+  imgElement.style.width = '150px';
+  imgElement.style.height = '150px';
   imgElement.style.objectFit = 'cover';
-  imgElement.style.objectPosition = '50% 0%';
-  imgElement.style.border = '1px solid #ddd';
+  imgElement.style.objectPosition = '50% 20%';
+  imgElement.style.border = '2px solid #ddd';
   imgElement.alt = driverOfTheWeek.driver;
 
   console.log('Trying to fetch image:', `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png`);
@@ -654,8 +654,8 @@ function generateWeeklyRecap() {
           <p><strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})</p>
           <p>${narrative}.</p>
           <p style="
-            font-family: 'Georgia', sans-serif; 
-            color: #5ced73; 
+            font-family: 'Impact', sans-serif; 
+            color: #1a1a1a; 
             font-size: 1.2em; 
             font-weight: bold;
             margin-top: 10px;
@@ -811,6 +811,14 @@ function generateWeeklyRecap() {
     
     updateTrackImage();
   }
+
+  // Create race cars if they don't exist
+  if (!document.querySelector('[id^="car-"]')) {
+    createRaceCars();
+  }
+
+  // Update car positions
+  updateCarPositions(weekData);
 }
 
 // Helper function to calculate standings after a specific week
@@ -1183,3 +1191,93 @@ window.onload = () => {
   console.log("Window loaded, fetching data...");
   fetchDataFromGoogleSheets();
 };
+
+// Add this after your existing code
+function createRaceCars() {
+  const raceCars = {
+    Emilia: { color: 'purple', number: '21' },
+    Midge: { color: 'red', number: '11' },
+    Dan: { color: 'blue', number: '26' },
+    Grace: { color: 'pink', number: '24' },
+    Edmund: { color: 'green', number: '31' },
+    Heather: { color: 'indigo', number: '14' }
+  };
+
+  // Create container for race cars
+  const container = document.createElement('div');
+  container.style.cssText = `
+    position: relative;
+    width: 100%;
+    height: 200px;
+    background: #333;
+    border-radius: 10px;
+    margin: 20px 0;
+    overflow: hidden;
+  `;
+
+  // Add racing line
+  const racingLine = document.createElement('div');
+  racingLine.style.cssText = `
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: white;
+    top: 50%;
+    transform: translateY(-50%);
+  `;
+  container.appendChild(racingLine);
+
+  // Create and position cars
+  Object.entries(raceCars).forEach(([team, details]) => {
+    const car = document.createElement('div');
+    car.id = `car-${team}`;
+    car.style.cssText = `
+      position: absolute;
+      width: 40px;
+      height: 20px;
+      background: ${details.color};
+      border-radius: 5px;
+      transition: left 1s ease-in-out;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 12px;
+    `;
+    car.textContent = details.number;
+    container.appendChild(car);
+  });
+
+  // Add container before the weekly recap
+  const recapSection = document.getElementById('weekly-recap');
+  recapSection.parentNode.insertBefore(container, recapSection);
+
+  return container;
+}
+
+// Update car positions based on standings
+function updateCarPositions(weekData) {
+  if (!weekData || !weekData.standings) return;
+
+  // Calculate total points for each team
+  const teamPoints = Object.entries(weekData.standings).map(([team, data]) => ({
+    team,
+    points: data.total
+  })).sort((a, b) => b.points - a.points);
+
+  // Calculate positions
+  const maxPoints = Math.max(...teamPoints.map(t => t.points));
+  const containerWidth = document.querySelector('#weekly-recap').offsetWidth - 50; // Subtract car width
+
+  teamPoints.forEach((teamData, index) => {
+    const car = document.getElementById(`car-${teamData.team}`);
+    if (car) {
+      const verticalPosition = 30 + (index * 25); // Stack cars vertically
+      const horizontalPosition = (teamData.points / maxPoints) * containerWidth;
+      car.style.left = `${horizontalPosition}px`;
+      car.style.top = `${verticalPosition}px`;
+    }
+  });
+}
