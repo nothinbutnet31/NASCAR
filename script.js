@@ -264,41 +264,65 @@ function loadOverallStandings() {
   const animateWeek = () => {
     if (!isAnimating) return;
     
-    if (weekIndex <= weeklyPoints.length) {
-      const points = weekIndex === weeklyPoints.length ? 
-        totalPoints : 
-        weeklyPoints[weekIndex];
-
+    const completedWeeks = standingsData.weeks.filter(week => 
+      Object.values(week.standings).some(data => data.total > 0)
+    );
+    
+    if (weekIndex < completedWeeks.length) {
+      // For each week, animate from start to finish
+      const week = completedWeeks[weekIndex];
+      
       // Update lap counter
-      if (weekIndex < weeklyPoints.length) {
-        const completedWeeks = standingsData.weeks.filter(week => 
-          Object.values(week.standings).some(data => data.total > 0)
-        );
-        const week = completedWeeks[weekIndex];
-        lapCounter.innerHTML = `
-          <div>Lap ${weekIndex + 1}</div>
-          <div style="font-size: 14px;">${week.track}</div>
-        `;
-      } else {
-        lapCounter.innerHTML = `<div>Final Results</div>`;
-        playButton.innerHTML = '🔄 Replay';
-        isAnimating = false;
-      }
+      lapCounter.innerHTML = `
+        <div>Lap ${weekIndex + 1}</div>
+        <div style="font-size: 14px;">${week.track}</div>
+      `;
 
+      // First move all cars to starting line
       sortedTeams.forEach(([team], index) => {
         const car = document.getElementById(`car-${team}`);
         if (car) {
-          const verticalPosition = 40 + (index * 45);
-          const horizontalPosition = ((points[team] || 0) / maxPoints) * containerWidth;
-          car.style.left = `${horizontalPosition}px`;
-          car.style.top = `${verticalPosition}px`;
+          car.style.transition = 'all 0.5s ease-in-out';
+          car.style.left = '40px';
+          car.style.top = `${40 + (index * 60)}px`;
         }
       });
 
-      weekIndex++;
-      if (isAnimating) {
-        setTimeout(animateWeek, 300);
-      }
+      // After brief pause, move cars to their position for that week
+      setTimeout(() => {
+        const weekPoints = {};
+        completedWeeks.slice(0, weekIndex + 1).forEach(w => {
+          Object.entries(w.standings).forEach(([team, data]) => {
+            weekPoints[team] = (weekPoints[team] || 0) + data.total;
+          });
+        });
+
+        // Sort teams by points for this week
+        const weekStandings = Object.entries(weekPoints)
+          .sort((a, b) => b[1] - a[1]);
+
+        const maxPoints = Math.max(...Object.values(totalPoints));
+        const containerWidth = document.querySelector('#overall-standings').offsetWidth - 100;
+
+        weekStandings.forEach(([team, points], index) => {
+          const car = document.getElementById(`car-${team}`);
+          if (car) {
+            car.style.transition = 'all 1s ease-in-out';
+            car.style.left = `${((points / maxPoints) * containerWidth)}px`;
+            car.style.top = `${40 + (index * 60)}px`;
+          }
+        });
+
+        // Move to next week after animation completes
+        if (weekIndex < completedWeeks.length - 1) {
+          weekIndex++;
+          setTimeout(animateWeek, 2000); // Wait 2 seconds before next lap
+        } else {
+          // We've reached the current week
+          isAnimating = false;
+          playButton.innerHTML = '🔄 Replay';
+        }
+      }, 1000); // Wait 1 second before moving cars to their positions
     }
   };
 
@@ -308,19 +332,23 @@ function loadOverallStandings() {
       isAnimating = false;
       playButton.innerHTML = '▶️ Play Race';
     } else {
-      if (weekIndex >= weeklyPoints.length) {
-        weekIndex = 0;
-        // Reset cars to starting position
-        sortedTeams.forEach(([team], index) => {
-          const car = document.getElementById(`car-${team}`);
-          if (car) {
-            car.style.left = '40px';
-          }
-        });
-      }
-      isAnimating = true;
-      playButton.innerHTML = '⏸️ Pause';
-      animateWeek();
+      weekIndex = 0;
+      // Reset cars to starting position
+      sortedTeams.forEach(([team], index) => {
+        const car = document.getElementById(`car-${team}`);
+        if (car) {
+          car.style.transition = 'none'; // Disable transition for reset
+          car.style.left = '40px';
+          car.style.top = `${40 + (index * 60)}px`;
+        }
+      });
+      
+      // Brief pause before starting animation
+      setTimeout(() => {
+        isAnimating = true;
+        playButton.innerHTML = '⏸️ Pause';
+        animateWeek();
+      }, 100);
     }
   });
 
@@ -802,7 +830,6 @@ function generateWeeklyRecap() {
     Object.entries(data.drivers).forEach(([driver, points]) => {
       allDriversScores.push({ team, driver, points });
     });
-  });
 
   const sortedDrivers = allDriversScores.sort((a, b) => b.points - a.points);
   const topDrivers = sortedDrivers.slice(0, 3);
@@ -1335,64 +1362,59 @@ function createRaceCars() {
   container.style.cssText = `
     position: relative;
     width: 100%;
-    height: 300px;
+    height: 400px;
     background: #333;
     border-radius: 10px;
     margin: 20px 0;
     overflow: hidden;
   `;
 
-  // Add starting line
+  // Create oval track
+  const track = document.createElement('div');
+  track.style.cssText = `
+    position: absolute;
+    width: 80%;
+    height: 70%;
+    top: 15%;
+    left: 10%;
+    border: 4px solid white;
+    border-radius: 200px;
+    box-sizing: border-box;
+  `;
+  
+  // Add start/finish line
   const startLine = document.createElement('div');
   startLine.style.cssText = `
     position: absolute;
-    width: 2px;
-    height: 100%;
-    background: white;
-    left: 40px;
-  `;
-  container.appendChild(startLine);
-
-  // Add finish line
-  const finishLine = document.createElement('div');
-  finishLine.style.cssText = `
-    position: absolute;
-    width: 2px;
-    height: 100%;
+    width: 4px;
+    height: 40px;
     background: repeating-linear-gradient(
       to bottom,
       white,
-      white 10px,
-      black 10px,
-      black 20px
+      white 4px,
+      black 4px,
+      black 8px
     );
-    right: 40px;
-  `;
-  container.appendChild(finishLine);
-
-  // Add racing line
-  const racingLine = document.createElement('div');
-  racingLine.style.cssText = `
-    position: absolute;
-    width: 100%;
-    height: 2px;
-    background: white;
     top: 50%;
+    right: 10%;
     transform: translateY(-50%);
   `;
-  container.appendChild(racingLine);
+
+  container.appendChild(track);
+  container.appendChild(startLine);
 
   Object.entries(raceCars).forEach(([team, details]) => {
     const car = document.createElement('div');
     car.id = `car-${team}`;
     
-    // Main car container
+    // Position cars at starting line, staggered
     car.style.cssText = `
       position: absolute;
       width: 100px;
       height: 40px;
-      transition: all 0.5s ease-in-out;
-      left: 40px;
+      transition: all 0.5s linear;
+      transform-origin: center center;
+      right: 12%;
     `;
 
     // Car HTML structure with styling
@@ -1401,6 +1423,7 @@ function createRaceCars() {
         position: relative;
         width: 100%;
         height: 100%;
+        transform: rotate(-90deg);
       ">
         <!-- Car body -->
         <div style="
@@ -1426,7 +1449,7 @@ function createRaceCars() {
           box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
         "></div>
         
-        <!-- Front wheel -->
+        <!-- Wheels -->
         <div style="
           position: absolute;
           width: 16px;
@@ -1437,8 +1460,6 @@ function createRaceCars() {
           bottom: -8px;
           left: 15px;
         "></div>
-        
-        <!-- Back wheel -->
         <div style="
           position: absolute;
           width: 16px;
@@ -1479,6 +1500,96 @@ function createRaceCars() {
   return container;
 }
 
+// Add this function to calculate car positions around the oval
+function calculateCarPosition(progress, lane) {
+  const radius = 35; // % of container height
+  const centerX = 50; // % of container width
+  const centerY = 50; // % of container height
+  const trackWidth = 40; // % of container width
+  const trackHeight = 35; // % of container height
+  
+  // Adjust progress to determine position on track
+  let x, y, rotation;
+  
+  if (progress <= 0.25) { // Top straight
+    x = centerX + trackWidth * (0.5 - 2 * progress);
+    y = centerY - trackHeight;
+    rotation = 180;
+  } else if (progress <= 0.5) { // Left turn
+    const turnProgress = (progress - 0.25) * 4;
+    x = centerX - trackWidth/2;
+    y = centerY - trackHeight + 2 * trackHeight * turnProgress;
+    rotation = 180 + 180 * turnProgress;
+  } else if (progress <= 0.75) { // Bottom straight
+    x = centerX - trackWidth * (0.5 - 2 * (progress - 0.5));
+    y = centerY + trackHeight;
+    rotation = 0;
+  } else { // Right turn
+    const turnProgress = (progress - 0.75) * 4;
+    x = centerX + trackWidth/2;
+    y = centerY + trackHeight - 2 * trackHeight * turnProgress;
+    rotation = 0 + 180 * turnProgress;
+  }
+  
+  // Adjust for different lanes
+  const laneOffset = lane * 2; // % offset for each lane
+  if (progress <= 0.25 || progress >= 0.75) {
+    y += laneOffset;
+  } else {
+    y -= laneOffset;
+  }
+  
+  return { x, y, rotation };
+}
+
+// Update the animation function in loadOverallStandings
+function animateWeek() {
+  if (!isAnimating) return;
+  
+  const completedWeeks = standingsData.weeks.filter(week => 
+    Object.values(week.standings).some(data => data.total > 0)
+  );
+  
+  if (weekIndex < completedWeeks.length) {
+    const week = completedWeeks[weekIndex];
+    
+    lapCounter.innerHTML = `
+      <div>Lap ${weekIndex + 1}</div>
+      <div style="font-size: 14px;">${week.track}</div>
+    `;
+
+    // Animate cars around the track
+    let progress = 0;
+    const animateLap = () => {
+      progress += 0.005; // Speed of movement
+      
+      sortedTeams.forEach(([team], index) => {
+        const car = document.getElementById(`car-${team}`);
+        if (car) {
+          const { x, y, rotation } = calculateCarPosition(progress, index);
+          car.style.transform = `translate(${x}%, ${y}%) rotate(${rotation}deg)`;
+        }
+      });
+
+      if (progress < 1) {
+        requestAnimationFrame(animateLap);
+      } else {
+        // Move to final positions for this week
+        updateFinalPositions(week);
+        if (weekIndex < completedWeeks.length - 1) {
+          weekIndex++;
+          setTimeout(animateWeek, 1000);
+        } else {
+          isAnimating = false;
+          playButton.innerHTML = '🔄 Replay';
+        }
+      }
+    };
+    
+    animateLap();
+  }
+}
+
 // Update car positions based on standings
 function updateCarPositions(weekData) {
   if (!weekData || !weekData.standings) return;
@@ -1502,4 +1613,3 @@ function updateCarPositions(weekData) {
       car.style.top = `${verticalPosition}px`;
     }
   });
-}
