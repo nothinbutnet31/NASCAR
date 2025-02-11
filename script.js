@@ -1188,7 +1188,7 @@ function populateWeekDropdown() {
   });
 }
 
-// Add this new function to handle track images
+// Add this function to handle track images
 function updateTrackImage() {
   const weekSelect = document.getElementById("week-select");
   const trackImage = document.getElementById("track-image");
@@ -1266,11 +1266,11 @@ async function createLiveNewsTicker() {
     width: 100%;
     background-color: #FFD700;
     color: black;
-    padding: 15px 0;  // Increased padding
+    padding: 15px 0;
     z-index: 1000;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    font-size: 18px;  // Increased font size
+    font-size: 18px;
   `;
 
   const styleSheet = document.createElement('style');
@@ -1283,9 +1283,9 @@ async function createLiveNewsTicker() {
     #news-ticker {
       white-space: nowrap;
       display: inline-block;
-      animation: ticker 40s linear infinite;
+      animation: ticker 60s linear infinite;
       padding-left: 100%;
-      font-size: 18px;  // Increased font size
+      font-size: 18px;
     }
     
     #news-ticker-container:hover #news-ticker {
@@ -1293,7 +1293,7 @@ async function createLiveNewsTicker() {
     }
     
     body {
-      padding-top: 50px;  // Increased to account for larger ticker
+      padding-top: 50px;
     }
   `;
   document.head.appendChild(styleSheet);
