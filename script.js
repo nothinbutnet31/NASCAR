@@ -209,7 +209,7 @@ function loadOverallStandings() {
       }
       
       #overall-standings tr:nth-child(even) {
-        background-color: #f9f9f9;
+        background-color: #ff0000;
       }
       
       #overall-standings tr:hover {
