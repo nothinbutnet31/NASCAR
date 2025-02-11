@@ -297,13 +297,28 @@ function loadWeeklyStandings() {
   const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
 
   if (weekData) {
-    // Update track image
+    // Update track image with proper capitalization
     const trackImage = document.getElementById("weekly-track-image");
     if (trackImage && weekData.track) {
-      const trackName = weekData.track.replace(/[^a-zA-Z0-9]/g, '_');
-      trackImage.src = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
+      // Capitalize first letter of each word and remove special characters
+      const trackName = weekData.track
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join('_')
+        .replace(/[^a-zA-Z0-9_]/g, '');
+      
+      console.log('Loading track image:', trackName);
+      const trackUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
+      console.log('Track image URL:', trackUrl);
+      
+      trackImage.src = trackUrl;
       trackImage.alt = `${weekData.track} Track`;
+      trackImage.style.maxWidth = "200px";
+      trackImage.style.display = "block";
+      trackImage.style.margin = "10px 0";
+      
       trackImage.onerror = function() {
+        console.log('Track image failed to load:', trackUrl);
         this.src = "https://via.placeholder.com/200x200?text=Track+Image+Not+Found";
       };
     }
@@ -1340,4 +1355,6 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
+
 
