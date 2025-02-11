@@ -793,6 +793,7 @@ function generateWeeklyRecap() {
       allDriversScores.push({ team, driver, points });
     });
   });
+   
   const sortedDrivers = allDriversScores.sort((a, b) => b.points - a.points);
   const topDrivers = sortedDrivers.slice(0, 3);
   const bottomDrivers = sortedDrivers.filter(d => d.points > 0).slice(-3).reverse();
@@ -826,7 +827,6 @@ function generateWeeklyRecap() {
         performanceDeltas.push({ driver, team, points, delta });
       }
     });
-  
 
     const sortedDeltas = performanceDeltas.sort((a, b) => b.delta - a.delta);
     const overAchiever = sortedDeltas[0];
@@ -1606,4 +1606,65 @@ function updateCarPositions(weekData) {
   };
   
   animate();
+}
+
+function createCars() {
+  const trackContainer = document.getElementById('overall-standings');
+  if (!trackContainer) return;
+  
+  // Clear existing cars
+  trackContainer.innerHTML = '';
+  
+  // Create cars for each team
+  Object.entries(standingsData.teams).forEach(([team, data], index) => {
+    const car = document.createElement('div');
+    car.id = `car-${team}`;
+    car.className = 'car';
+    car.style.cssText = `
+      position: absolute;
+      width: 40px;
+      height: 20px;
+      background-color: ${getTeamColor(team)};
+      border-radius: 5px;
+      transform-origin: center;
+      z-index: 100;
+    `;
+    
+    // Add car number
+    car.innerHTML = `
+      <div style="
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        color: white;
+        font-weight: bold;
+        font-size: 12px;
+      ">${index + 1}</div>
+    `;
+    
+    trackContainer.appendChild(car);
+  });
+}
+
+// Add this helper function for team colors
+function getTeamColor(team) {
+  const colors = {
+    'Midge': '#FF0000',    // Red
+    'Emilia': '#00FF00',   // Green
+    'Heather': '#0000FF',  // Blue
+    'Dan': '#FFFF00',      // Yellow
+    'Grace': '#FF00FF',    // Magenta
+    'Edmund': '#00FFFF'    // Cyan
+  };
+  return colors[team] || '#FFFFFF';
+}
+
+// Call createCars before starting animation
+function animateWeek() {
+  if (!isAnimating) return;
+  
+  // Create cars if they don't exist
+  createCars();
+  
+  // Rest of your existing animateWeek code...
 }
