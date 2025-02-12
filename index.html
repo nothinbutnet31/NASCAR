@@ -4,7 +4,19 @@
     <meta charset="UTF-8" />
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/icons/icon-72x72.png">
-
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/NASCAR/sw.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful');
+                    })
+                    .catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
     <!-- PWA Icons -->
     <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/icons/icon-192x192.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
