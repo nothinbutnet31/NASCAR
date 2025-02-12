@@ -272,105 +272,50 @@ function loadOverallStandings() {
 
 // Load Weekly Standings
 function loadWeeklyStandings() {
+  // Get elements once
   const weekSelect = document.getElementById("week-select");
   const weeklyTable = document.querySelector("#weekly-standings tbody");
-  const preseasonMessage = document.getElementById("preseason-message");
   const weeklyContent = document.getElementById("weekly-content");
+  const preseasonMessage = document.getElementById("preseason-message");
   
-  // Check if there are any valid weeks with points
-  const hasResults = standingsData.weeks.some(week => 
-    Object.values(week.standings).some(team => team.total > 0)
-  );
-
-  if (!hasResults) {
-    // Calculate and sort teams by expected points
-    const teamProjections = Object.entries(standingsData.teams)
-      .map(([team, data]) => ({
-        team,
-        drivers: data.drivers,
-        expectedPoints: calculateExpectedTeamPoints(data.drivers)
-      }))
-      .sort((a, b) => b.expectedPoints - a.expectedPoints);
-
-    // Generate preseason rankings HTML
-    let preseasonHTML = `
-      <div style="text-align: center; padding: 20px;">
-        <h3>🏁 Welcome to the 2025 Fantasy NASCAR Season! 🏁</h3>
-        <p style="font-size: 1.2em; margin: 20px 0;">Preseason Power Rankings</p>
-        
-        <div style="display: flex; justify-content: center; width: 100%;">
-          <table style="width: 90%; max-width: 1200px; margin: 20px auto; border-collapse: collapse;">
-            <thead>
-              <tr>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: center; width: 10%;">Rank</th>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: center; width: 15%;">Team</th>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: center; width: 15%;">Expected Points</th>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: left; width: 60%;">Drivers</th>
-              </tr>
-            </thead>
-            <tbody>
-    `;
-
-    teamProjections.forEach((team, index) => {
-      const driversList = team.drivers
-        .map(driver => `${driver} (${expectedDriverAverages[driver] || 15})`)
-        .join(', ');
-      
-      preseasonHTML += `
-        <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${index + 1}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${team.team}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${team.expectedPoints}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: left;">${driversList}</td>
-        </tr>
-      `;
-    });
-
-    preseasonHTML += `
-            </tbody>
-          </table>
-        </div>
-        
-        <div style="margin: 20px 0;">
-          <h4>Important Dates:</h4>
-          <p>Season Opener: Daytona 500 - February 16, 2025</p>
-        </div>
-      </div>
-    `;
-
-    if (preseasonMessage) {
-      preseasonMessage.innerHTML = preseasonHTML;
-      preseasonMessage.style.display = "block";
-    }
-    if (weeklyContent) weeklyContent.style.display = "none";
+  // Guard clauses
+  if (!weeklyTable || !weekSelect) {
+    console.log("Required elements not found");
     return;
   }
 
-  // Hide preseason message and show weekly content once results exist
-  if (preseasonMessage) preseasonMessage.style.display = "none";
-  if (weeklyContent) weeklyContent.style.display = "block";
+  // IMPORTANT: Clear ALL existing content first
+  weeklyTable.replaceChildren(); // More efficient than innerHTML = ""
+  
+  // Get selected week
+  const selectedWeek = weekSelect.value ? parseInt(weekSelect.value) - 1 : 0;
+  const weekData = standingsData.weeks[selectedWeek];
 
-  const selectedWeekNumber = parseInt(weekSelect.value, 10);
-  const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
-
-  if (weekData) {
-    const sortedStandings = Object.entries(weekData.standings)
-      .sort((a, b) => b[1].total - a[1].total);
-
-    sortedStandings.forEach(([team, data], index) => {
-      const row = document.createElement("tr");
-      const flag = index === 0 && data.total > 0 ? '<i class="fas fa-flag-checkered"></i> ' : "";
-      row.innerHTML = `
-        <td>${flag}${team}</td>
-        <td>${data.total}</td>
-      `;
-      weeklyTable.appendChild(row);
-    });
-
-    generateWeeklyRecap();
+  if (!weekData || !weekData.standings) {
+    console.log("No data for selected week");
+    return;
   }
 
-  updateTrackImage();
+  // Sort teams by points for the selected week
+  const sortedTeams = Object.entries(weekData.standings)
+    .sort((a, b) => b[1].total - a[1].total);
+
+  // Create a document fragment for better performance
+  const fragment = document.createDocumentFragment();
+
+  // Generate table rows
+  sortedTeams.forEach(([team, data], index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td class="standings-cell">${index + 1}</td>
+      <td class="standings-cell">${team}</td>
+      <td class="standings-cell">${data.total}</td>
+    `;
+    fragment.appendChild(row);
+  });
+
+  // Add all rows at once
+  weeklyTable.appendChild(fragment);
 }
 
 // Modify the calculateDriverAverages function
@@ -1219,47 +1164,40 @@ function populateWeekDropdown() {
     return;
   }
 
-  weekSelect.innerHTML = "";
+  // Store the current value before clearing
+  const currentValue = weekSelect.value;
 
-  // Add default option
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = "Select a Week";
-  weekSelect.appendChild(defaultOption);
-
-  let validWeeks = [];
+  // Clear existing options
+  weekSelect.replaceChildren();
 
   if (standingsData.weeks && standingsData.weeks.length > 0) {
-    standingsData.weeks.forEach((week) => {
-      // Check if the week has any valid points
-      const hasValidPoints = Object.values(week.standings).some(teamData => 
-        teamData.total > 0
-      );
-
-      if (week && week.track && week.track.trim() !== "" && hasValidPoints) {
-        validWeeks.push(week);
+    standingsData.weeks.forEach((week, index) => {
+      if (week && week.track && week.track.trim() !== "") {
         const option = document.createElement("option");
-        option.value = week.week;
-        option.textContent = `Week ${week.week} - ${week.track}`;
+        option.value = index + 1;
+        option.textContent = `Week ${index + 1} - ${week.track}`;
         weekSelect.appendChild(option);
       }
     });
 
-    // Find the last week with valid points
-    const lastValidWeek = validWeeks[validWeeks.length - 1];
-
-    if (lastValidWeek) {
-      weekSelect.value = lastValidWeek.week;
-      loadWeeklyStandings();
-      updateTrackImage();
-    }
+    // Restore the previous value or set to first week
+    weekSelect.value = currentValue || "1";
   }
 
-  weekSelect.addEventListener("change", () => {
+  // IMPORTANT: Remove ALL existing event listeners
+  const newSelect = weekSelect.cloneNode(true);
+  weekSelect.parentNode.replaceChild(newSelect, weekSelect);
+  
+  // Add single event listener
+  newSelect.addEventListener("change", () => {
     loadWeeklyStandings();
     generateWeeklyRecap();
     updateTrackImage();
   });
+
+  // Initial load
+  loadWeeklyStandings();
+  generateWeeklyRecap();
 }
 
 // Add this new function to handle track images
@@ -1312,11 +1250,9 @@ function openTab(tabName) {
 // Initialize the Page after data is loaded
 function init() {
   if (isDataLoaded) {
+    populateWeekDropdown(); // This will handle both standings and recap
     loadOverallStandings();
-    loadWeeklyStandings();
     createLiveNewsTicker();
-    // Open weekly tab by default
-    openTab('weekly');
   }
 }
 
@@ -1329,11 +1265,9 @@ document.addEventListener('DOMContentLoaded', () => {
 window.onload = () => {
   console.log("Window loaded, checking data...");
   if (isDataLoaded) {
+    populateWeekDropdown(); // This will handle both standings and recap
     loadOverallStandings();
-    loadWeeklyStandings();
     createLiveNewsTicker();
-    // Open weekly tab by default
-    openTab('weekly');
   }
 };
 
