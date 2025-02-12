@@ -37,14 +37,17 @@
         </div>
 
 <!-- Weekly Standings -->
+<!-- Weekly Standings -->
 <div id="weekly" class="tabcontent" style="display:none;">
     <h2>Weekly Standings</h2>
-    <div class="week-selection">
-        <label for="week-select">Select Week:</label>
-        <select id="week-select">
-            <!-- Weeks will be populated dynamically -->
-        </select>
-        <div id="weekly-track-image-container" style="text-align: center; margin-left: 50px;">
+    <div class="week-selection" style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+        <div style="display: flex; align-items: center;">
+            <label for="week-select" style="margin-right: 10px;">Select Week:</label>
+            <select id="week-select">
+                <!-- Weeks will be populated dynamically -->
+            </select>
+        </div>
+        <div id="weekly-track-image-container">
             <img id="weekly-track-image" src="" alt="Track Layout" style="max-width: 200px; margin: 10px 0;">
         </div>
     </div>
