@@ -248,11 +248,11 @@ function loadOverallStandings() {
 
 // Load Weekly Standings
 function loadWeeklyStandings() {
+  const preseasonMessage = document.getElementById("preseason-message");
   const weekSelect = document.getElementById("week-select");
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const weeklyContent = document.getElementById("weekly-content");
-  const preseasonMessage = document.getElementById("preseason-message");
-  
+
   // Guard clauses
   if (!weeklyTable || !weekSelect) {
     console.log("Required elements not found");
@@ -261,7 +261,7 @@ function loadWeeklyStandings() {
 
   // Clear existing content
   weeklyTable.innerHTML = "";
-  
+
   // Check if we have any race results
   const hasResults = standingsData.weeks.some(week => 
     Object.values(week.standings).some(team => team.total > 0)
@@ -271,14 +271,42 @@ function loadWeeklyStandings() {
   if (!hasResults) {
     if (preseasonMessage) preseasonMessage.style.display = "block";
     if (weeklyContent) weeklyContent.style.display = "none";
-       // Calculate expected points for each team
+
+    // Calculate expected points for each team
     const expectedPoints = {};
     Object.entries(standingsData.teams).forEach(([team, data]) => {
       expectedPoints[team] = calculateExpectedTeamPoints(data.drivers);  // Assuming this function exists
     });
 
+    // Sort teams by expected points for preseason rankings
+    const sortedTeams = Object.entries(expectedPoints)
+      .sort((a, b) => b[1] - a[1]);
 
- 
+    // Generate table rows for preseason rankings
+    sortedTeams.forEach(([team, points]) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="standings-cell">${team}</td>
+        <td class="standings-cell">${points}</td>
+      `;
+      weeklyTable.appendChild(row);
+    });
+
+    // Exit the function after displaying preseason rankings
+    return;  // This return ensures that the rest of the code doesn't execute if we show preseason standings
+  } else {
+    if (preseasonMessage) preseasonMessage.style.display = "none";
+    if (weeklyContent) weeklyContent.style.display = "block";
+  }
+
+  // Get selected week
+  const selectedWeek = weekSelect.value ? parseInt(weekSelect.value) - 1 : 0;
+  const weekData = standingsData.weeks[selectedWeek];
+
+  if (!weekData || !weekData.standings) {
+    console.log("No data for selected week");
+    return;
+  }
 
   // Sort teams by points for the selected week
   const sortedTeams = Object.entries(weekData.standings)
@@ -293,34 +321,9 @@ function loadWeeklyStandings() {
     `;
     weeklyTable.appendChild(row);
   });
-    return;
-  } else {
-    if (preseasonMessage) preseasonMessage.style.display = "none";
-    if (weeklyContent) weeklyContent.style.display = "block";
-  }
 }
- // Get selected week
-  const selectedWeek = weekSelect.value ? parseInt(weekSelect.value) - 1 : 0;
-  const weekData = standingsData.weeks[selectedWeek];
 
-  if (!weekData || !weekData.standings) {
-    console.log("No data for selected week");
-    return;
-  }
-// Sort teams by points for the selected week
-  const sortedTeams = Object.entries(weekData.standings)
-    .sort((a, b) => b[1].total - a[1].total);
 
-  // Generate table rows (without position numbers)
-  sortedTeams.forEach(([team, data]) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td class="standings-cell">${team}</td>
-      <td class="standings-cell">${data.total}</td>
-    `;
-    weeklyTable.appendChild(row);
-  });
-}
 
 // Modify the calculateDriverAverages function
 function calculateDriverAverages(weekNumber) {
