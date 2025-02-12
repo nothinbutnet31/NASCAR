@@ -272,7 +272,6 @@ function loadOverallStandings() {
 
 // Load Weekly Standings
 function loadWeeklyStandings() {
-  // Get elements once
   const weekSelect = document.getElementById("week-select");
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const weeklyContent = document.getElementById("weekly-content");
@@ -284,9 +283,24 @@ function loadWeeklyStandings() {
     return;
   }
 
-  // IMPORTANT: Clear ALL existing content first
-  weeklyTable.replaceChildren(); // More efficient than innerHTML = ""
+  // Clear existing content
+  weeklyTable.innerHTML = "";
   
+  // Check if we have any race results
+  const hasResults = standingsData.weeks.some(week => 
+    Object.values(week.standings).some(team => team.total > 0)
+  );
+
+  // Show/hide appropriate content
+  if (!hasResults) {
+    if (preseasonMessage) preseasonMessage.style.display = "block";
+    if (weeklyContent) weeklyContent.style.display = "none";
+    return;
+  } else {
+    if (preseasonMessage) preseasonMessage.style.display = "none";
+    if (weeklyContent) weeklyContent.style.display = "block";
+  }
+
   // Get selected week
   const selectedWeek = weekSelect.value ? parseInt(weekSelect.value) - 1 : 0;
   const weekData = standingsData.weeks[selectedWeek];
@@ -300,9 +314,6 @@ function loadWeeklyStandings() {
   const sortedTeams = Object.entries(weekData.standings)
     .sort((a, b) => b[1].total - a[1].total);
 
-  // Create a document fragment for better performance
-  const fragment = document.createDocumentFragment();
-
   // Generate table rows
   sortedTeams.forEach(([team, data], index) => {
     const row = document.createElement("tr");
@@ -311,11 +322,8 @@ function loadWeeklyStandings() {
       <td class="standings-cell">${team}</td>
       <td class="standings-cell">${data.total}</td>
     `;
-    fragment.appendChild(row);
+    weeklyTable.appendChild(row);
   });
-
-  // Add all rows at once
-  weeklyTable.appendChild(fragment);
 }
 
 // Modify the calculateDriverAverages function
@@ -1164,12 +1172,10 @@ function populateWeekDropdown() {
     return;
   }
 
-  // Store the current value before clearing
-  const currentValue = weekSelect.value;
-
   // Clear existing options
-  weekSelect.replaceChildren();
+  weekSelect.innerHTML = "";
 
+  // Add week options
   if (standingsData.weeks && standingsData.weeks.length > 0) {
     standingsData.weeks.forEach((week, index) => {
       if (week && week.track && week.track.trim() !== "") {
@@ -1180,16 +1186,12 @@ function populateWeekDropdown() {
       }
     });
 
-    // Restore the previous value or set to first week
-    weekSelect.value = currentValue || "1";
+    // Set to first week by default
+    weekSelect.value = "1";
   }
 
-  // IMPORTANT: Remove ALL existing event listeners
-  const newSelect = weekSelect.cloneNode(true);
-  weekSelect.parentNode.replaceChild(newSelect, weekSelect);
-  
-  // Add single event listener
-  newSelect.addEventListener("change", () => {
+  // Single event listener for week changes
+  weekSelect.addEventListener("change", () => {
     loadWeeklyStandings();
     generateWeeklyRecap();
     updateTrackImage();
@@ -1247,10 +1249,10 @@ function openTab(tabName) {
   }
 }
 
-// Initialize the Page after data is loaded
+// Initialize the Page
 function init() {
   if (isDataLoaded) {
-    populateWeekDropdown(); // This will handle both standings and recap
+    populateWeekDropdown();
     loadOverallStandings();
     createLiveNewsTicker();
   }
@@ -1265,9 +1267,7 @@ document.addEventListener('DOMContentLoaded', () => {
 window.onload = () => {
   console.log("Window loaded, checking data...");
   if (isDataLoaded) {
-    populateWeekDropdown(); // This will handle both standings and recap
-    loadOverallStandings();
-    createLiveNewsTicker();
+    init();
   }
 };
 
