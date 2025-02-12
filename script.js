@@ -248,10 +248,11 @@ function loadOverallStandings() {
 
 // Load Weekly Standings
 function loadWeeklyStandings() {
+  const preseasonMessage = document.getElementById("preseason-message");
   const weekSelect = document.getElementById("week-select");
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const weeklyContent = document.getElementById("weekly-content");
-  const preseasonMessage = document.getElementById("preseason-message");
+  
   
   // Guard clauses
   if (!weeklyTable || !weekSelect) {
@@ -532,6 +533,12 @@ function generateWeeklyRecap() {
   const topTeam = Object.entries(weekData.standings)
     .sort((a, b) => b[1].total - a[1].total)[0];
 
+  // Check if topTeam is defined
+  if (!topTeam) {
+    recapContainer.innerHTML = "<p>No top team data available.</p>";
+    return;
+  }
+
   // Find high-scoring drivers (over 30 points) or highest scoring driver
   const highScoringDrivers = [];
   Object.entries(topTeam[1].drivers).forEach(([driver, points]) => {
@@ -583,144 +590,63 @@ function generateWeeklyRecap() {
 
   // Updated Driver of the Week section with narrative format
   const driverOfTheWeek = calculateDriverOfTheWeek(weekData, selectedWeekNumber);
-  console.log('Full Driver of Week data:', driverOfTheWeek);
+  
+  // Check if driverOfTheWeek is defined
+  if (!driverOfTheWeek) {
+    recapText += `<p>No driver of the week data available.</p>`;
+  } else {
+    // Build achievements list for Driver of the Week
+    let narrative = `${driverOfTheWeek.driver} finished ${getFinishPosition(driverOfTheWeek.racePoints)}`;
 
-  // Helper function to get finishing position
-  const getFinishPosition = (points) => {
-    // Use the basePoints directly for position lookup
-    const basePoints = driverOfTheWeek.basePoints;
-
-    console.log('Driver details:', {
-      driver: driverOfTheWeek.driver,
-      totalPoints: driverOfTheWeek.racePoints,
-      basePoints: basePoints,
-      stagePoints: driverOfTheWeek.details.stageWins,
-      qualifyingBonus: driverOfTheWeek.details.hadPole,
-      fastestLapBonus: driverOfTheWeek.details.hadFastestLap
-    });
-
-    const positionsMap = {
-      38: "1st",
-      34: "2nd",
-      33: "3rd",
-      32: "4th",
-      31: "5th",
-      30: "6th",
-      29: "7th",
-      28: "8th",
-      27: "9th",
-      26: "10th",
-      25: "11th",
-      24: "12th",
-      23: "13th",
-      22: "14th",
-      21: "15th",
-      20: "16th",
-      19: "17th",
-      18: "18th",
-      17: "19th",
-      16: "20th",
-      15: "21st",
-      14: "22nd",
-      13: "23rd",
-      12: "24th",
-      11: "25th",
-      10: "26th",
-      9: "27th",
-      8: "28th",
-      7: "29th",
-      6: "30th",
-      5: "31st",
-      4: "32nd",
-      3: "33rd",
-      2: "34th",
-      1: "35th"
-    };
-
-    return positionsMap[basePoints] || 'Unknown position';
-  };
-
-  // Build achievements list for Driver of the Week
-  let narrative = `${driverOfTheWeek.driver} finished ${getFinishPosition(driverOfTheWeek.racePoints)}`;
-
-  // Add stage wins
-  if (driverOfTheWeek.details.stageWins > 0) {
-    if (driverOfTheWeek.details.stageWins === 1) {
-      narrative += ", won Stage 1";
-    } else if (driverOfTheWeek.details.stageWins === 2) {
-      narrative += ", won both stages";
+    // Add stage wins
+    if (driverOfTheWeek.details.stageWins > 0) {
+      if (driverOfTheWeek.details.stageWins === 1) {
+        narrative += ", won Stage 1";
+      } else if (driverOfTheWeek.details.stageWins === 2) {
+        narrative += ", won both stages";
+      }
     }
-  }
 
-  // Add pole and fastest lap
-  if (driverOfTheWeek.details.hadPole) {
-    narrative += ", started from pole";
-  }
-  if (driverOfTheWeek.details.hadFastestLap) {
-    narrative += ", set the fastest lap";
-  }
+    // Add pole and fastest lap
+    if (driverOfTheWeek.details.hadPole) {
+      narrative += ", started from pole";
+    }
+    if (driverOfTheWeek.details.hadFastestLap) {
+      narrative += ", set the fastest lap";
+    }
 
-  // Add performance vs average
-  const vsExpected = parseFloat(driverOfTheWeek.details.vsExpected);
-  if (vsExpected > 0) {
-    narrative += `, was ${vsExpected.toFixed(1)} points above average`;
-  }
+    // Add performance vs average
+    const vsExpected = parseFloat(driverOfTheWeek.details.vsExpected);
+    if (vsExpected > 0) {
+      narrative += `, was ${vsExpected.toFixed(1)} points above average`;
+    }
 
-  // Add team contribution
-  narrative += `, and contributed ${driverOfTheWeek.details.teamContribution} of team points`;
+    // Add team contribution
+    narrative += `, and contributed ${driverOfTheWeek.details.teamContribution} of team points`;
 
-  // Format driver name for image URL - capitalize each word
-  const driverImageName = driverOfTheWeek.driver
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join('_')
-    .replace(/\./g, '')
-    .replace(/\s*(Jr|Sr|Iii|Ii|Iv)\s*$/i, '');
-
-  // Create image element with fetch
-  const imgElement = document.createElement('img');
-  imgElement.style.width = '150px';
-  imgElement.style.height = '150px';
-  imgElement.style.objectFit = 'cover';
-  imgElement.style.objectPosition = '50% 20%';
-  imgElement.style.border = '2px solid #ddd';
-  imgElement.alt = driverOfTheWeek.driver;
-
-  console.log('Trying to fetch image:', `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png`);
-
-  fetch(`https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png`)
-    .then(response => response.blob())
-    .then(blob => {
-      const url = URL.createObjectURL(blob);
-      imgElement.src = url;
-    })
-    .catch(() => {
-      imgElement.src = 'path/to/default.png';
-    });
-
-
-  recapText += `
-    <div class="recap-section">
-      <h4>🏆 Driver of the Week</h4>
-      <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
-        <div id="driver-image-container"></div>
-        <div>
-          <p><strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})</p>
-          <p>${narrative}.</p>
-          <p style="
-            font-family: 'Georgia', sans-serif; 
-            color: #000000; 
-            font-size: 1.2em; 
-            font-weight: bold;
-            margin-top: 10px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-          ">
-            Performance Score: ${driverOfTheWeek.totalScore.toFixed(1)}
-          </p>
+    recapText += `
+      <div class="recap-section">
+        <h4>🏆 Driver of the Week</h4>
+        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
+          <div id="driver-image-container"></div>
+          <div>
+            <p><strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})</p>
+            <p>${narrative}.</p>
+            <p style="
+              font-family: 'Georgia', sans-serif; 
+              color: #000000; 
+              font-size: 1.2em; 
+              font-weight: bold;
+              margin-top: 10px;
+              text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+            ">
+              Performance Score: ${driverOfTheWeek.totalScore.toFixed(1)}
+            </p>
+          </div>
         </div>
       </div>
-    </div>
-  `;
+    `;
+  }
 
   // Top and Bottom Performers Section
   const allDriversScores = [];
@@ -861,18 +787,40 @@ function generateWeeklyRecap() {
   }
 
   // Update the recap content
-  const recapContent = document.getElementById("weekly-recap");
-  if (recapContent) {
-    recapContent.innerHTML = recapText;
+  recapContainer.innerHTML = recapText;
 
-    // Add the image after the HTML is updated
-    const container = document.getElementById('driver-image-container');
-    if (container) {
-      container.appendChild(imgElement);
-    }
+  // Add the image after the HTML is updated
+  const container = document.getElementById('driver-image-container');
+  if (container) {
+    const imgElement = document.createElement('img');
+    imgElement.style.width = '150px';
+    imgElement.style.height = '150px';
+    imgElement.style.objectFit = 'cover';
+    imgElement.style.objectPosition = '50% 20%';
+    imgElement.style.border = '2px solid #ddd';
+    imgElement.alt = driverOfTheWeek.driver;
 
-    updateTrackImage();
+    const driverImageName = driverOfTheWeek.driver
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join('_')
+      .replace(/\./g, '')
+      .replace(/\s*(Jr|Sr|Iii|Ii|Iv)\s*$/i, '');
+
+    fetch(`https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/drivers/${driverImageName}.png`)
+      .then(response => response.blob())
+      .then(blob => {
+        const url = URL.createObjectURL(blob);
+        imgElement.src = url;
+        container.appendChild(imgElement);
+      })
+      .catch(() => {
+        imgElement.src = 'path/to/default.png';
+        container.appendChild(imgElement);
+      });
   }
+
+  updateTrackImage();
 }
 
 
