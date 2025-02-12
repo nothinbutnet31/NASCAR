@@ -135,6 +135,7 @@ function processRaceData(data) {
   const headerRow = data[0];
   const positions = data.slice(1);
 
+  // Reset the weeks array to prevent duplication
   standingsData.weeks = [];
 
   headerRow.slice(1).forEach((track, trackIndex) => {
@@ -281,26 +282,29 @@ function loadOverallStandings() {
   if (standingsData.weeks) {
     standingsData.weeks.forEach((week, weekIndex) => {
       Object.entries(week.standings).forEach(([team, data]) => {
-        if (data && data.total) {
+        if (data && typeof data.total === 'number') {
           totalPoints[team] = (totalPoints[team] || 0) + data.total;
           
-          // Update stats
-          if (data.total >= 38) teamStats[team].wins++;
-          if (data.total >= 31) teamStats[team].top5s++;
-          if (data.total >= 26) teamStats[team].top10s++;
+          // Update stats based on team's total points for the week
+          const weekPoints = data.total;
+          if (weekPoints >= 38) teamStats[team].wins++;
+          if (weekPoints >= 31) teamStats[team].top5s++;
+          if (weekPoints >= 26) teamStats[team].top10s++;
           
-          // Track last week's points for change indicator
+          // Track last week's points
           if (weekIndex === standingsData.weeks.length - 1) {
-            teamStats[team].lastWeekPoints = data.total;
+            teamStats[team].lastWeekPoints = weekPoints;
           }
         }
       });
     });
   }
 
+  // Sort teams by total points
   const sortedTeams = Object.entries(totalPoints)
     .sort((a, b) => b[1] - a[1]);
 
+  // Generate table rows
   sortedTeams.forEach(([team, points], index) => {
     const stats = teamStats[team];
     const position = index + 1;
@@ -1208,7 +1212,7 @@ function updateTeamRoster(selectedTeam, selectedTrackIndex) {
       // Calculate total points across all races
       points = standingsData.weeks.reduce((sum, week) => {
         return sum + (week.standings[selectedTeam]?.drivers[driver] || 0);
-      }, 0);
+      }
     } else {
       // Get points for specific race
       const week = standingsData.weeks[selectedTrackIndex];
