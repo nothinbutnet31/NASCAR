@@ -272,11 +272,10 @@ function loadWeeklyStandings() {
   weeklyTable.innerHTML = "";
 
   // Check if we have any race results
-  const hasResults = standingsData.weeks.some(week => 
-    Object.values(week.standings).some(team => team.total > 0))
-  const hasResults = standingsData.weeks && standingsData.weeks.some(week => 
-    week.standings && Object.values(week.standings).some(team => team.total > 0)
-  );
+ const hasResults = standingsData.weeks && standingsData.weeks.some(week => 
+  week.standings && Object.values(week.standings).some(team => team.total > 0)
+);
+
 
   // Show/hide appropriate content
   if (!hasResults) {
