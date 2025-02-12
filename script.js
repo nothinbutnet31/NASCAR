@@ -281,28 +281,39 @@ function loadOverallStandings() {
 
   // Process each week's results
   standingsData.weeks.forEach((week, weekIndex) => {
+    console.log(`Processing week ${weekIndex + 1}:`, week.track);
+    
     Object.entries(week.standings).forEach(([team, data]) => {
       if (data && data.drivers) {
         // Add to total points
         totalPoints[team] = (totalPoints[team] || 0) + data.total;
         
         // Check each driver's points
-        Object.values(data.drivers).forEach(driverPoints => {
-          // Win: 38 points (base points for 1st)
-          // Top 5: 31-38 base points (not counting bonus points)
-          // Top 10: 26-38 base points (not counting bonus points)
+        Object.entries(data.drivers).forEach(([driver, driverPoints]) => {
+          // Skip if no points (DNF or not in race)
+          if (!driverPoints || driverPoints === 0) return;
+
+          console.log(`${team} - ${driver}: ${driverPoints} points`);
           
           // Calculate base points by subtracting possible bonus points
-          // Maximum bonus points: 6 (2 stage wins + pole + fastest lap)
-          const basePoints = driverPoints - 6;
+          const maxBonusPoints = 6; // 2 stage wins + pole + fastest lap
+          const basePoints = Math.max(0, driverPoints - maxBonusPoints);
           
+          console.log(`${driver} base points: ${basePoints}`);
+
+          // Win: 38 base points
           if (basePoints >= 38) {
+            console.log(`${driver} got a WIN!`);
             teamStats[team].wins++;
           }
+          // Top 5: 31-38 base points
           if (basePoints >= 31) {
+            console.log(`${driver} got a TOP 5!`);
             teamStats[team].top5s++;
           }
+          // Top 10: 26-38 base points
           if (basePoints >= 26) {
+            console.log(`${driver} got a TOP 10!`);
             teamStats[team].top10s++;
           }
         });
@@ -315,9 +326,13 @@ function loadOverallStandings() {
     });
   });
 
+  console.log("Final team stats:", teamStats);
+
+  // Sort teams by total points
   const sortedTeams = Object.entries(totalPoints)
     .sort((a, b) => b[1] - a[1]);
 
+  // Generate table rows
   sortedTeams.forEach(([team, points], index) => {
     const stats = teamStats[team];
     const position = index + 1;
