@@ -37,32 +37,56 @@
         </div>
 
 <!-- Weekly Standings -->
-<!-- Weekly Standings -->
 <div id="weekly" class="tabcontent" style="display:none;">
     <h2>Weekly Standings</h2>
-    <div class="week-selection" style="display: flex; align-items: center; justify-content: center; gap: 20px;">
-        <div style="display: flex; align-items: center;">
-            <label for="week-select" style="margin-right: 10px;">Select Week:</label>
-            <select id="week-select">
-                <!-- Weeks will be populated dynamically -->
-            </select>
+    
+    <!-- Preseason Message -->
+    <div id="preseason-message" style="text-align: center; padding: 20px;">
+        <h3>🏁 Welcome to the 2024 Fantasy NASCAR Season! 🏁</h3>
+        <p style="font-size: 1.2em; margin: 20px 0;">The season hasn't started yet, but get ready for an exciting year of racing!</p>
+        <div style="margin: 20px 0;">
+            <h4>Important Dates:</h4>
+            <p>Season Opener: Daytona 500 - February 18, 2024</p>
         </div>
-        <div id="weekly-track-image-container">
-            <img id="weekly-track-image" src="" alt="Track Layout" style="max-width: 200px; margin: 10px 0;">
+        <div style="margin: 20px 0;">
+            <h4>Your Teams:</h4>
+            <ul style="list-style: none; padding: 0;">
+                <li>Midge: Denny Hamlin, William Byron, Ricky Stenhouse Jr, Ryan Preece, Shane van Gisbergen</li>
+                <li>Emilia: Austin Cindric, Austin Dillon, Kyle Larson, AJ Allmendinger, Alex Bowman</li>
+                <li>Heather: Kyle Busch, Chase Elliott, Erik Jones, Tyler Reddick, Michael McDowell</li>
+                <li>Dan: Brad Keselowski, Chris Buescher, Noah Gragson, Joey Logano, Cole Custer</li>
+                <li>Grace: Ross Chastain, Chase Briscoe, Josh Berry, Bubba Wallace, Daniel Suarez</li>
+                <li>Edmund: Ryan Blaney, Christopher Bell, Riley Herbst, Ty Gibbs, Carson Hocevar</li>
+            </ul>
         </div>
     </div>
-    <table id="weekly-standings">
-        <thead>
-            <tr>
-                <th>Team</th>
-                <th>Points</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Weekly standings will be populated here -->
-        </tbody>
-    </table>
-    <div id="weekly-recap"></div>
+
+    <!-- Weekly Content -->
+    <div id="weekly-content">
+        <div class="week-selection" style="display: flex; align-items: center; justify-content: center; gap: 20px;">
+            <div style="display: flex; align-items: center;">
+                <label for="week-select" style="margin-right: 10px;">Select Week:</label>
+                <select id="week-select">
+                    <!-- Weeks will be populated dynamically -->
+                </select>
+            </div>
+            <div id="weekly-track-image-container">
+                <img id="weekly-track-image" src="" alt="Track Layout" style="max-width: 200px; margin: 10px 0;">
+            </div>
+        </div>
+        <table id="weekly-standings">
+            <thead>
+                <tr>
+                    <th>Team</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Weekly standings will be populated here -->
+            </tbody>
+        </table>
+        <div id="weekly-recap"></div>
+    </div>
 </div>
 
         <!-- Team Pages -->
