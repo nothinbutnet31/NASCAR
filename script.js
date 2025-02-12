@@ -336,6 +336,23 @@ function calculateDriverAverages(weekNumber) {
 
   return averages;
 }
+/ Update calculateDriverOfTheWeek to use this info
+function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
+  const allDriversPerformance = [];
+
+  Object.entries(weekData.standings).forEach(([team, data]) => {
+    Object.entries(data.drivers).forEach(([driver, racePoints]) => {
+      if (racePoints === 0) return;
+
+      // Calculate base race points (finish position only)
+      let basePoints = 0;
+      for (const [pos, pts] of Object.entries(scoringSystem)) {
+        if (racePoints >= pts && (pos.includes('st') || pos.includes('nd') || 
+            pos.includes('rd') || pos.includes('th'))) {
+          basePoints = pts;
+          break;
+        }
+      }
 
       let totalScore = basePoints * 0.8;
 
@@ -387,7 +404,6 @@ function calculateDriverAverages(weekNumber) {
       });
     });
   });
-
   return allDriversPerformance.sort((a, b) => b.totalScore - a.totalScore)[0];
 }
 
