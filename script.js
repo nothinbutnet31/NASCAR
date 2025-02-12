@@ -1411,4 +1411,3 @@ function calculateExpectedTeamPoints(teamDrivers) {
 }
 
 
-}
