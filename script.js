@@ -268,36 +268,52 @@ function loadOverallStandings() {
   const totalPoints = {};
   const teamStats = {};
 
+  // Initialize stats for each team
   Object.keys(standingsData.teams).forEach(team => {
     totalPoints[team] = 0;
     teamStats[team] = {
       wins: 0,
       top5s: 0,
       top10s: 0,
-      avgFinish: 0,
       lastWeekPoints: 0
     };
   });
 
-  if (standingsData.weeks) {
-    standingsData.weeks.forEach((week, weekIndex) => {
-      Object.entries(week.standings).forEach(([team, data]) => {
-        if (data && data.total) {
-          totalPoints[team] = (totalPoints[team] || 0) + data.total;
+  // Process each week's results
+  standingsData.weeks.forEach((week, weekIndex) => {
+    Object.entries(week.standings).forEach(([team, data]) => {
+      if (data && data.drivers) {
+        // Add to total points
+        totalPoints[team] = (totalPoints[team] || 0) + data.total;
+        
+        // Check each driver's points
+        Object.values(data.drivers).forEach(driverPoints => {
+          // Win: 38 points (base points for 1st)
+          // Top 5: 31-38 base points (not counting bonus points)
+          // Top 10: 26-38 base points (not counting bonus points)
           
-          // Update stats
-          if (data.total >= 38) teamStats[team].wins++;
-          if (data.total >= 31) teamStats[team].top5s++;
-          if (data.total >= 26) teamStats[team].top10s++;
+          // Calculate base points by subtracting possible bonus points
+          // Maximum bonus points: 6 (2 stage wins + pole + fastest lap)
+          const basePoints = driverPoints - 6;
           
-          // Track last week's points for change indicator
-          if (weekIndex === standingsData.weeks.length - 1) {
-            teamStats[team].lastWeekPoints = data.total;
+          if (basePoints >= 38) {
+            teamStats[team].wins++;
           }
+          if (basePoints >= 31) {
+            teamStats[team].top5s++;
+          }
+          if (basePoints >= 26) {
+            teamStats[team].top10s++;
+          }
+        });
+
+        // Store last week's points
+        if (weekIndex === standingsData.weeks.length - 1) {
+          teamStats[team].lastWeekPoints = data.total;
         }
-      });
+      }
     });
-  }
+  });
 
   const sortedTeams = Object.entries(totalPoints)
     .sort((a, b) => b[1] - a[1]);
