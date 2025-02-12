@@ -766,7 +766,6 @@ function generateWeeklyRecap() {
     Object.entries(data.drivers).forEach(([driver, points]) => {
       allDriversScores.push({ team, driver, points });
     });
-  });
 
   const sortedDrivers = allDriversScores.sort((a, b) => b.points - a.points);
   const topDrivers = sortedDrivers.slice(0, 3);
@@ -1206,17 +1205,19 @@ function populateWeekDropdown() {
   // Remove any existing event listeners
   weekSelect.removeEventListener("change", weekSelect.changeHandler);
   
-  // Create new change handler
+  // Create new change handler that includes generateWeeklyRecap
   weekSelect.changeHandler = () => {
     loadWeeklyStandings();
+    generateWeeklyRecap();  // Make sure this is called
     updateTrackImage();
   };
   
   // Add new event listener
   weekSelect.addEventListener("change", weekSelect.changeHandler);
 
-  // Initial load
+  // Initial load - call both functions
   loadWeeklyStandings();
+  generateWeeklyRecap();  // Make sure this runs on initial load
 }
 
 // Add this new function to handle track images
