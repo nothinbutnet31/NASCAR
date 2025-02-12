@@ -1321,87 +1321,73 @@ function updateTrackImage() {
   }
 }
 
-// Open Tabs (for switching between pages/sections)
 function openTab(tabName) {
     console.log(`Opening tab: ${tabName}`);
 
-    // Get all tab elements
-    const tabcontents = document.querySelectorAll(".tabcontent");
-    const tablinks = document.querySelectorAll(".tablink");
+    // Get all tab elements (only direct children of container)
+    const container = document.querySelector('.container');
+    const tabcontents = container.querySelectorAll(':scope > .tabcontent');
+    const tablinks = container.querySelectorAll('.tablink');
 
-    // Debug: Log all tab elements
-    console.log("Found tab elements:", tabcontents.length);
-    
+    console.log(`Found ${tabcontents.length} tab elements`);
+
     // Hide all tabs and remove active class
     tabcontents.forEach(tab => {
-        console.log(`Hiding tab: ${tab.id}`);
-        tab.style.display = "none";
+        tab.style.cssText = 'display: none !important';
     });
 
     tablinks.forEach(link => {
-        link.classList.remove("active");
+        link.classList.remove('active');
     });
 
     // Show selected tab
     const selectedTab = document.getElementById(tabName);
     if (selectedTab) {
         console.log(`Showing tab: ${tabName}`);
-        selectedTab.style.display = "block";
+        selectedTab.style.cssText = 'display: block !important';
         
         // Add active class to button
         const button = document.querySelector(`[onclick="openTab('${tabName}')"]`);
         if (button) {
-            button.classList.add("active");
+            button.classList.add('active');
         }
 
         // Load content based on tab
         switch(tabName) {
             case "weekly":
-                console.log("Loading weekly content");
                 populateWeekDropdown();
                 loadWeeklyStandings();
                 break;
             case "teams":
-                console.log("Loading teams content");
                 populateTeamDropdown();
                 loadTeamPage();
                 break;
             case "overall":
-                console.log("Loading overall content");
                 loadOverallStandings();
                 break;
         }
-    } else {
-        console.error(`Tab ${tabName} not found!`);
     }
+}
 
-    // Debug: Log final states
-    tabcontents.forEach(tab => {
-        console.log(`Final state for ${tab.id}: ${getComputedStyle(tab).display}`);
-    });
-}
-// Initialize the Page
-function init() {
-  if (isDataLoaded) {
-    populateWeekDropdown();
-    loadOverallStandings();
-    createLiveNewsTicker();
-    // Open weekly standings tab by default
-    openTab('weekly');
-  }
-}
+// Initialize tabs
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM loaded, initializing tabs...");
-    
-    // Remove any inline styles
-    document.querySelectorAll(".tabcontent").forEach(tab => {
-        tab.removeAttribute("style");
+    // Remove any existing inline styles
+    document.querySelectorAll('.tabcontent').forEach(tab => {
+        tab.removeAttribute('style');
     });
     
-    // Show initial tab
-    openTab('weekly');
+    // Show initial tab after a short delay to ensure data is loaded
+    setTimeout(() => {
+        openTab('weekly');
+    }, 100);
 });
 
+// Update when data is loaded
+function init() {
+    if (isDataLoaded) {
+        openTab('weekly');
+    }
+}
 // Add CSS if it doesn't exist
 if (!document.getElementById('standings-styles')) {
   const styles = document.createElement('style');
