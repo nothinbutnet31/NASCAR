@@ -272,105 +272,61 @@ function loadOverallStandings() {
 
 // Load Weekly Standings
 function loadWeeklyStandings() {
+  // Get elements
   const weekSelect = document.getElementById("week-select");
   const weeklyTable = document.querySelector("#weekly-standings tbody");
-  const preseasonMessage = document.getElementById("preseason-message");
   const weeklyContent = document.getElementById("weekly-content");
   
-  // Check if there are any valid weeks with points
-  const hasResults = standingsData.weeks.some(week => 
-    Object.values(week.standings).some(team => team.total > 0)
-  );
-
-  if (!hasResults) {
-    // Calculate and sort teams by expected points
-    const teamProjections = Object.entries(standingsData.teams)
-      .map(([team, data]) => ({
-        team,
-        drivers: data.drivers,
-        expectedPoints: calculateExpectedTeamPoints(data.drivers)
-      }))
-      .sort((a, b) => b.expectedPoints - a.expectedPoints);
-
-    // Generate preseason rankings HTML
-    let preseasonHTML = `
-      <div style="text-align: center; padding: 20px;">
-        <h3>🏁 Welcome to the 2025 Fantasy NASCAR Season! 🏁</h3>
-        <p style="font-size: 1.2em; margin: 20px 0;">Preseason Power Rankings</p>
-        
-        <div style="display: flex; justify-content: center; width: 100%;">
-          <table style="width: 90%; max-width: 1200px; margin: 20px auto; border-collapse: collapse;">
-            <thead>
-              <tr>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: center; width: 10%;">Rank</th>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: center; width: 15%;">Team</th>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: center; width: 15%;">Expected Points</th>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: left; width: 60%;">Drivers</th>
-              </tr>
-            </thead>
-            <tbody>
-    `;
-
-    teamProjections.forEach((team, index) => {
-      const driversList = team.drivers
-        .map(driver => `${driver} (${expectedDriverAverages[driver] || 15})`)
-        .join(', ');
-      
-      preseasonHTML += `
-        <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${index + 1}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${team.team}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${team.expectedPoints}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: left;">${driversList}</td>
-        </tr>
-      `;
-    });
-
-    preseasonHTML += `
-            </tbody>
-          </table>
-        </div>
-        
-        <div style="margin: 20px 0;">
-          <h4>Important Dates:</h4>
-          <p>Season Opener: Daytona 500 - February 16, 2025</p>
-        </div>
-      </div>
-    `;
-
-    if (preseasonMessage) {
-      preseasonMessage.innerHTML = preseasonHTML;
-      preseasonMessage.style.display = "block";
-    }
-    if (weeklyContent) weeklyContent.style.display = "none";
+  // Guard clauses
+  if (!weeklyTable || !weekSelect) {
+    console.log("Required elements not found");
     return;
   }
 
-  // Hide preseason message and show weekly content once results exist
-  if (preseasonMessage) preseasonMessage.style.display = "none";
-  if (weeklyContent) weeklyContent.style.display = "block";
+  // Clear existing content FIRST
+  weeklyTable.innerHTML = "";
+  
+  // Get selected week
+  const selectedWeek = weekSelect.value ? parseInt(weekSelect.value) - 1 : standingsData.weeks.length - 1;
+  const weekData = standingsData.weeks[selectedWeek];
 
-  const selectedWeekNumber = parseInt(weekSelect.value, 10);
-  const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
-
-  if (weekData) {
-    const sortedStandings = Object.entries(weekData.standings)
-      .sort((a, b) => b[1].total - a[1].total);
-
-    sortedStandings.forEach(([team, data], index) => {
-      const row = document.createElement("tr");
-      const flag = index === 0 && data.total > 0 ? '<i class="fas fa-flag-checkered"></i> ' : "";
-      row.innerHTML = `
-        <td>${flag}${team}</td>
-        <td>${data.total}</td>
-      `;
-      weeklyTable.appendChild(row);
-    });
-
-    generateWeeklyRecap();
+  if (!weekData || !weekData.standings) {
+    console.log("No data for selected week");
+    return;
   }
 
-  updateTrackImage();
+  // Remove any existing event listeners
+  weekSelect.removeEventListener("change", loadWeeklyStandings);
+  
+  // Sort teams by points for the selected week
+  const sortedTeams = Object.entries(weekData.standings)
+    .sort((a, b) => b[1].total - a[1].total);
+
+  // Generate table rows ONCE
+  sortedTeams.forEach(([team, data], index) => {
+    const row = document.createElement("tr");
+    const position = index + 1;
+    const positionClass = position <= 3 ? `position-${position}` : '';
+    
+    row.className = positionClass;
+    row.innerHTML = `
+      <td class="standings-cell">
+        ${position}
+        ${position === 1 ? '🏆' : position === 2 ? '🥈' : position === 3 ? '🥉' : ''}
+      </td>
+      <td class="standings-cell">${team}</td>
+      <td class="standings-cell">${data.total}</td>
+      <td class="standings-cell">
+        ${Object.entries(data.drivers)
+          .map(([driver, points]) => `${driver}: ${points}`)
+          .join('<br>')}
+      </td>
+    `;
+    weeklyTable.appendChild(row);
+  });
+
+  // Add event listener back
+  weekSelect.addEventListener("change", loadWeeklyStandings);
 }
 
 // Modify the calculateDriverAverages function
@@ -1219,6 +1175,7 @@ function populateWeekDropdown() {
     return;
   }
 
+  // Clear existing options
   weekSelect.innerHTML = "";
 
   // Add default option
@@ -1227,17 +1184,10 @@ function populateWeekDropdown() {
   defaultOption.textContent = "Select a Week";
   weekSelect.appendChild(defaultOption);
 
-  let validWeeks = [];
-
+  // Add week options
   if (standingsData.weeks && standingsData.weeks.length > 0) {
     standingsData.weeks.forEach((week) => {
-      // Check if the week has any valid points
-      const hasValidPoints = Object.values(week.standings).some(teamData => 
-        teamData.total > 0
-      );
-
-      if (week && week.track && week.track.trim() !== "" && hasValidPoints) {
-        validWeeks.push(week);
+      if (week && week.track && week.track.trim() !== "") {
         const option = document.createElement("option");
         option.value = week.week;
         option.textContent = `Week ${week.week} - ${week.track}`;
@@ -1245,21 +1195,27 @@ function populateWeekDropdown() {
       }
     });
 
-    // Find the last week with valid points
-    const lastValidWeek = validWeeks[validWeeks.length - 1];
-
-    if (lastValidWeek) {
-      weekSelect.value = lastValidWeek.week;
+    // Set to latest week
+    const lastWeek = standingsData.weeks[standingsData.weeks.length - 1];
+    if (lastWeek) {
+      weekSelect.value = lastWeek.week;
+      // Call loadWeeklyStandings only once
       loadWeeklyStandings();
-      updateTrackImage();
     }
   }
 
-  weekSelect.addEventListener("change", () => {
+  // Remove any existing event listeners
+  weekSelect.removeEventListener("change", weekSelect.changeHandler);
+  
+  // Create new change handler
+  weekSelect.changeHandler = () => {
     loadWeeklyStandings();
     generateWeeklyRecap();
     updateTrackImage();
-  });
+  };
+  
+  // Add new event listener
+  weekSelect.addEventListener("change", weekSelect.changeHandler);
 }
 
 // Add this new function to handle track images
