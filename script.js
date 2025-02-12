@@ -186,84 +186,6 @@ function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
   overallTable.innerHTML = "";
 
-  // Update CSS styles
-  if (!document.getElementById('standings-styles')) {
-    const styles = document.createElement('style');
-    styles.id = 'standings-styles';
-    styles.innerHTML = `
-      #overall-standings {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        font-weight: bold;
-        color: black;
-      }
-      
-      #overall-standings th,
-      #overall-standings td {
-        text-align: center !important;
-        padding: 15px;
-        border: 1px solid #ddd;
-        font-weight: bold;
-        color: black;
-      }
-      
-      #overall-standings th {
-        background-color: #1976D2;
-        color: white;
-        font-weight: bold;
-        font-size: 1.1em;
-      }
-      
-      #overall-standings tr:nth-child(even) {
-        background-color: #f9f9f9;
-      }
-      
-      #overall-standings tr:hover {
-        background-color: #f0f0f0;
-        transform: scale(1.01);
-        transition: all 0.2s ease;
-      }
-      
-      .standings-cell {
-        text-align: center !important;
-        vertical-align: middle !important;
-        font-weight: bold !important;
-        color: black !important;
-      }
-      
-      .position-1 { 
-        background-color: #FFD700 !important; 
-        font-weight: bold !important;
-      }
-      .position-2 { 
-        background-color: #C0C0C0 !important; 
-        font-weight: bold !important;
-      }
-      .position-3 { 
-        background-color: #CD7F32 !important; 
-        font-weight: bold !important;
-      }
-      
-      .points-change {
-        font-size: 0.9em;
-        margin-left: 5px;
-        font-weight: bold;
-      }
-      
-      .points-up { color: #006400 !important; }
-      .points-down { color: #8B0000 !important; }
-      
-      .team-stats {
-        font-size: 0.9em;
-        color: black !important;
-        font-weight: bold !important;
-      }
-    `;
-    document.head.appendChild(styles);
-  }
-
   // Calculate total points and stats for each team
   const totalPoints = {};
   const teamStats = {};
@@ -283,35 +205,30 @@ function loadOverallStandings() {
   standingsData.weeks.forEach((week, weekIndex) => {
     if (!week || !week.standings) return;
 
-    // First, find the finishing positions from the raw data
-    const positions = {};
-    const raceResults = week.standings;
-
-    // Process each team's drivers
-    Object.entries(raceResults).forEach(([team, teamData]) => {
+    Object.entries(week.standings).forEach(([team, teamData]) => {
       if (teamData && teamData.drivers) {
         // Add to total points
         totalPoints[team] = (totalPoints[team] || 0) + teamData.total;
 
         // Process each driver's result
         Object.entries(teamData.drivers).forEach(([driver, points]) => {
-          // Find the actual finishing position from the raw data
-          const position = findDriverPosition(driver, week);
-          
-          if (position) {
-            console.log(`${driver} finished ${position} with ${points} points`);
-            
-            // Update stats based on finishing position
-            if (position === 1) {
-              teamStats[team].wins++;
-              teamStats[team].top5s++;
-              teamStats[team].top10s++;
-            } else if (position <= 5) {
-              teamStats[team].top5s++;
-              teamStats[team].top10s++;
-            } else if (position <= 10) {
-              teamStats[team].top10s++;
-            }
+          // Base points calculation (subtracting maximum possible bonus points)
+          const maxBonusPoints = 6; // 2 stage wins (4) + pole (1) + fastest lap (1)
+          const basePoints = points - maxBonusPoints;
+
+          // Determine position based on base points
+          if (basePoints >= 38) { // 1st place
+            teamStats[team].wins++;
+            teamStats[team].top5s++;
+            teamStats[team].top10s++;
+            console.log(`${driver} got a win with ${points} points (${basePoints} base)`);
+          } else if (basePoints >= 31) { // Top 5
+            teamStats[team].top5s++;
+            teamStats[team].top10s++;
+            console.log(`${driver} got a top 5 with ${points} points (${basePoints} base)`);
+          } else if (basePoints >= 26) { // Top 10
+            teamStats[team].top10s++;
+            console.log(`${driver} got a top 10 with ${points} points (${basePoints} base)`);
           }
         });
 
@@ -358,123 +275,27 @@ function loadOverallStandings() {
   });
 }
 
-// Helper function to find driver's actual finishing position
-function findDriverPosition(driver, weekData) {
-  // Look through the raw data to find the actual finishing position
-  for (let i = 1; i <= 40; i++) {
-    const positionKey = i === 1 ? "1st" : 
-                       i === 2 ? "2nd" : 
-                       i === 3 ? "3rd" : 
-                       `${i}th`;
-    
-    // Find the row in the raw data that corresponds to this position
-    const positionRow = weekData.rawData?.find(row => 
-      row[0] === positionKey && row[1] === driver
-    );
-    
-    if (positionRow) {
-      return i; // Return the numerical position
-    }
-  }
-  return null; // Driver not found in results
-}
-
 // Load Weekly Standings
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
   const weeklyTable = document.querySelector("#weekly-standings tbody");
-  const preseasonMessage = document.getElementById("preseason-message");
-  const weeklyContent = document.getElementById("weekly-content");
   
-  // Clear the table first
-  weeklyTable.innerHTML = "";
-  
-  // Check if there are any valid weeks with points
-  const hasResults = standingsData.weeks.some(week => 
-    Object.values(week.standings).some(team => team.total > 0)
-  );
-
-  if (!hasResults) {
-    // Show preseason content
-    if (preseasonMessage) preseasonMessage.style.display = "block";
-    if (weeklyContent) weeklyContent.style.display = "none";
-
-    // Calculate and sort teams by expected points
-    const teamProjections = Object.entries(standingsData.teams)
-      .map(([team, data]) => ({
-        team,
-        drivers: data.drivers,
-        expectedPoints: calculateExpectedTeamPoints(data.drivers)
-      }))
-      .sort((a, b) => b.expectedPoints - a.expectedPoints);
-
-    // Generate preseason standings HTML
-    let preseasonHTML = `
-      <div style="text-align: center; padding: 20px;">
-        <h3>🏁 Welcome to the 2024 Fantasy NASCAR Season! 🏁</h3>
-        <p style="font-size: 1.2em; margin: 20px 0;">Preseason Power Rankings</p>
-        
-        <div style="display: flex; justify-content: center; width: 100%;">
-          <table style="width: 90%; max-width: 1200px; margin: 20px auto; border-collapse: collapse;">
-            <thead>
-              <tr>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: center; width: 10%;">Rank</th>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: center; width: 15%;">Team</th>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: center; width: 15%;">Expected Points</th>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: left; width: 60%;">Drivers</th>
-              </tr>
-            </thead>
-            <tbody>
-    `;
-
-    teamProjections.forEach((team, index) => {
-      const driversList = team.drivers
-        .map(driver => `${driver} (${expectedDriverAverages[driver] || 15})`)
-        .join(', ');
-      
-      preseasonHTML += `
-        <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${index + 1}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${team.team}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${team.expectedPoints}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: left;">${driversList}</td>
-        </tr>
-      `;
-    });
-
-    preseasonHTML += `
-            </tbody>
-          </table>
-        </div>
-        
-        <div style="margin: 20px 0;">
-          <h4>Important Dates:</h4>
-          <p>Season Opener: Daytona 500 - February 18, 2024</p>
-        </div>
-      </div>
-    `;
-
-    if (preseasonMessage) {
-      preseasonMessage.innerHTML = preseasonHTML;
-    }
-    return;
+  // Clear existing content first
+  if (weeklyTable) {
+    weeklyTable.innerHTML = "";
   }
-
-  // Show weekly content and hide preseason message
-  if (preseasonMessage) preseasonMessage.style.display = "none";
-  if (weeklyContent) weeklyContent.style.display = "block";
 
   // Get selected week
   const selectedWeek = weekSelect.value ? parseInt(weekSelect.value) - 1 : standingsData.weeks.length - 1;
   const weekData = standingsData.weeks[selectedWeek];
 
-  if (!weekData) return;
+  if (!weekData || !weekData.standings) return;
 
   // Sort teams by points for the selected week
   const sortedTeams = Object.entries(weekData.standings)
     .sort((a, b) => b[1].total - a[1].total);
 
-  // Generate table rows
+  // Generate table rows ONCE
   sortedTeams.forEach(([team, data], index) => {
     const row = document.createElement("tr");
     const position = index + 1;
