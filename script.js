@@ -1348,12 +1348,10 @@ async function createLiveNewsTicker() {
     width: 100%;
     background-color: #FFD700;
     color: black;
-    padding: 15px 0;  // Increased padding
     padding: 15px 0;
     z-index: 1000;
     overflow: hidden;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    font-size: 18px;  // Increased font size
     font-size: 18px;
   `;
 
@@ -1367,10 +1365,8 @@ async function createLiveNewsTicker() {
     #news-ticker {
       white-space: nowrap;
       display: inline-block;
-      animation: ticker 40s linear infinite;
       animation: ticker 60s linear infinite;
       padding-left: 100%;
-      font-size: 18px;  // Increased font size
       font-size: 18px;
     }
     
@@ -1379,7 +1375,6 @@ async function createLiveNewsTicker() {
     }
     
     body {
-      padding-top: 50px;  // Increased to account for larger ticker
       padding-top: 50px;
     }
   `;
@@ -1393,11 +1388,32 @@ async function createLiveNewsTicker() {
       const ticker = document.createElement('div');
       ticker.id = 'news-ticker';
 
-      const newsText = data.items
-        .map(item => `<a href="${item.link}" target="_blank" style="color: black; text-decoration: none; font-weight: bold;">${item.title}</a>`)
-        .join(' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ');
+      // League updates - add your custom messages here
+      const leagueUpdates = [
+        "🏆 Welcome to the 2024 Fantasy NASCAR Season!",
+        "📊 Check out the Preseason Power Rankings in Weekly Standings",
+        "🎯 Next Race: Daytona 500 - February 18, 2024",
+        "🏁 Good luck to all teams this season!"
+      ];
 
-      ticker.innerHTML = newsText + ' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ';
+      // Combine NASCAR news with league updates
+      const newsItems = data.items.map(item => 
+        `<a href="${item.link}" target="_blank" style="color: black; text-decoration: none; font-weight: bold;">📰 ${item.title}</a>`
+      );
+
+      const leagueItems = leagueUpdates.map(update => 
+        `<span style="color: black; font-weight: bold;">${update}</span>`
+      );
+
+      // Alternate between news and league updates
+      const combinedItems = [];
+      const maxLength = Math.max(newsItems.length, leagueItems.length);
+      for (let i = 0; i < maxLength; i++) {
+        if (newsItems[i]) combinedItems.push(newsItems[i]);
+        if (leagueItems[i]) combinedItems.push(leagueItems[i]);
+      }
+
+      ticker.innerHTML = combinedItems.join(' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ') + ' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ';
       tickerContainer.appendChild(ticker);
     }
   } catch (error) {
@@ -1406,7 +1422,7 @@ async function createLiveNewsTicker() {
     ticker.id = 'news-ticker';
     ticker.innerHTML = `
       <span style="color: black; font-weight: bold;">
-        NASCAR News Loading... Please check back in a moment...
+        Loading NASCAR News and League Updates... Please check back in a moment...
       </span>
     `;
     tickerContainer.appendChild(ticker);
