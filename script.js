@@ -248,10 +248,10 @@ function loadOverallStandings() {
 
 // Load Weekly Standings
 function loadWeeklyStandings() {
-  const preseasonMessage = document.getElementById("preseason-message");
-  const weekSelect = document.getElementById("week-select");
+   const weekSelect = document.getElementById("week-select");
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const weeklyContent = document.getElementById("weekly-content");
+  const preseasonMessage = document.getElementById("preseason-message");
   
   // Guard clauses
   if (!weeklyTable || !weekSelect) {
