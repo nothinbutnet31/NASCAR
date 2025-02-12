@@ -246,17 +246,23 @@ function loadOverallStandings() {
   });
 }
 
-// Load Weekly Standings
 function loadWeeklyStandings() {
+  // Get DOM elements
   const preseasonMessage = document.getElementById("preseason-message");
   const weekSelect = document.getElementById("week-select");
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const weeklyContent = document.getElementById("weekly-content");
   const preseasonTable = document.getElementById("preseason-standings");
 
-  // Guard clauses
+  // Validate data exists
+  if (!standingsData) {
+    console.error("No standings data available");
+    return;
+  }
+
+  // Guard clauses for required elements
   if (!weeklyTable || !weekSelect) {
-    console.log("Required elements not found");
+    console.error("Required elements not found");
     return;
   }
 
@@ -264,79 +270,99 @@ function loadWeeklyStandings() {
   weeklyTable.innerHTML = "";
 
   // Check if we have any race results
-  const hasResults = standingsData.weeks.some(week => 
-    Object.values(week.standings).some(team => team.total > 0)
+  const hasResults = standingsData.weeks && standingsData.weeks.some(week => 
+    week.standings && Object.values(week.standings).some(team => team.total > 0)
   );
 
-  // Show/hide appropriate content
   if (!hasResults) {
+    // Show preseason content
     if (preseasonMessage) preseasonMessage.style.display = "block";
     if (weeklyContent) weeklyContent.style.display = "none";
 
-    // Ensure standingsData.teams exists
-    if (!standingsData || !standingsData.teams) {
-      console.error("No teams data found in standingsData");
-      return;  // Exit if teams data is not available
+    // Handle preseason standings
+    if (preseasonTable && standingsData.teams) {
+      const tbody = preseasonTable.querySelector("tbody");
+      if (!tbody) {
+        console.error("Preseason table tbody not found");
+        return;
+      }
+
+      // Clear existing preseason content
+      tbody.innerHTML = "";
+
+      try {
+        // Calculate expected points for each team
+        const expectedPoints = {};
+        Object.entries(standingsData.teams).forEach(([team, data]) => {
+          if (data.drivers) {
+            expectedPoints[team] = calculateExpectedTeamPoints(data.drivers);
+          }
+        });
+
+        // Sort teams by expected points
+        const sortedTeams = Object.entries(expectedPoints)
+          .sort((a, b) => b[1] - a[1]);
+
+        // Generate table rows
+        sortedTeams.forEach(([team, points], index) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td class="standings-cell">${index + 1}</td>
+            <td class="standings-cell">${team}</td>
+            <td class="standings-cell">${points.toFixed(1)}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error("Error generating preseason standings:", error);
+      }
     }
-// Calculate and display preseason rankings
-    if (preseasonTable) {
-    const tbody = preseasonTable.querySelector("tbody");
-    tbody.innerHTML = ""; // Clear existing content
-    // Calculate expected points for each team
-    const expectedPoints = {};  // Initialize expectedPoints here
-    Object.entries(standingsData.teams).forEach(([team, data]) => {
-      expectedPoints[team] = calculateExpectedTeamPoints(data.drivers);  // Assuming this function exists
-    });
-
-    // Sort teams by expected points for preseason rankings
-    const sortedTeams = Object.entries(expectedPoints)
-      .sort((a, b) => b[1] - a[1]);
-
-    // Generate table rows for preseason rankings
-    sortedTeams.forEach(([team, points]) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td class="standings-cell">${team}</td>
-        <td class="standings-cell">${points.toFixed(1)}</td>
-      `;
-      tbody.appendChild(row);
-    });
-
-    // Exit the function after displaying preseason rankings
-    return;  // This return ensures that the rest of the code doesn't execute if we show preseason standings
-  } else {
-    if (preseasonMessage) preseasonMessage.style.display = "none";
-    if (weeklyContent) weeklyContent.style.display = "block";
+    return;
   }
+
+  // Show weekly content
+  if (preseasonMessage) preseasonMessage.style.display = "none";
+  if (weeklyContent) weeklyContent.style.display = "block";
 
   // Get selected week
   const selectedWeek = weekSelect.value ? parseInt(weekSelect.value) - 1 : 0;
   const weekData = standingsData.weeks[selectedWeek];
 
   if (!weekData || !weekData.standings) {
-    console.log("No data for selected week");
+    console.error("No data for selected week");
     return;
   }
 
-  // Sort teams by points for the selected week
-  const sortedTeams = Object.entries(weekData.standings)
-    .sort((a, b) => b[1].total - a[1].total);
+  try {
+    // Sort teams by points for the selected week
+    const sortedTeams = Object.entries(weekData.standings)
+      .sort((a, b) => b[1].total - a[1].total);
 
-  // Generate table rows (without position numbers)
-  sortedTeams.forEach(([team, data]) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-      <td class="standings-cell">${team}</td>
-      <td class="standings-cell">${data.total}</td>
-    `;
-    weeklyTable.appendChild(row);
-  });
+    // Generate table rows
+    sortedTeams.forEach(([team, data], index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="standings-cell">${index + 1}</td>
+        <td class="standings-cell">${team}</td>
+        <td class="standings-cell">${data.total}</td>
+      `;
+      weeklyTable.appendChild(row);
+    });
+  } catch (error) {
+    console.error("Error generating weekly standings:", error);
+  }
 }
 
-// Assuming calculateExpectedTeamPoints function is defined to calculate expected points for each team
 function calculateExpectedTeamPoints(teamDrivers) {
-  return teamDrivers.reduce((total, driver) => total + (expectedDriverAverages[driver] || 15), 0);
+  if (!expectedDriverAverages || !teamDrivers) {
+    console.error('Missing required data for point calculation');
+    return 0;
+  }
+  return teamDrivers.reduce((total, driver) => 
+    total + (expectedDriverAverages[driver] || 15), 0);
 }
+
+
 
 
 
