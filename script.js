@@ -339,17 +339,18 @@ if (weeklyContent) {
     weeklyContent.style.display = "block";
 }
         // Sort teams by expected points
-        const sortedTeams = Object.entries(expectedPoints)
-          .sort((a, b) => b[1] - a[1]);
-        // Generate table rows
-        sortedTeams.forEach(([team, points], index) => {
-          const row = document.createElement("tr");
-          row.innerHTML = `
-            <td class="standings-cell">${index + 1}</td>
-            <td class="standings-cell">${team}</td>
-            <td class="standings-cell">${points.toFixed(1)}</td>
-          `;
-          tbody.appendChild(row);
+const preseasonSortedTeams = Object.entries(expectedPoints)
+    .sort((a, b) => b[1] - a[1]);
+
+// Generate table rows
+preseasonSortedTeams.forEach(([team, points], index) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td class="standings-cell">${index + 1}</td>
+        <td class="standings-cell">${team}</td>
+        <td class="standings-cell">${points.toFixed(1)}</td>
+    `;
+    tbody.appendChild(row);
         });
       } catch (error) {
         console.error("Error generating preseason standings:", error);
