@@ -336,7 +336,7 @@ function calculateDriverAverages(weekNumber) {
 
   return averages;
 }
-/ Update calculateDriverOfTheWeek to use this info
+// Update calculateDriverOfTheWeek to use this info
 function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
   const allDriversPerformance = [];
 
