@@ -266,3 +266,29 @@ footer p {
     flex: 0 0 auto !important;  /* Prevent flex stretching */
     margin-right: 20px;
 }
+#preseason-standings {
+    border-collapse: collapse;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#preseason-standings th,
+#preseason-standings td {
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+#preseason-standings th {
+    background-color: #1976D2;
+    color: white;
+    font-weight: bold;
+}
+
+#preseason-standings tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+#preseason-standings tr:hover {
+    background-color: #f5f5f5;
+}
