@@ -203,7 +203,7 @@
 <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            const swPath = 'https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/sw.js';
+            const swPath = '/NASCAR/sw.js';  // Path for GitHub Pages
             
             navigator.serviceWorker.register(swPath)
                 .then(registration => {
