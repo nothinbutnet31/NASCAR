@@ -58,18 +58,30 @@ h1, h2 {
     background: white;
     border-radius: 5px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
-/* Override for active tab */
 .tabcontent[style*="display: block"] {
+    display: block !important;
+    opacity: 1;
+}
+
+/* Ensure child elements are visible */
+.tabcontent[style*="display: block"] > div,
+.tabcontent[style*="display: block"] > table,
+.tabcontent[style*="display: block"] > section {
     display: block !important;
 }
 
-/* Make sure child elements are visible */
-.tabcontent[style*="display: block"] > * {
-    display: block;
+/* Team specific overrides */
+#teams[style*="display: block"] #team-details {
+    display: flex !important;
 }
 
+#teams[style*="display: block"] #team-roster {
+    display: table !important;
+}
 /* Table Styles */
 table {
   width: 100%;
