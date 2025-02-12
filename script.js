@@ -329,6 +329,12 @@ function loadWeeklyStandings() {
   });
 }
 
+// Assuming calculateExpectedTeamPoints function is defined to calculate expected points for each team
+function calculateExpectedTeamPoints(teamDrivers) {
+  return teamDrivers.reduce((total, driver) => total + (expectedDriverAverages[driver] || 15), 0);
+}
+
+
 
 
 // Modify the calculateDriverAverages function
@@ -1425,11 +1431,5 @@ setInterval(async () => {
   await createLiveNewsTicker();
 }, 300000);
 
-function calculateExpectedTeamPoints(teamDrivers) {
-  return teamDrivers.reduce((total, driver) => total + (expectedDriverAverages[driver] || 15), 0);
-}
 
-Object.entries(standingsData.teams).forEach(([team, data]) => {
-  console.log(data);  // Log team data to see if it is structured correctly
-  expectedPoints[team] = calculateExpectedTeamPoints(data.drivers);
-});
+
