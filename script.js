@@ -321,19 +321,23 @@ function loadWeeklyStandings() {
       tbody.appendChild(row);
     });
       try {
-        // Calculate expected points for each team
-        const expectedPoints = {};
-        Object.entries(standingsData.teams).forEach(([team, data]) => {
-          if (data.drivers) {
+    // Calculate expected points for each team
+    const expectedPoints = {};
+    Object.entries(standingsData.teams).forEach(([team, data]) => {
+        if (data.drivers) {
             expectedPoints[team] = calculateExpectedTeamPoints(data.drivers);
-          }
-        });
+        }
+    });
+} catch (error) {
+    console.error("Error calculating expected points:", error);
+} 
 
-    // Exit the function after displaying preseason rankings
-    // This return ensures that the rest of the code doesn't execute if we show preseason standings
-  } else {
-    if (preseasonMessage) preseasonMessage.style.display = "none";
-    if (weeklyContent) weeklyContent.style.display = "block";
+if (preseasonMessage) {
+    preseasonMessage.style.display = "none";
+}
+if (weeklyContent) {
+    weeklyContent.style.display = "block";
+}
         // Sort teams by expected points
         const sortedTeams = Object.entries(expectedPoints)
           .sort((a, b) => b[1] - a[1]);
