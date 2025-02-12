@@ -185,61 +185,12 @@ function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
   overallTable.innerHTML = "";
 
-  // Add CSS if it doesn't exist
-  if (!document.getElementById('standings-styles')) {
-    const styles = document.createElement('style');
-    styles.id = 'standings-styles';
-    styles.innerHTML = `
-      #overall-standings {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 20px 0;
-      }
-      
-      #overall-standings th,
-      #overall-standings td {
-        text-align: center !important;
-        padding: 10px;
-        border: 1px solid #ddd;
-      }
-      
-      #overall-standings th {
-        background-color: #1976D2;  // Changed to match tab blue color
-        color: white;  // White text for better contrast
-        font-weight: bold;
-      }
-      
-      #overall-standings tr:nth-child(even) {
-        background-color: #f9f9f9;
-      }
-      
-      #overall-standings tr:hover {
-        background-color: #f0f0f0;
-      }
-      
-      .standings-cell {
-        text-align: center !important;
-        vertical-align: middle !important;
-      }
-    `;
-    document.head.appendChild(styles);
-  }
-
   // Calculate total points for each team
   const totalPoints = {};
-
-  console.log("Teams data:", standingsData.teams);
-
-  if (!standingsData || !standingsData.teams) {
-    console.error("No standings data available");
-    return;
-  }
-
   Object.keys(standingsData.teams).forEach(team => {
     totalPoints[team] = 0;
   });
 
-  console.log("Processing weekly data...");
   if (standingsData.weeks) {
     standingsData.weeks.forEach(week => {
       Object.entries(week.standings).forEach(([team, data]) => {
@@ -250,24 +201,49 @@ function loadOverallStandings() {
     });
   }
 
-  console.log("Total points calculated:", totalPoints);
-
+  // Sort teams by points
   const sortedTeams = Object.entries(totalPoints)
     .sort((a, b) => b[1] - a[1]);
 
-  console.log("Sorted teams:", sortedTeams);
-
+  // Generate table rows with position indicators and points behind
   sortedTeams.forEach(([team, points], index) => {
+    const position = index + 1;
+    let positionIcon = '';
+    
+    // Position icons
+    switch(position) {
+      case 1:
+        positionIcon = '🏆'; // Trophy for 1st
+        break;
+      case 2:
+        positionIcon = '🥈'; // Silver medal for 2nd
+        break;
+      case 3:
+        positionIcon = '🥉'; // Bronze medal for 3rd
+        break;
+      case 4:
+        positionIcon = '😬'; // Grimace for 4th
+        break;
+      case 5:
+        positionIcon = '👎'; // Thumbs Down for 5th
+        break;
+      case 6:
+        positionIcon = '💩'; // Poop for last
+        break;
+    }
+
+    // Calculate points behind
+    const pointsBehind = position === 1 ? 0 : sortedTeams[0][1] - points;
+    const pointsBehindDisplay = pointsBehind > 0 ? ` (-${pointsBehind})` : '';
+
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td class="standings-cell">${index + 1}</td>
+      <td class="standings-cell">${position} ${positionIcon}</td>
       <td class="standings-cell">${team}</td>
-      <td class="standings-cell">${points}</td>
+      <td class="standings-cell">${points}${pointsBehindDisplay}</td>
     `;
     overallTable.appendChild(row);
   });
-
-  console.log("Finished loading standings");
 }
 
 // Load Weekly Standings
@@ -732,8 +708,8 @@ function generateWeeklyRecap() {
           <p><strong>${driverOfTheWeek.driver}</strong> (${driverOfTheWeek.team})</p>
           <p>${narrative}.</p>
           <p style="
-            font-family: 'Impact', sans-serif; 
-            color: #1a1a1a; 
+            font-family: 'Georgia', sans-serif; 
+            color: #AAFF00; 
             font-size: 1.2em; 
             font-weight: bold;
             margin-top: 10px;
