@@ -209,7 +209,7 @@ function loadOverallStandings() {
   sortedTeams.forEach(([team, points], index) => {
     const position = index + 1;
     let positionIcon = '';
-    
+
     // Position icons
     switch(position) {
       case 1:
@@ -246,42 +246,24 @@ function loadOverallStandings() {
   });
 }
 
+// Load Weekly Standings
 function loadWeeklyStandings() {
   // Get DOM elements
-   console.log("Loading weekly standings...");
   const preseasonMessage = document.getElementById("preseason-message");
   const weekSelect = document.getElementById("week-select");
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const weeklyContent = document.getElementById("weekly-content");
   const preseasonTable = document.getElementById("preseason-standings");
- if (!weeklyContent || !preseasonMessage) {
-    console.error("Weekly content elements not found");
-    return;
-  }
 
-  console.log("Weekly content elements found");
-  
-  // Show preseason message if no data
-  if (!standingsData || !standingsData.weeks || standingsData.weeks.length === 0) {
-    console.log("Showing preseason message");
-    weeklyContent.style.display = "none";
-    preseasonMessage.style.display = "block";
-    return;
-  }
-
-  // Show weekly content if we have data
-  console.log("Showing weekly content");
-  weeklyContent.style.display = "block";
-  preseasonMessage.style.display = "none";
-  
+  // Guard clauses
   // Validate data exists
   if (!standingsData) {
     console.error("No standings data available");
     return;
   }
-
   // Guard clauses for required elements
   if (!weeklyTable || !weekSelect) {
+    console.log("Required elements not found");
     console.error("Required elements not found");
     return;
   }
@@ -290,15 +272,32 @@ function loadWeeklyStandings() {
   weeklyTable.innerHTML = "";
 
   // Check if we have any race results
+  const hasResults = standingsData.weeks.some(week => 
+    Object.values(week.standings).some(team => team.total > 0)
   const hasResults = standingsData.weeks && standingsData.weeks.some(week => 
     week.standings && Object.values(week.standings).some(team => team.total > 0)
   );
 
+  // Show/hide appropriate content
   if (!hasResults) {
     // Show preseason content
     if (preseasonMessage) preseasonMessage.style.display = "block";
     if (weeklyContent) weeklyContent.style.display = "none";
 
+    // Ensure standingsData.teams exists
+    if (!standingsData || !standingsData.teams) {
+      console.error("No teams data found in standingsData");
+      return;  // Exit if teams data is not available
+    }
+// Calculate and display preseason rankings
+    if (preseasonTable) {
+    const tbody = preseasonTable.querySelector("tbody");
+    tbody.innerHTML = ""; // Clear existing content
+    // Calculate expected points for each team
+    const expectedPoints = {};  // Initialize expectedPoints here
+    Object.entries(standingsData.teams).forEach(([team, data]) => {
+      expectedPoints[team] = calculateExpectedTeamPoints(data.drivers);  // Assuming this function exists
+    });
     // Handle preseason standings
     if (preseasonTable && standingsData.teams) {
       const tbody = preseasonTable.querySelector("tbody");
@@ -307,9 +306,21 @@ function loadWeeklyStandings() {
         return;
       }
 
+    // Sort teams by expected points for preseason rankings
+    const sortedTeams = Object.entries(expectedPoints)
+      .sort((a, b) => b[1] - a[1]);
       // Clear existing preseason content
       tbody.innerHTML = "";
 
+    // Generate table rows for preseason rankings
+    sortedTeams.forEach(([team, points]) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="standings-cell">${team}</td>
+        <td class="standings-cell">${points.toFixed(1)}</td>
+      `;
+      tbody.appendChild(row);
+    });
       try {
         // Calculate expected points for each team
         const expectedPoints = {};
@@ -319,10 +330,14 @@ function loadWeeklyStandings() {
           }
         });
 
+    // Exit the function after displaying preseason rankings
+    return;  // This return ensures that the rest of the code doesn't execute if we show preseason standings
+  } else {
+    if (preseasonMessage) preseasonMessage.style.display = "none";
+    if (weeklyContent) weeklyContent.style.display = "block";
         // Sort teams by expected points
         const sortedTeams = Object.entries(expectedPoints)
           .sort((a, b) => b[1] - a[1]);
-
         // Generate table rows
         sortedTeams.forEach(([team, points], index) => {
           const row = document.createElement("tr");
@@ -343,21 +358,33 @@ function loadWeeklyStandings() {
   // Show weekly content
   if (preseasonMessage) preseasonMessage.style.display = "none";
   if (weeklyContent) weeklyContent.style.display = "block";
-
   // Get selected week
   const selectedWeek = weekSelect.value ? parseInt(weekSelect.value) - 1 : 0;
   const weekData = standingsData.weeks[selectedWeek];
 
   if (!weekData || !weekData.standings) {
+    console.log("No data for selected week");
     console.error("No data for selected week");
     return;
   }
 
+  // Sort teams by points for the selected week
+  const sortedTeams = Object.entries(weekData.standings)
+    .sort((a, b) => b[1].total - a[1].total);
   try {
     // Sort teams by points for the selected week
     const sortedTeams = Object.entries(weekData.standings)
       .sort((a, b) => b[1].total - a[1].total);
 
+  // Generate table rows (without position numbers)
+  sortedTeams.forEach(([team, data]) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td class="standings-cell">${team}</td>
+      <td class="standings-cell">${data.total}</td>
+    `;
+    weeklyTable.appendChild(row);
+  });
     // Generate table rows
     sortedTeams.forEach(([team, data], index) => {
       const row = document.createElement("tr");
@@ -373,7 +400,9 @@ function loadWeeklyStandings() {
   }
 }
 
+// Assuming calculateExpectedTeamPoints function is defined to calculate expected points for each team
 function calculateExpectedTeamPoints(teamDrivers) {
+  return teamDrivers.reduce((total, driver) => total + (expectedDriverAverages[driver] || 15), 0);
   if (!expectedDriverAverages || !teamDrivers) {
     console.error('Missing required data for point calculation');
     return 0;
@@ -381,8 +410,6 @@ function calculateExpectedTeamPoints(teamDrivers) {
   return teamDrivers.reduce((total, driver) => 
     total + (expectedDriverAverages[driver] || 15), 0);
 }
-
-
 
 
 
@@ -825,7 +852,7 @@ function generateWeeklyRecap() {
         const expectedPoints = selectedWeekNumber < 6 
           ? expectedDriverAverages[driver] || 15
           : calculateDriverAverages(selectedWeekNumber)[driver] || 15;
-        
+
         const delta = points - expectedPoints;
         performanceDeltas.push({ driver, team, points, delta, expectedPoints });
       }
@@ -1019,7 +1046,6 @@ function calculatePointSpread(standings) {
 
 // Load Team Page (Roster, Images, etc.)
 function loadTeamPage() {
-  console.log("Loading team page...");
   if (!isDataLoaded || !standingsData.weeks || standingsData.weeks.length === 0) {
     console.warn("Data not fully loaded yet.");
     return;
@@ -1030,23 +1056,7 @@ function loadTeamPage() {
   const teamRoster = document.querySelector("#team-roster tbody");
   const teamImage = document.getElementById("team-image");
   const trackImage = document.getElementById("track-image");
-  const teamDetails = document.getElementById("team-details"); // Add this line here
 
-  // Now this check will work
-  if (!teamDetails || !teamRoster) {
-    console.error("Team page elements not found", {
-      teamDetails: !!teamDetails,
-      teamRoster: !!teamRoster
-    });
-    return;
-  }
-
-  console.log("Team page elements found");
-  
-  // Make sure elements are visible
-  teamDetails.style.display = "flex";
-  teamRoster.style.display = "table";
-  
   // Remove any existing containers to prevent duplication
   const existingContainer = document.querySelector("#team-selection-container");
   if (existingContainer) {
@@ -1308,9 +1318,9 @@ function updateTrackImage() {
       .split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join('_');
-    
+
     console.log('Track name for URL:', trackName); // Debug log
-    
+
     const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
     trackImage.src = trackImageUrl;
     trackImage.alt = `${selectedWeek.track} Track`;
@@ -1321,73 +1331,37 @@ function updateTrackImage() {
   }
 }
 
+// Open Tabs (for switching between pages/sections)
 function openTab(tabName) {
-    console.log(`Opening tab: ${tabName}`);
+  const tabcontents = document.querySelectorAll(".tabcontent");
+  const tablinks = document.querySelectorAll(".tablink");
 
-    // Get all tab elements (only direct children of container)
-    const container = document.querySelector('.container');
-    const tabcontents = container.querySelectorAll(':scope > .tabcontent');
-    const tablinks = container.querySelectorAll('.tablink');
+  tabcontents.forEach(tab => tab.style.display = "none");
+  tablinks.forEach(link => link.classList.remove("active"));
 
-    console.log(`Found ${tabcontents.length} tab elements`);
+  document.getElementById(tabName).style.display = "block";
+  document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
 
-    // Hide all tabs and remove active class
-    tabcontents.forEach(tab => {
-        tab.style.cssText = 'display: none !important';
-    });
-
-    tablinks.forEach(link => {
-        link.classList.remove('active');
-    });
-
-    // Show selected tab
-    const selectedTab = document.getElementById(tabName);
-    if (selectedTab) {
-        console.log(`Showing tab: ${tabName}`);
-        selectedTab.style.cssText = 'display: block !important';
-        
-        // Add active class to button
-        const button = document.querySelector(`[onclick="openTab('${tabName}')"]`);
-        if (button) {
-            button.classList.add('active');
-        }
-
-        // Load content based on tab
-        switch(tabName) {
-            case "weekly":
-                populateWeekDropdown();
-                loadWeeklyStandings();
-                break;
-            case "teams":
-                populateTeamDropdown();
-                loadTeamPage();
-                break;
-            case "overall":
-                loadOverallStandings();
-                break;
-        }
-    }
+  if (tabName === "weekly") {
+    populateWeekDropdown();
+    loadWeeklyStandings();
+  } else if (tabName === "teams") {
+    populateTeamDropdown();
+    loadTeamPage();
+  }
 }
 
-// Initialize tabs
-document.addEventListener('DOMContentLoaded', () => {
-    // Remove any existing inline styles
-    document.querySelectorAll('.tabcontent').forEach(tab => {
-        tab.removeAttribute('style');
-    });
-    
-    // Show initial tab after a short delay to ensure data is loaded
-    setTimeout(() => {
-        openTab('weekly');
-    }, 100);
-});
-
-// Update when data is loaded
+// Initialize the Page
 function init() {
-    if (isDataLoaded) {
-        openTab('weekly');
-    }
+  if (isDataLoaded) {
+    populateWeekDropdown();
+    loadOverallStandings();
+    createLiveNewsTicker();
+    // Open weekly standings tab by default
+    openTab('weekly');
+  }
 }
+
 // Add CSS if it doesn't exist
 if (!document.getElementById('standings-styles')) {
   const styles = document.createElement('style');
@@ -1460,7 +1434,7 @@ async function createLiveNewsTicker() {
       0% { transform: translateX(0); }
       100% { transform: translateX(-100%); }
     }
-
+    
     #news-ticker {
       white-space: nowrap;
       display: inline-block;
@@ -1468,27 +1442,25 @@ async function createLiveNewsTicker() {
       padding-left: 100%;
       font-size: 18px;
     }
-
+    
     #news-ticker-container:hover #news-ticker {
       animation-play-state: paused;
     }
-
+    
     body {
       padding-top: 50px;
     }
   `;
   document.head.appendChild(styleSheet);
 
-  // Create ticker element once
-  const ticker = document.createElement('div');
-  ticker.id = 'news-ticker';
-  tickerContainer.appendChild(ticker);  // Add ticker to container
-
   try {
     const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.motorsport.com%2Frss%2Fnascar-cup%2Fnews%2F&api_key=ooehn6ytnuvjctk6a9olwn5gjxf16e7gillph6jt&order_dir=desc&count=8');
     const data = await response.json();
 
     if (data && data.items && data.items.length > 0) {
+      const ticker = document.createElement('div');
+      ticker.id = 'news-ticker';
+
       // League updates first
       const leagueUpdates = [
         "🏆 Welcome to the 2025 Fantasy NASCAR Season!",
@@ -1497,29 +1469,33 @@ async function createLiveNewsTicker() {
         "🏁 Good luck to all teams this season!"
       ];
 
-      // Combine league updates and news items
-      const leagueItems = leagueUpdates.map(update =>
+      // Create arrays for both types of updates
+      const leagueItems = leagueUpdates.map(update => 
         `<span style="color: black; font-weight: bold;">${update}</span>`
       );
 
-      const newsItems = data.items.map(item =>
+      const newsItems = data.items.map(item => 
         `<a href="${item.link}" target="_blank" style="color: black; text-decoration: none; font-weight: bold;">📰 ${item.title}</a>`
       );
 
+      // Combine with league updates first
       const combinedItems = [...leagueItems, ...newsItems];
 
       ticker.innerHTML = combinedItems.join(' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ') + ' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ';
+      tickerContainer.appendChild(ticker);
     }
   } catch (error) {
     console.error('Error fetching NASCAR news:', error);
-
+    const ticker = document.createElement('div');
+    ticker.id = 'news-ticker';
     ticker.innerHTML = `
       <span style="color: black; font-weight: bold;">
         Loading NASCAR News and League Updates... Please check back in a moment...
       </span>
     `;
+    tickerContainer.appendChild(ticker);
   }
-tickerContainer.appendChild(ticker);
+
   document.body.insertBefore(tickerContainer, document.body.firstChild);
 }
 
@@ -1531,4 +1507,3 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
-
