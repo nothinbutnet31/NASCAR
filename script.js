@@ -272,8 +272,14 @@ function loadWeeklyStandings() {
     if (preseasonMessage) preseasonMessage.style.display = "block";
     if (weeklyContent) weeklyContent.style.display = "none";
 
+    // Ensure standingsData.teams exists
+    if (!standingsData || !standingsData.teams) {
+      console.error("No teams data found in standingsData");
+      return;  // Exit if teams data is not available
+    }
+
     // Calculate expected points for each team
-    const expectedPoints = {};
+    const expectedPoints = {};  // Initialize expectedPoints here
     Object.entries(standingsData.teams).forEach(([team, data]) => {
       expectedPoints[team] = calculateExpectedTeamPoints(data.drivers);  // Assuming this function exists
     });
