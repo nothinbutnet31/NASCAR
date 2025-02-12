@@ -276,6 +276,7 @@ function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const weeklyContent = document.getElementById("weekly-content");
+  const preseasonMessage = document.getElementById("preseason-message");
   
   // Guard clauses
   if (!weeklyTable || !weekSelect) {
@@ -283,11 +284,26 @@ function loadWeeklyStandings() {
     return;
   }
 
-  // Clear existing content FIRST
+  // Clear existing content
   weeklyTable.innerHTML = "";
   
+  // Check if we have any race results
+  const hasResults = standingsData.weeks.some(week => 
+    Object.values(week.standings).some(team => team.total > 0)
+  );
+
+  // Show/hide appropriate content
+  if (!hasResults) {
+    if (preseasonMessage) preseasonMessage.style.display = "block";
+    if (weeklyContent) weeklyContent.style.display = "none";
+    return;
+  } else {
+    if (preseasonMessage) preseasonMessage.style.display = "none";
+    if (weeklyContent) weeklyContent.style.display = "block";
+  }
+
   // Get selected week
-  const selectedWeek = weekSelect.value ? parseInt(weekSelect.value) - 1 : standingsData.weeks.length - 1;
+  const selectedWeek = weekSelect.value ? parseInt(weekSelect.value) - 1 : 0;  // Default to first week
   const weekData = standingsData.weeks[selectedWeek];
 
   if (!weekData || !weekData.standings) {
@@ -295,14 +311,11 @@ function loadWeeklyStandings() {
     return;
   }
 
-  // Remove any existing event listeners
-  weekSelect.removeEventListener("change", loadWeeklyStandings);
-  
   // Sort teams by points for the selected week
   const sortedTeams = Object.entries(weekData.standings)
     .sort((a, b) => b[1].total - a[1].total);
 
-  // Generate table rows ONCE
+  // Generate table rows
   sortedTeams.forEach(([team, data], index) => {
     const row = document.createElement("tr");
     const position = index + 1;
@@ -324,9 +337,6 @@ function loadWeeklyStandings() {
     `;
     weeklyTable.appendChild(row);
   });
-
-  // Add event listener back
-  weekSelect.addEventListener("change", loadWeeklyStandings);
 }
 
 // Modify the calculateDriverAverages function
@@ -756,7 +766,6 @@ function generateWeeklyRecap() {
     Object.entries(data.drivers).forEach(([driver, points]) => {
       allDriversScores.push({ team, driver, points });
     });
-  });
 
   const sortedDrivers = allDriversScores.sort((a, b) => b.points - a.points);
   const topDrivers = sortedDrivers.slice(0, 3);
@@ -1178,30 +1187,19 @@ function populateWeekDropdown() {
   // Clear existing options
   weekSelect.innerHTML = "";
 
-  // Add default option
-  const defaultOption = document.createElement("option");
-  defaultOption.value = "";
-  defaultOption.textContent = "Select a Week";
-  weekSelect.appendChild(defaultOption);
-
   // Add week options
   if (standingsData.weeks && standingsData.weeks.length > 0) {
-    standingsData.weeks.forEach((week) => {
+    standingsData.weeks.forEach((week, index) => {
       if (week && week.track && week.track.trim() !== "") {
         const option = document.createElement("option");
-        option.value = week.week;
-        option.textContent = `Week ${week.week} - ${week.track}`;
+        option.value = index + 1;
+        option.textContent = `Week ${index + 1} - ${week.track}`;
         weekSelect.appendChild(option);
       }
     });
 
-    // Set to latest week
-    const lastWeek = standingsData.weeks[standingsData.weeks.length - 1];
-    if (lastWeek) {
-      weekSelect.value = lastWeek.week;
-      // Call loadWeeklyStandings only once
-      loadWeeklyStandings();
-    }
+    // Set to first week by default
+    weekSelect.value = "1";
   }
 
   // Remove any existing event listeners
@@ -1210,12 +1208,14 @@ function populateWeekDropdown() {
   // Create new change handler
   weekSelect.changeHandler = () => {
     loadWeeklyStandings();
-    generateWeeklyRecap();
     updateTrackImage();
   };
   
   // Add new event listener
   weekSelect.addEventListener("change", weekSelect.changeHandler);
+
+  // Initial load
+  loadWeeklyStandings();
 }
 
 // Add this new function to handle track images
