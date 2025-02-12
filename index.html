@@ -4,11 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#FFD700" />
-    <meta name="mobile-web-app-capable" content="yes">
-    <!-- Remove deprecated apple-mobile-web-app-capable -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Fantasy NASCAR">
-    
+
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
@@ -36,8 +35,7 @@
                 <th>Position</th>
                 <th>Team</th>
                 <th>Points</th>
-                <th>Stats</th>
-            </tr>
+             </tr>
         </thead>
         <tbody>
             <!-- Overall standings will be populated here -->
@@ -48,7 +46,7 @@
 <!-- Weekly Standings -->
 <div id="weekly" class="tabcontent" style="display:none;">
     <h2>Weekly Standings</h2>
-    
+
     <!-- Preseason Message -->
     <div id="preseason-message" style="text-align: center; padding: 20px;">
         <h3>🏁 Welcome to the 2024 Fantasy NASCAR Season! 🏁</h3>
@@ -200,10 +198,14 @@
     </div>
 
     <script src="script.js"></script>
-<script>
+    <script>
+  <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            const swPath = '/NASCAR/sw.js';  // Path for GitHub Pages
+            navigator.serviceWorker.register('/sw.js')
+            const swPath = window.location.pathname.includes('github.io') 
+                ? '/NASCAR/sw.js'  // Path for GitHub Pages
+                : '/sw.js';        // Path for local development
             
             navigator.serviceWorker.register(swPath)
                 .then(registration => {
