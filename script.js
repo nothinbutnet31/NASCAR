@@ -271,13 +271,35 @@ function loadWeeklyStandings() {
   if (!hasResults) {
     if (preseasonMessage) preseasonMessage.style.display = "block";
     if (weeklyContent) weeklyContent.style.display = "none";
+       // Calculate expected points for each team
+    const expectedPoints = {};
+    Object.entries(standingsData.teams).forEach(([team, data]) => {
+      expectedPoints[team] = calculateExpectedTeamPoints(data.drivers);  // Assuming this function exists
+    });
+
+
+ 
+
+  // Sort teams by points for the selected week
+  const sortedTeams = Object.entries(weekData.standings)
+    .sort((a, b) => b[1].total - a[1].total);
+
+  // Generate table rows (without position numbers)
+  sortedTeams.forEach(([team, data]) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td class="standings-cell">${team}</td>
+      <td class="standings-cell">${data.total}</td>
+    `;
+    weeklyTable.appendChild(row);
+  });
     return;
   } else {
     if (preseasonMessage) preseasonMessage.style.display = "none";
     if (weeklyContent) weeklyContent.style.display = "block";
   }
-
-  // Get selected week
+}
+ // Get selected week
   const selectedWeek = weekSelect.value ? parseInt(weekSelect.value) - 1 : 0;
   const weekData = standingsData.weeks[selectedWeek];
 
@@ -285,8 +307,7 @@ function loadWeeklyStandings() {
     console.log("No data for selected week");
     return;
   }
-
-  // Sort teams by points for the selected week
+// Sort teams by points for the selected week
   const sortedTeams = Object.entries(weekData.standings)
     .sort((a, b) => b[1].total - a[1].total);
 
