@@ -330,7 +330,7 @@ function loadWeeklyStandings() {
         });
 
     // Exit the function after displaying preseason rankings
-    return;  // This return ensures that the rest of the code doesn't execute if we show preseason standings
+    // This return ensures that the rest of the code doesn't execute if we show preseason standings
   } else {
     if (preseasonMessage) preseasonMessage.style.display = "none";
     if (weeklyContent) weeklyContent.style.display = "block";
