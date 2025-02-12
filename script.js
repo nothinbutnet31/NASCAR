@@ -1387,7 +1387,7 @@ async function createLiveNewsTicker() {
       0% { transform: translateX(0); }
       100% { transform: translateX(-100%); }
     }
-    
+
     #news-ticker {
       white-space: nowrap;
       display: inline-block;
@@ -1395,25 +1395,27 @@ async function createLiveNewsTicker() {
       padding-left: 100%;
       font-size: 18px;
     }
-    
+
     #news-ticker-container:hover #news-ticker {
       animation-play-state: paused;
     }
-    
+
     body {
       padding-top: 50px;
     }
   `;
   document.head.appendChild(styleSheet);
 
+  // Create ticker element once
+  const ticker = document.createElement('div');
+  ticker.id = 'news-ticker';
+  tickerContainer.appendChild(ticker);  // Add ticker to container
+
   try {
     const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.motorsport.com%2Frss%2Fnascar-cup%2Fnews%2F&api_key=ooehn6ytnuvjctk6a9olwn5gjxf16e7gillph6jt&order_dir=desc&count=8');
     const data = await response.json();
 
     if (data && data.items && data.items.length > 0) {
-      const ticker = document.createElement('div');
-      ticker.id = 'news-ticker';
-
       // League updates first
       const leagueUpdates = [
         "🏆 Welcome to the 2025 Fantasy NASCAR Season!",
@@ -1422,33 +1424,29 @@ async function createLiveNewsTicker() {
         "🏁 Good luck to all teams this season!"
       ];
 
-      // Create arrays for both types of updates
-      const leagueItems = leagueUpdates.map(update => 
+      // Combine league updates and news items
+      const leagueItems = leagueUpdates.map(update =>
         `<span style="color: black; font-weight: bold;">${update}</span>`
       );
 
-      const newsItems = data.items.map(item => 
+      const newsItems = data.items.map(item =>
         `<a href="${item.link}" target="_blank" style="color: black; text-decoration: none; font-weight: bold;">📰 ${item.title}</a>`
       );
 
-      // Combine with league updates first
       const combinedItems = [...leagueItems, ...newsItems];
 
       ticker.innerHTML = combinedItems.join(' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ') + ' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ';
-      tickerContainer.appendChild(ticker);
     }
   } catch (error) {
     console.error('Error fetching NASCAR news:', error);
-    const ticker = document.createElement('div');
-    ticker.id = 'news-ticker';
+
     ticker.innerHTML = `
       <span style="color: black; font-weight: bold;">
         Loading NASCAR News and League Updates... Please check back in a moment...
       </span>
     `;
-    tickerContainer.appendChild(ticker);
   }
-
+tickerContainer.appendChild(ticker);
   document.body.insertBefore(tickerContainer, document.body.firstChild);
 }
 
