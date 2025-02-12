@@ -295,17 +295,17 @@ function loadWeeklyStandings() {
     // Generate preseason rankings HTML
     let preseasonHTML = `
       <div style="text-align: center; padding: 20px;">
-        <h3>🏁 Welcome to the 2024 Fantasy NASCAR Season! 🏁</h3>
+        <h3>🏁 Welcome to the 2025 Fantasy NASCAR Season! 🏁</h3>
         <p style="font-size: 1.2em; margin: 20px 0;">Preseason Power Rankings</p>
         
-        <div style="max-width: 800px; margin: 0 auto;">
-          <table style="width: 100%; margin: 20px 0; border-collapse: collapse;">
+        <div style="display: flex; justify-content: center; width: 100%;">
+          <table style="width: 90%; max-width: 1200px; margin: 20px auto; border-collapse: collapse;">
             <thead>
               <tr>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd;">Rank</th>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd;">Team</th>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd;">Expected Points</th>
-                <th style="padding: 10px; border-bottom: 2px solid #ddd;">Drivers</th>
+                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: center; width: 10%;">Rank</th>
+                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: center; width: 15%;">Team</th>
+                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: center; width: 15%;">Expected Points</th>
+                <th style="padding: 10px; border-bottom: 2px solid #ddd; text-align: left; width: 60%;">Drivers</th>
               </tr>
             </thead>
             <tbody>
@@ -318,9 +318,9 @@ function loadWeeklyStandings() {
       
       preseasonHTML += `
         <tr>
-          <td style="padding: 10px; border-bottom: 1px solid #eee;">${index + 1}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee;">${team.team}</td>
-          <td style="padding: 10px; border-bottom: 1px solid #eee;">${team.expectedPoints}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${index + 1}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${team.team}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: center;">${team.expectedPoints}</td>
           <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: left;">${driversList}</td>
         </tr>
       `;
@@ -333,7 +333,7 @@ function loadWeeklyStandings() {
         
         <div style="margin: 20px 0;">
           <h4>Important Dates:</h4>
-          <p>Season Opener: Daytona 500 - February 18, 2024</p>
+          <p>Season Opener: Daytona 500 - February 16, 2025</p>
         </div>
       </div>
     `;
@@ -1390,9 +1390,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Welcome to the 2024 Fantasy NASCAR Season!",
+        "🏆 Welcome to the 2025 Fantasy NASCAR Season!",
         "📊 Check out the Preseason Power Rankings in Weekly Standings",
-        "🎯 Next Race: Daytona 500 - February 18, 2024",
+        "🎯 Next Race: Daytona 500 - February 16, 2025",
         "🏁 Good luck to all teams this season!"
       ];
 
