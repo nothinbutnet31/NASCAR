@@ -248,12 +248,32 @@ function loadOverallStandings() {
 
 function loadWeeklyStandings() {
   // Get DOM elements
+   console.log("Loading weekly standings...");
   const preseasonMessage = document.getElementById("preseason-message");
   const weekSelect = document.getElementById("week-select");
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const weeklyContent = document.getElementById("weekly-content");
   const preseasonTable = document.getElementById("preseason-standings");
+ if (!weeklyContent || !preseasonMessage) {
+    console.error("Weekly content elements not found");
+    return;
+  }
 
+  console.log("Weekly content elements found");
+  
+  // Show preseason message if no data
+  if (!standingsData || !standingsData.weeks || standingsData.weeks.length === 0) {
+    console.log("Showing preseason message");
+    weeklyContent.style.display = "none";
+    preseasonMessage.style.display = "block";
+    return;
+  }
+
+  // Show weekly content if we have data
+  console.log("Showing weekly content");
+  weeklyContent.style.display = "block";
+  preseasonMessage.style.display = "none";
+  
   // Validate data exists
   if (!standingsData) {
     console.error("No standings data available");
@@ -999,6 +1019,7 @@ function calculatePointSpread(standings) {
 
 // Load Team Page (Roster, Images, etc.)
 function loadTeamPage() {
+  console.log("Loading team page...");
   if (!isDataLoaded || !standingsData.weeks || standingsData.weeks.length === 0) {
     console.warn("Data not fully loaded yet.");
     return;
@@ -1009,7 +1030,20 @@ function loadTeamPage() {
   const teamRoster = document.querySelector("#team-roster tbody");
   const teamImage = document.getElementById("team-image");
   const trackImage = document.getElementById("track-image");
+if (!teamDetails || !teamRoster) {
+    console.error("Team page elements not found", {
+      teamDetails: !!teamDetails,
+      teamRoster: !!teamRoster
+    });
+    return;
+  }
 
+  console.log("Team page elements found");
+  
+  // Make sure elements are visible
+  teamDetails.style.display = "flex";
+  teamRoster.style.display = "table";
+  
   // Remove any existing containers to prevent duplication
   const existingContainer = document.querySelector("#team-selection-container");
   if (existingContainer) {
@@ -1288,10 +1322,9 @@ function updateTrackImage() {
 function openTab(tabName) {
   console.log(`Opening tab: ${tabName}`);
 
-  // First, hide all tabs
+  // Hide all tabs
   const tabcontents = document.querySelectorAll(".tabcontent");
   tabcontents.forEach(tab => {
-    console.log(`Setting display none for: ${tab.id}`);
     tab.style.cssText = "display: none !important;";
   });
 
@@ -1299,37 +1332,39 @@ function openTab(tabName) {
   const tablinks = document.querySelectorAll(".tablink");
   tablinks.forEach(link => link.classList.remove("active"));
 
-  // Show the selected tab
+  // Show selected tab
   const selectedTab = document.getElementById(tabName);
   if (selectedTab) {
-    console.log(`Showing tab: ${tabName}`);
+    console.log(`Making ${tabName} visible`);
     selectedTab.style.cssText = "display: block !important;";
     
-    // Add active class to the clicked button
-    const activeButton = document.querySelector(`[onclick="openTab('${tabName}')"]`);
-    if (activeButton) {
-      activeButton.classList.add("active");
+    // Add active class to button
+    const button = document.querySelector(`[onclick="openTab('${tabName}')"]`);
+    if (button) {
+      button.classList.add("active");
     }
 
-    // Handle specific tab content
-    if (tabName === "weekly") {
-      console.log("Loading weekly tab content...");
-      populateWeekDropdown();
-      loadWeeklyStandings();
-    } else if (tabName === "teams") {
-      console.log("Loading teams tab content...");
-      populateTeamDropdown();
-      loadTeamPage();
-    } else if (tabName === "scoring-rules") {
-      console.log("Loading scoring rules tab...");
+    // Load content based on tab
+    switch(tabName) {
+      case "weekly":
+        loadWeeklyStandings();
+        break;
+      case "teams":
+        loadTeamPage();
+        break;
+      case "scoring-rules":
+        // No special loading needed for static content
+        break;
+      case "overall":
+        loadOverallStandings();
+        break;
     }
-  } else {
-    console.error(`Tab ${tabName} not found!`);
   }
 
-  // Debug: Log the display state of all tabs
+  // Debug: Check final display states
   tabcontents.forEach(tab => {
-    console.log(`Tab ${tab.id} display: ${getComputedStyle(tab).display}`);
+    const computedStyle = window.getComputedStyle(tab);
+    console.log(`${tab.id} final display: ${computedStyle.display}`);
   });
 }
 
