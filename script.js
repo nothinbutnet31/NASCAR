@@ -253,7 +253,6 @@ function loadWeeklyStandings() {
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const weeklyContent = document.getElementById("weekly-content");
   
-  
   // Guard clauses
   if (!weeklyTable || !weekSelect) {
     console.log("Required elements not found");
@@ -272,7 +271,28 @@ function loadWeeklyStandings() {
   if (!hasResults) {
     if (preseasonMessage) preseasonMessage.style.display = "block";
     if (weeklyContent) weeklyContent.style.display = "none";
-    return;
+
+    // Calculate expected points for each team
+    const expectedPoints = {};
+    Object.entries(standingsData.teams).forEach(([team, data]) => {
+      expectedPoints[team] = calculateExpectedTeamPoints(data.drivers);
+    });
+
+    // Sort teams by expected points for preseason rankings
+    const sortedTeams = Object.entries(expectedPoints)
+      .sort((a, b) => b[1] - a[1]);
+
+    // Generate table rows for preseason rankings
+    sortedTeams.forEach(([team, points]) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td class="standings-cell" style="font-weight: bold;">${team}</td>
+        <td class="standings-cell" style="font-weight: bold;">${points}</td>
+      `;
+      weeklyTable.appendChild(row);
+    });
+
+    return; // Exit the function after displaying preseason rankings
   } else {
     if (preseasonMessage) preseasonMessage.style.display = "none";
     if (weeklyContent) weeklyContent.style.display = "block";
