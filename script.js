@@ -1030,7 +1030,10 @@ function loadTeamPage() {
   const teamRoster = document.querySelector("#team-roster tbody");
   const teamImage = document.getElementById("team-image");
   const trackImage = document.getElementById("track-image");
-if (!teamDetails || !teamRoster) {
+  const teamDetails = document.getElementById("team-details"); // Add this line here
+
+  // Now this check will work
+  if (!teamDetails || !teamRoster) {
     console.error("Team page elements not found", {
       teamDetails: !!teamDetails,
       teamRoster: !!teamRoster
@@ -1320,53 +1323,37 @@ function updateTrackImage() {
 
 // Open Tabs (for switching between pages/sections)
 function openTab(tabName) {
-  console.log(`Opening tab: ${tabName}`);
-
-  // Hide all tabs
-  const tabcontents = document.querySelectorAll(".tabcontent");
-  tabcontents.forEach(tab => {
-    tab.style.cssText = "display: none !important;";
-  });
-
-  // Remove active class from all buttons
-  const tablinks = document.querySelectorAll(".tablink");
-  tablinks.forEach(link => link.classList.remove("active"));
-
-  // Show selected tab
-  const selectedTab = document.getElementById(tabName);
-  if (selectedTab) {
-    console.log(`Making ${tabName} visible`);
-    selectedTab.style.cssText = "display: block !important;";
-    
-    // Add active class to button
-    const button = document.querySelector(`[onclick="openTab('${tabName}')"]`);
-    if (button) {
-      button.classList.add("active");
+    console.log(`Opening tab: ${tabName}`);
+  
+    // Hide all tabcontent elements
+    const tabcontents = document.querySelectorAll(".tabcontent");
+    tabcontents.forEach(tab => {
+      tab.style.display = "none";
+    });
+  
+    // Remove active class from all buttons
+    const tablinks = document.querySelectorAll(".tablink");
+    tablinks.forEach(link => {
+      link.classList.remove("active");
+    });
+  
+    // Show the selected tab
+    const selectedTab = document.getElementById(tabName);
+    if (selectedTab) {
+      selectedTab.style.display = "block";
+      // Add active class to the clicked button
+      document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
     }
-
-    // Load content based on tab
-    switch(tabName) {
-      case "weekly":
-        loadWeeklyStandings();
-        break;
-      case "teams":
-        loadTeamPage();
-        break;
-      case "scoring-rules":
-        // No special loading needed for static content
-        break;
-      case "overall":
-        loadOverallStandings();
-        break;
+  
+    // Load content based on which tab is selected
+    if (tabName === "weekly") {
+      populateWeekDropdown();
+      loadWeeklyStandings();
+    } else if (tabName === "teams") {
+      populateTeamDropdown();
+      loadTeamPage();
     }
   }
-
-  // Debug: Check final display states
-  tabcontents.forEach(tab => {
-    const computedStyle = window.getComputedStyle(tab);
-    console.log(`${tab.id} final display: ${computedStyle.display}`);
-  });
-}
 
 // Initialize the Page
 function init() {
