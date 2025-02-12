@@ -776,33 +776,41 @@ function generateWeeklyRecap() {
   }
   recapText += `</div>`;
 
-  // Over/Under Performers (compared to previous races)
-  if (selectedWeekNumber > 1) {
-    const driverAverages = calculateDriverAverages(selectedWeekNumber - 1);
-    const performanceDeltas = [];
+  // Add Over/Under Performers section using expectedDriverAverages
+  const performanceDeltas = [];
 
-    allDriversScores.forEach(({ driver, team, points }) => {
-      if (points > 0 && driverAverages[driver]) {
-        const delta = points - driverAverages[driver];
-        performanceDeltas.push({ driver, team, points, delta });
+  Object.entries(weekData.standings).forEach(([team, data]) => {
+    Object.entries(data.drivers).forEach(([driver, points]) => {
+      if (points > 0) {
+        // Use expected averages before week 6, actual averages after
+        const expectedPoints = selectedWeekNumber < 6 
+          ? expectedDriverAverages[driver] || 15
+          : calculateDriverAverages(selectedWeekNumber)[driver] || 15;
+        
+        const delta = points - expectedPoints;
+        performanceDeltas.push({ driver, team, points, delta, expectedPoints });
       }
     });
+  });
 
-    const sortedDeltas = performanceDeltas.sort((a, b) => b.delta - a.delta);
-    const overAchiever = sortedDeltas[0];
-    const underPerformer = sortedDeltas[sortedDeltas.length - 1];
+  // Sort by delta to find over/under performers
+  const sortedDeltas = performanceDeltas.sort((a, b) => b.delta - a.delta);
+  const overAchiever = sortedDeltas[0];
+  const underPerformer = sortedDeltas[sortedDeltas.length - 1];
 
-    recapText += `<div class="recap-section">
-      <h4>📈 Performance vs Expected</h4>`;
+  if (overAchiever) {
+    recapText += `
+      <div class="recap-section">
+        <h4>📈 Performance vs ${selectedWeekNumber < 6 ? 'Expected' : 'Average'}</h4>`;
 
     if (overAchiever) {
       recapText += `<p><strong>Over Achiever:</strong> ${overAchiever.driver} (${overAchiever.team})<br>
-        Scored ${overAchiever.points} points, ${overAchiever.delta.toFixed(1)} above their expected</p>`;
+        Scored ${overAchiever.points} points, ${overAchiever.delta.toFixed(1)} above their ${selectedWeekNumber < 6 ? 'expected' : 'average'} of ${overAchiever.expectedPoints.toFixed(1)}</p>`;
     }
 
     if (underPerformer) {
       recapText += `<p><strong>Under Performer:</strong> ${underPerformer.driver} (${underPerformer.team})<br>
-        Scored ${underPerformer.points} points, ${Math.abs(underPerformer.delta).toFixed(1)} below their expected</p>`;
+        Scored ${underPerformer.points} points, ${Math.abs(underPerformer.delta).toFixed(1)} below their ${selectedWeekNumber < 6 ? 'expected' : 'average'} of ${underPerformer.expectedPoints.toFixed(1)}</p>`;
     }
     recapText += `</div>`;
   }
