@@ -199,10 +199,14 @@
     </div>
 
     <script src="script.js"></script>
-    <script>
+  <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/sw.js')
+            const swPath = window.location.pathname.includes('github.io') 
+                ? '/NASCAR/sw.js'  // Path for GitHub Pages
+                : '/sw.js';        // Path for local development
+            
+            navigator.serviceWorker.register(swPath)
                 .then(registration => {
                     console.log('ServiceWorker registration successful');
                 })
