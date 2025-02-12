@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Fantasy NASCAR">
-
+    
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icons/icon-192x192.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
@@ -28,20 +28,20 @@
 
         <!-- Overall Standings -->
         <div id="overall" class="tabcontent">
-    <h2>Overall Standings</h2>
-    <table id="overall-standings">
-        <thead>
-            <tr>
-                <th>Position</th>
-                <th>Team</th>
-                <th>Points</th>
-             </tr>
-        </thead>
-        <tbody>
-            <!-- Overall standings will be populated here -->
-        </tbody>
-    </table>
-</div>
+            <h2>Overall Standings</h2>
+            <table id="overall-standings">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Team</th>
+                        <th>Total Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Overall standings will be populated here -->
+                </tbody>
+            </table>
+        </div>
 
 <!-- Weekly Standings -->
 <div id="weekly" class="tabcontent" style="display:none;">
@@ -199,15 +199,9 @@
 
     <script src="script.js"></script>
     <script>
-  <script>
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('/sw.js')
-            const swPath = window.location.pathname.includes('github.io') 
-                ? '/NASCAR/sw.js'  // Path for GitHub Pages
-                : '/sw.js';        // Path for local development
-            
-            navigator.serviceWorker.register(swPath)
                 .then(registration => {
                     console.log('ServiceWorker registration successful');
                 })
