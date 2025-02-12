@@ -1254,7 +1254,44 @@ function init() {
     populateWeekDropdown();
     loadOverallStandings();
     createLiveNewsTicker();
+    // Open weekly standings tab by default
+    openTab('weekly');
   }
+}
+
+// Add CSS if it doesn't exist
+if (!document.getElementById('standings-styles')) {
+  const styles = document.createElement('style');
+  styles.id = 'standings-styles';
+  styles.innerHTML = `
+    #weekly-standings th,
+    #weekly-standings td {
+      text-align: center !important;
+      padding: 10px;
+      border: 1px solid #ddd;
+    }
+    
+    #weekly-standings th {
+      background-color: #1976D2;
+      color: white;
+      font-weight: bold;
+      text-align: center !important;
+    }
+    
+    #weekly-standings tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    
+    #weekly-standings tr:hover {
+      background-color: #f0f0f0;
+    }
+    
+    .standings-cell {
+      text-align: center !important;
+      vertical-align: middle !important;
+    }
+  `;
+  document.head.appendChild(styles);
 }
 
 // Start when page loads
