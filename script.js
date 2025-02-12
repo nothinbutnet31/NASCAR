@@ -302,14 +302,9 @@ function loadWeeklyStandings() {
         // Sort teams by expected points
         const sortedTeams = Object.entries(expectedPoints)
           .sort((a, b) => b[1] - a[1]);
-        // Generate table rows
-      const headerRow = document.createElement("tr");
-      headerRow.innerHTML = `
-        <th class="standings-cell">Rank</th>
-        <th class="standings-cell">Team</th>
-    <    th class="standings-cell">Expected Points</th>
-`;
-tbody.appendChild(headerRow);
+    
+
+
         // Generate table rows
         sortedTeams.forEach(([team, points], index) => {
           const row = document.createElement("tr");
