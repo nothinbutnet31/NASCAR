@@ -1286,43 +1286,51 @@ function updateTrackImage() {
 
 // Open Tabs (for switching between pages/sections)
 function openTab(tabName) {
-  console.log(`Opening tab: ${tabName}`); // Debug log
-  
-  // Get all tab content and links
-  const tabcontents = document.querySelectorAll(".tabcontent");
-  const tablinks = document.querySelectorAll(".tablink");
+  console.log(`Opening tab: ${tabName}`);
 
-  // Hide all tabs and remove active class
+  // First, hide all tabs
+  const tabcontents = document.querySelectorAll(".tabcontent");
   tabcontents.forEach(tab => {
-    tab.style.display = "none";
-    // Remove the inline style if it exists
-    tab.removeAttribute("style");
-    tab.style.display = "none";
+    console.log(`Setting display none for: ${tab.id}`);
+    tab.style.cssText = "display: none !important;";
   });
-  
+
+  // Remove active class from all buttons
+  const tablinks = document.querySelectorAll(".tablink");
   tablinks.forEach(link => link.classList.remove("active"));
 
-  // Show selected tab
+  // Show the selected tab
   const selectedTab = document.getElementById(tabName);
   if (selectedTab) {
-    // Force display block and remove any inline styles
-    selectedTab.removeAttribute("style");
-    selectedTab.style.display = "block";
+    console.log(`Showing tab: ${tabName}`);
+    selectedTab.style.cssText = "display: block !important;";
     
-    // Add active class to button
-    document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
+    // Add active class to the clicked button
+    const activeButton = document.querySelector(`[onclick="openTab('${tabName}')"]`);
+    if (activeButton) {
+      activeButton.classList.add("active");
+    }
 
     // Handle specific tab content
     if (tabName === "weekly") {
-      console.log("Loading weekly tab...");
+      console.log("Loading weekly tab content...");
       populateWeekDropdown();
       loadWeeklyStandings();
     } else if (tabName === "teams") {
-      console.log("Loading teams tab...");
+      console.log("Loading teams tab content...");
       populateTeamDropdown();
       loadTeamPage();
+    } else if (tabName === "scoring-rules") {
+      console.log("Loading scoring rules tab...");
     }
+  } else {
+    console.error(`Tab ${tabName} not found!`);
   }
+
+  // Debug: Log the display state of all tabs
+  tabcontents.forEach(tab => {
+    console.log(`Tab ${tab.id} display: ${getComputedStyle(tab).display}`);
+  });
 }
 
 // Initialize the Page
