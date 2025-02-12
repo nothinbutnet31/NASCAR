@@ -314,11 +314,10 @@ function loadWeeklyStandings() {
   const sortedTeams = Object.entries(weekData.standings)
     .sort((a, b) => b[1].total - a[1].total);
 
-  // Generate table rows
-  sortedTeams.forEach(([team, data], index) => {
+  // Generate table rows (without position numbers)
+  sortedTeams.forEach(([team, data]) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td class="standings-cell">${index + 1}</td>
       <td class="standings-cell">${team}</td>
       <td class="standings-cell">${data.total}</td>
     `;
