@@ -248,7 +248,7 @@ function loadOverallStandings() {
 
 // Load Weekly Standings
 function loadWeeklyStandings() {
-   const weekSelect = document.getElementById("week-select");
+  const weekSelect = document.getElementById("week-select");
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const weeklyContent = document.getElementById("weekly-content");
   const preseasonMessage = document.getElementById("preseason-message");
@@ -271,28 +271,7 @@ function loadWeeklyStandings() {
   if (!hasResults) {
     if (preseasonMessage) preseasonMessage.style.display = "block";
     if (weeklyContent) weeklyContent.style.display = "none";
-
-    // Calculate expected points for each team
-    const expectedPoints = {};
-    Object.entries(standingsData.teams).forEach(([team, data]) => {
-      expectedPoints[team] = calculateExpectedTeamPoints(data.drivers);
-    });
-
-    // Sort teams by expected points for preseason rankings
-    const sortedTeams = Object.entries(expectedPoints)
-      .sort((a, b) => b[1] - a[1]);
-
-    // Generate table rows for preseason rankings
-    sortedTeams.forEach(([team, points]) => {
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td class="standings-cell" style="font-weight: bold;">${team}</td>
-        <td class="standings-cell" style="font-weight: bold;">${points}</td>
-      `;
-      weeklyTable.appendChild(row);
-    });
-
-    return; // Exit the function after displaying preseason rankings
+    return;
   } else {
     if (preseasonMessage) preseasonMessage.style.display = "none";
     if (weeklyContent) weeklyContent.style.display = "block";
@@ -307,7 +286,19 @@ function loadWeeklyStandings() {
     return;
   }
 
-  // Additional logic for displaying race results can go here...
+  // Sort teams by points for the selected week
+  const sortedTeams = Object.entries(weekData.standings)
+    .sort((a, b) => b[1].total - a[1].total);
+
+  // Generate table rows (without position numbers)
+  sortedTeams.forEach(([team, data]) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td class="standings-cell">${team}</td>
+      <td class="standings-cell">${data.total}</td>
+    `;
+    weeklyTable.appendChild(row);
+  });
 }
 
 // Modify the calculateDriverAverages function
@@ -345,24 +336,6 @@ function calculateDriverAverages(weekNumber) {
 
   return averages;
 }
-
-// Update calculateDriverOfTheWeek to use this info
-function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
-  const allDriversPerformance = [];
-
-  Object.entries(weekData.standings).forEach(([team, data]) => {
-    Object.entries(data.drivers).forEach(([driver, racePoints]) => {
-      if (racePoints === 0) return;
-
-      // Calculate base race points (finish position only)
-      let basePoints = 0;
-      for (const [pos, pts] of Object.entries(scoringSystem)) {
-        if (racePoints >= pts && (pos.includes('st') || pos.includes('nd') || 
-            pos.includes('rd') || pos.includes('th'))) {
-          basePoints = pts;
-          break;
-        }
-      }
 
       let totalScore = basePoints * 0.8;
 
