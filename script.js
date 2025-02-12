@@ -1388,7 +1388,7 @@ async function createLiveNewsTicker() {
       const ticker = document.createElement('div');
       ticker.id = 'news-ticker';
 
-      // League updates - add your custom messages here
+      // League updates first
       const leagueUpdates = [
         "🏆 Welcome to the 2024 Fantasy NASCAR Season!",
         "📊 Check out the Preseason Power Rankings in Weekly Standings",
@@ -1396,22 +1396,17 @@ async function createLiveNewsTicker() {
         "🏁 Good luck to all teams this season!"
       ];
 
-      // Combine NASCAR news with league updates
-      const newsItems = data.items.map(item => 
-        `<a href="${item.link}" target="_blank" style="color: black; text-decoration: none; font-weight: bold;">📰 ${item.title}</a>`
-      );
-
+      // Create arrays for both types of updates
       const leagueItems = leagueUpdates.map(update => 
         `<span style="color: black; font-weight: bold;">${update}</span>`
       );
 
-      // Alternate between news and league updates
-      const combinedItems = [];
-      const maxLength = Math.max(newsItems.length, leagueItems.length);
-      for (let i = 0; i < maxLength; i++) {
-        if (newsItems[i]) combinedItems.push(newsItems[i]);
-        if (leagueItems[i]) combinedItems.push(leagueItems[i]);
-      }
+      const newsItems = data.items.map(item => 
+        `<a href="${item.link}" target="_blank" style="color: black; text-decoration: none; font-weight: bold;">📰 ${item.title}</a>`
+      );
+
+      // Combine with league updates first
+      const combinedItems = [...leagueItems, ...newsItems];
 
       ticker.innerHTML = combinedItems.join(' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ') + ' &nbsp;&nbsp;&bull;&nbsp;&nbsp; ';
       tickerContainer.appendChild(ticker);
