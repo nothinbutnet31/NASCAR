@@ -1189,20 +1189,27 @@ function populateWeekDropdown() {
 }
 
 // Add this new function to handle track images
-// Add this function to handle track images
 function updateTrackImage() {
   const weekSelect = document.getElementById("week-select");
-  const trackImage = document.getElementById("track-image");
+  const trackImage = document.getElementById("weekly-track-image");
 
   if (!trackImage || !weekSelect.value) return;
 
   const selectedWeek = standingsData.weeks.find(week => week.week === parseInt(weekSelect.value, 10));
   if (selectedWeek && selectedWeek.track) {
-    const trackName = selectedWeek.track.replace(/[^a-zA-Z0-9]/g, '_');
+    // Capitalize first letter of each word in track name
+    const trackName = selectedWeek.track
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join('_');
+    
+    console.log('Track name for URL:', trackName); // Debug log
+    
     const trackImageUrl = `https://raw.githubusercontent.com/nothinbutnet31/NASCAR/main/images/tracks/${trackName}.png`;
     trackImage.src = trackImageUrl;
     trackImage.alt = `${selectedWeek.track} Track`;
     trackImage.onerror = function() {
+      console.log('Failed to load track image:', trackImageUrl); // Debug log
       this.src = "https://via.placeholder.com/200";
     };
   }
