@@ -709,7 +709,7 @@ function generateWeeklyRecap() {
           <p>${narrative}.</p>
           <p style="
             font-family: 'Georgia', sans-serif; 
-            color: #AAFF00; 
+            color: #000000; 
             font-size: 1.2em; 
             font-weight: bold;
             margin-top: 10px;
