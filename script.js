@@ -273,10 +273,84 @@ function loadOverallStandings() {
 // Load Weekly Standings
 function loadWeeklyStandings() {
   const weekSelect = document.getElementById("week-select");
-  const selectedWeekNumber = parseInt(weekSelect.value, 10);
   const weeklyTable = document.querySelector("#weekly-standings tbody");
-  weeklyTable.innerHTML = "";
+  const preseasonMessage = document.getElementById("preseason-message");
+  const weeklyContent = document.getElementById("weekly-content");
+  
+  // Check if there are any valid weeks with points
+  const hasResults = standingsData.weeks.some(week => 
+    Object.values(week.standings).some(team => team.total > 0)
+  );
 
+  if (!hasResults) {
+    // Calculate and sort teams by expected points
+    const teamProjections = Object.entries(standingsData.teams)
+      .map(([team, data]) => ({
+        team,
+        drivers: data.drivers,
+        expectedPoints: calculateExpectedTeamPoints(data.drivers)
+      }))
+      .sort((a, b) => b.expectedPoints - a.expectedPoints);
+
+    // Generate preseason rankings HTML
+    let preseasonHTML = `
+      <div style="text-align: center; padding: 20px;">
+        <h3>🏁 Welcome to the 2024 Fantasy NASCAR Season! 🏁</h3>
+        <p style="font-size: 1.2em; margin: 20px 0;">Preseason Power Rankings</p>
+        
+        <div style="max-width: 800px; margin: 0 auto;">
+          <table style="width: 100%; margin: 20px 0; border-collapse: collapse;">
+            <thead>
+              <tr>
+                <th style="padding: 10px; border-bottom: 2px solid #ddd;">Rank</th>
+                <th style="padding: 10px; border-bottom: 2px solid #ddd;">Team</th>
+                <th style="padding: 10px; border-bottom: 2px solid #ddd;">Expected Points</th>
+                <th style="padding: 10px; border-bottom: 2px solid #ddd;">Drivers</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
+    teamProjections.forEach((team, index) => {
+      const driversList = team.drivers
+        .map(driver => `${driver} (${expectedDriverAverages[driver] || 15})`)
+        .join(', ');
+      
+      preseasonHTML += `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${index + 1}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${team.team}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${team.expectedPoints}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: left;">${driversList}</td>
+        </tr>
+      `;
+    });
+
+    preseasonHTML += `
+            </tbody>
+          </table>
+        </div>
+        
+        <div style="margin: 20px 0;">
+          <h4>Important Dates:</h4>
+          <p>Season Opener: Daytona 500 - February 18, 2024</p>
+        </div>
+      </div>
+    `;
+
+    if (preseasonMessage) {
+      preseasonMessage.innerHTML = preseasonHTML;
+      preseasonMessage.style.display = "block";
+    }
+    if (weeklyContent) weeklyContent.style.display = "none";
+    return;
+  }
+
+  // Hide preseason message and show weekly content once results exist
+  if (preseasonMessage) preseasonMessage.style.display = "none";
+  if (weeklyContent) weeklyContent.style.display = "block";
+
+  const selectedWeekNumber = parseInt(weekSelect.value, 10);
   const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
 
   if (weekData) {
@@ -1349,3 +1423,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
+function calculateExpectedTeamPoints(teamDrivers) {
+  return teamDrivers.reduce((total, driver) => total + (expectedDriverAverages[driver] || 15), 0);
+}
