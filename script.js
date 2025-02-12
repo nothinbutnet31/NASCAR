@@ -238,9 +238,9 @@ function loadOverallStandings() {
 
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td class="standings-cell">${position} ${positionIcon}</td>
-      <td class="standings-cell">${team}</td>
-      <td class="standings-cell">${points}${pointsBehindDisplay}</td>
+      <td class="standings-cell" style="font-weight: bold;">${position} ${positionIcon}</td>
+      <td class="standings-cell" style="font-weight: bold;">${team}</td>
+      <td class="standings-cell" style="font-weight: bold;">${points}${pointsBehindDisplay}</td>
     `;
     overallTable.appendChild(row);
   });
@@ -294,8 +294,8 @@ function loadWeeklyStandings() {
   sortedTeams.forEach(([team, data]) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-      <td class="standings-cell">${team}</td>
-      <td class="standings-cell">${data.total}</td>
+    <td class="standings-cell" style="font-weight: bold;">${team}</td>
+    <td class="standings-cell" style="font-weight: bold;">${data.total}</td>
     `;
     weeklyTable.appendChild(row);
   });
