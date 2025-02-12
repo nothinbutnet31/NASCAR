@@ -1410,4 +1410,7 @@ function calculateExpectedTeamPoints(teamDrivers) {
   return teamDrivers.reduce((total, driver) => total + (expectedDriverAverages[driver] || 15), 0);
 }
 
-
+Object.entries(standingsData.teams).forEach(([team, data]) => {
+  console.log(data);  // Log team data to see if it is structured correctly
+  expectedPoints[team] = calculateExpectedTeamPoints(data.drivers);
+});
