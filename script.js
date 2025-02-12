@@ -307,19 +307,7 @@ function loadWeeklyStandings() {
     return;
   }
 
-  // Sort teams by points for the selected week
-  const sortedTeams = Object.entries(weekData.standings)
-    .sort((a, b) => b[1].total - a[1].total);
-
-  // Generate table rows (without position numbers)
-  sortedTeams.forEach(([team, data]) => {
-    const row = document.createElement("tr");
-    row.innerHTML = `
-    <td class="standings-cell" style="font-weight: bold;">${team}</td>
-    <td class="standings-cell" style="font-weight: bold;">${data.total}</td>
-    `;
-    weeklyTable.appendChild(row);
-  });
+  // Additional logic for displaying race results can go here...
 }
 
 // Modify the calculateDriverAverages function
