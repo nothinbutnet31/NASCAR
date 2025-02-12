@@ -47,26 +47,45 @@
 <div id="weekly" class="tabcontent" style="display:none;">
     <h2>Weekly Standings</h2>
 
-    <!-- Preseason Message -->
-    <div id="preseason-message" style="text-align: center; padding: 20px;">
-        <h3>🏁 Welcome to the 2025 Fantasy NASCAR Season! 🏁</h3>
-        <p style="font-size: 1.2em; margin: 20px 0;">The season hasn't started yet, but get ready for an exciting year of racing!</p>
-        <div style="margin: 20px 0;">
-            <h4>Important Dates:</h4>
-            <p>Season Opener: Daytona 500 - February 16, 2025</p>
-        </div>
-        <div style="margin: 20px 0;">
-            <h4>Your Teams:</h4>
-            <ul style="list-style: none; padding: 0;">
-                <li>Midge: Denny Hamlin, William Byron, Ricky Stenhouse Jr, Ryan Preece, Shane van Gisbergen</li>
-                <li>Emilia: Austin Cindric, Austin Dillon, Kyle Larson, AJ Allmendinger, Alex Bowman</li>
-                <li>Heather: Kyle Busch, Chase Elliott, Erik Jones, Tyler Reddick, Michael McDowell</li>
-                <li>Dan: Brad Keselowski, Chris Buescher, Noah Gragson, Joey Logano, Cole Custer</li>
-                <li>Grace: Ross Chastain, Chase Briscoe, Josh Berry, Bubba Wallace, Daniel Suarez</li>
-                <li>Edmund: Ryan Blaney, Christopher Bell, Riley Herbst, Ty Gibbs, Carson Hocevar</li>
-            </ul>
-        </div>
+  <!-- Replace the existing preseason-message div with this updated version -->
+<div id="preseason-message" style="text-align: center; padding: 20px;">
+    <h3>🏁 Welcome to the 2025 Fantasy NASCAR Season! 🏁</h3>
+    <p style="font-size: 1.2em; margin: 20px 0;">The season hasn't started yet, but get ready for an exciting year of racing!</p>
+    
+    <!-- Add this new section for preseason rankings -->
+    <div class="preseason-rankings">
+        <h4>Preseason Power Rankings</h4>
+        <table id="preseason-standings" style="width: 80%; margin: 20px auto;">
+            <thead>
+                <tr>
+                    <th>Team</th>
+                    <th>Expected Points Per Race</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- This will be populated by JavaScript -->
+            </tbody>
+        </table>
     </div>
+
+    <div style="margin: 20px 0;">
+        <h4>Important Dates:</h4>
+        <p>Season Opener: Daytona 500 - February 16, 2025</p>
+    </div>
+    
+    <!-- Rest of your existing preseason message content -->
+    <div style="margin: 20px 0;">
+        <h4>Your Teams:</h4>
+        <ul style="list-style: none; padding: 0;">
+            <li>Midge: Denny Hamlin, William Byron, Ricky Stenhouse Jr, Ryan Preece, Shane van Gisbergen</li>
+            <li>Emilia: Austin Cindric, Austin Dillon, Kyle Larson, AJ Allmendinger, Alex Bowman</li>
+            <li>Heather: Kyle Busch, Chase Elliott, Erik Jones, Tyler Reddick, Michael McDowell</li>
+            <li>Dan: Brad Keselowski, Chris Buescher, Noah Gragson, Joey Logano, Cole Custer</li>
+            <li>Grace: Ross Chastain, Chase Briscoe, Josh Berry, Bubba Wallace, Daniel Suarez</li>
+            <li>Edmund: Ryan Blaney, Christopher Bell, Riley Herbst, Ty Gibbs, Carson Hocevar</li>
+        </ul>
+    </div>
+</div>
 
     <!-- Weekly Content -->
     <div id="weekly-content">
