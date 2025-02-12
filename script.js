@@ -185,7 +185,7 @@ function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
   overallTable.innerHTML = "";
 
-  // Add CSS if it doesn't exist
+  // Update CSS styles
   if (!document.getElementById('standings-styles')) {
     const styles = document.createElement('style');
     styles.id = 'standings-styles';
@@ -195,6 +195,8 @@ function loadOverallStandings() {
         border-collapse: collapse;
         margin: 20px 0;
         box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        font-weight: bold;
+        color: black;
       }
       
       #overall-standings th,
@@ -202,6 +204,8 @@ function loadOverallStandings() {
         text-align: center !important;
         padding: 15px;
         border: 1px solid #ddd;
+        font-weight: bold;
+        color: black;
       }
       
       #overall-standings th {
@@ -224,23 +228,36 @@ function loadOverallStandings() {
       .standings-cell {
         text-align: center !important;
         vertical-align: middle !important;
+        font-weight: bold !important;
+        color: black !important;
       }
       
-      .position-1 { background-color: #FFD700 !important; }
-      .position-2 { background-color: #C0C0C0 !important; }
-      .position-3 { background-color: #CD7F32 !important; }
+      .position-1 { 
+        background-color: #FFD700 !important; 
+        font-weight: bold !important;
+      }
+      .position-2 { 
+        background-color: #C0C0C0 !important; 
+        font-weight: bold !important;
+      }
+      .position-3 { 
+        background-color: #CD7F32 !important; 
+        font-weight: bold !important;
+      }
       
       .points-change {
-        font-size: 0.8em;
+        font-size: 0.9em;
         margin-left: 5px;
+        font-weight: bold;
       }
       
-      .points-up { color: green; }
-      .points-down { color: red; }
+      .points-up { color: #006400 !important; }
+      .points-down { color: #8B0000 !important; }
       
       .team-stats {
         font-size: 0.9em;
-        color: #666;
+        color: black !important;
+        font-weight: bold !important;
       }
     `;
     document.head.appendChild(styles);
