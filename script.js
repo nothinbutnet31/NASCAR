@@ -766,6 +766,7 @@ function generateWeeklyRecap() {
     Object.entries(data.drivers).forEach(([driver, points]) => {
       allDriversScores.push({ team, driver, points });
     });
+  });
 
   const sortedDrivers = allDriversScores.sort((a, b) => b.points - a.points);
   const topDrivers = sortedDrivers.slice(0, 3);
