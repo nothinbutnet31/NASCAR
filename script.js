@@ -194,19 +194,21 @@ function loadOverallStandings() {
         width: 100%;
         border-collapse: collapse;
         margin: 20px 0;
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
       }
       
       #overall-standings th,
       #overall-standings td {
         text-align: center !important;
-        padding: 10px;
+        padding: 15px;
         border: 1px solid #ddd;
       }
       
       #overall-standings th {
-        background-color: #1976D2;  // Changed to match tab blue color
-        color: white;  // White text for better contrast
+        background-color: #1976D2;
+        color: white;
         font-weight: bold;
+        font-size: 1.1em;
       }
       
       #overall-standings tr:nth-child(even) {
@@ -215,59 +217,99 @@ function loadOverallStandings() {
       
       #overall-standings tr:hover {
         background-color: #f0f0f0;
+        transform: scale(1.01);
+        transition: all 0.2s ease;
       }
       
       .standings-cell {
         text-align: center !important;
         vertical-align: middle !important;
       }
+      
+      .position-1 { background-color: #FFD700 !important; }
+      .position-2 { background-color: #C0C0C0 !important; }
+      .position-3 { background-color: #CD7F32 !important; }
+      
+      .points-change {
+        font-size: 0.8em;
+        margin-left: 5px;
+      }
+      
+      .points-up { color: green; }
+      .points-down { color: red; }
+      
+      .team-stats {
+        font-size: 0.9em;
+        color: #666;
+      }
     `;
     document.head.appendChild(styles);
   }
 
-  // Calculate total points for each team
+  // Calculate total points and stats for each team
   const totalPoints = {};
-
-  console.log("Teams data:", standingsData.teams);
-
-  if (!standingsData || !standingsData.teams) {
-    console.error("No standings data available");
-    return;
-  }
+  const teamStats = {};
 
   Object.keys(standingsData.teams).forEach(team => {
     totalPoints[team] = 0;
+    teamStats[team] = {
+      wins: 0,
+      top5s: 0,
+      top10s: 0,
+      avgFinish: 0,
+      lastWeekPoints: 0
+    };
   });
 
-  console.log("Processing weekly data...");
   if (standingsData.weeks) {
-    standingsData.weeks.forEach(week => {
+    standingsData.weeks.forEach((week, weekIndex) => {
       Object.entries(week.standings).forEach(([team, data]) => {
         if (data && data.total) {
           totalPoints[team] = (totalPoints[team] || 0) + data.total;
+          
+          // Update stats
+          if (data.total >= 38) teamStats[team].wins++;
+          if (data.total >= 31) teamStats[team].top5s++;
+          if (data.total >= 26) teamStats[team].top10s++;
+          
+          // Track last week's points for change indicator
+          if (weekIndex === standingsData.weeks.length - 1) {
+            teamStats[team].lastWeekPoints = data.total;
+          }
         }
       });
     });
   }
 
-  console.log("Total points calculated:", totalPoints);
-
   const sortedTeams = Object.entries(totalPoints)
     .sort((a, b) => b[1] - a[1]);
 
-  console.log("Sorted teams:", sortedTeams);
-
   sortedTeams.forEach(([team, points], index) => {
+    const stats = teamStats[team];
+    const position = index + 1;
+    const positionClass = position <= 3 ? `position-${position}` : '';
+    
+    // Calculate points behind leader
+    const pointsBehind = position === 1 ? 0 : sortedTeams[0][1] - points;
+    
     const row = document.createElement("tr");
+    row.className = positionClass;
     row.innerHTML = `
-      <td class="standings-cell">${index + 1}</td>
+      <td class="standings-cell">
+        ${position}
+        ${position === 1 ? '🏆' : position === 2 ? '🥈' : position === 3 ? '🥉' : ''}
+      </td>
       <td class="standings-cell">${team}</td>
-      <td class="standings-cell">${points}</td>
+      <td class="standings-cell">
+        ${points}
+        ${pointsBehind > 0 ? `<span class="team-stats">(-${pointsBehind})</span>` : ''}
+      </td>
+      <td class="standings-cell team-stats">
+        W: ${stats.wins} | Top 5: ${stats.top5s} | Top 10: ${stats.top10s}
+      </td>
     `;
     overallTable.appendChild(row);
   });
-
-  console.log("Finished loading standings");
 }
 
 // Load Weekly Standings
