@@ -1286,21 +1286,42 @@ function updateTrackImage() {
 
 // Open Tabs (for switching between pages/sections)
 function openTab(tabName) {
+  console.log(`Opening tab: ${tabName}`); // Debug log
+  
+  // Get all tab content and links
   const tabcontents = document.querySelectorAll(".tabcontent");
   const tablinks = document.querySelectorAll(".tablink");
 
-  tabcontents.forEach(tab => tab.style.display = "none");
+  // Hide all tabs and remove active class
+  tabcontents.forEach(tab => {
+    tab.style.display = "none";
+    // Remove the inline style if it exists
+    tab.removeAttribute("style");
+    tab.style.display = "none";
+  });
+  
   tablinks.forEach(link => link.classList.remove("active"));
 
-  document.getElementById(tabName).style.display = "block";
-  document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
+  // Show selected tab
+  const selectedTab = document.getElementById(tabName);
+  if (selectedTab) {
+    // Force display block and remove any inline styles
+    selectedTab.removeAttribute("style");
+    selectedTab.style.display = "block";
+    
+    // Add active class to button
+    document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add("active");
 
-  if (tabName === "weekly") {
-    populateWeekDropdown();
-    loadWeeklyStandings();
-  } else if (tabName === "teams") {
-    populateTeamDropdown();
-    loadTeamPage();
+    // Handle specific tab content
+    if (tabName === "weekly") {
+      console.log("Loading weekly tab...");
+      populateWeekDropdown();
+      loadWeeklyStandings();
+    } else if (tabName === "teams") {
+      console.log("Loading teams tab...");
+      populateTeamDropdown();
+      loadTeamPage();
+    }
   }
 }
 
