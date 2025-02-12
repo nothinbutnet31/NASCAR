@@ -598,13 +598,67 @@ function generateWeeklyRecap() {
 
   // Updated Driver of the Week section with narrative format
   const driverOfTheWeek = calculateDriverOfTheWeek(weekData, selectedWeekNumber);
-  
+   // Helper function to get finishing position
+  const getFinishPosition = (points) => {
+    // Use the basePoints directly for position lookup
+    const basePoints = driverOfTheWeek.basePoints;
+
+    console.log('Driver details:', {
+      driver: driverOfTheWeek.driver,
+      totalPoints: driverOfTheWeek.racePoints,
+      basePoints: basePoints,
+      stagePoints: driverOfTheWeek.details.stageWins,
+      qualifyingBonus: driverOfTheWeek.details.hadPole,
+      fastestLapBonus: driverOfTheWeek.details.hadFastestLap
+    });
+
+    const positionsMap = {
+      38: "1st",
+      34: "2nd",
+      33: "3rd",
+      32: "4th",
+      31: "5th",
+      30: "6th",
+      29: "7th",
+      28: "8th",
+      27: "9th",
+      26: "10th",
+      25: "11th",
+      24: "12th",
+      23: "13th",
+      22: "14th",
+      21: "15th",
+      20: "16th",
+      19: "17th",
+      18: "18th",
+      17: "19th",
+      16: "20th",
+      15: "21st",
+      14: "22nd",
+      13: "23rd",
+      12: "24th",
+      11: "25th",
+      10: "26th",
+      9: "27th",
+      8: "28th",
+      7: "29th",
+      6: "30th",
+      5: "31st",
+      4: "32nd",
+      3: "33rd",
+      2: "34th",
+      1: "35th"
+    };
+
+    return positionsMap[basePoints] || 'Unknown position';
+  };
+
   // Check if driverOfTheWeek is defined
   if (!driverOfTheWeek) {
     recapText += `<p>No driver of the week data available.</p>`;
   } else {
     // Build achievements list for Driver of the Week
-    let narrative = `${driverOfTheWeek.driver} finished ${getFinishPosition(driverOfTheWeek.racePoints)}`;
+    let narrative = `${driverOfTheWeek.driver} finished with ${driverOfTheWeek.racePoints} points`;
 
     // Add stage wins
     if (driverOfTheWeek.details.stageWins > 0) {
@@ -1354,4 +1408,7 @@ setInterval(async () => {
 
 function calculateExpectedTeamPoints(teamDrivers) {
   return teamDrivers.reduce((total, driver) => total + (expectedDriverAverages[driver] || 15), 0);
+}
+
+
 }
