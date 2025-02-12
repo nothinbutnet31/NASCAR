@@ -253,7 +253,6 @@ function loadWeeklyStandings() {
   const weeklyTable = document.querySelector("#weekly-standings tbody");
   const weeklyContent = document.getElementById("weekly-content");
   
-  
   // Guard clauses
   if (!weeklyTable || !weekSelect) {
     console.log("Required elements not found");
@@ -287,16 +286,22 @@ function loadWeeklyStandings() {
     return;
   }
 
-  // Sort teams by points for the selected week
-  const sortedTeams = Object.entries(weekData.standings)
-    .sort((a, b) => b[1].total - a[1].total);
+  // Calculate expected points for each team
+  const expectedPoints = {};
+  Object.entries(standingsData.teams).forEach(([team, data]) => {
+    expectedPoints[team] = calculateExpectedTeamPoints(data.drivers);
+  });
+
+  // Sort teams by expected points for preseason rankings
+  const sortedTeams = Object.entries(expectedPoints)
+    .sort((a, b) => b[1] - a[1]);
 
   // Generate table rows (without position numbers)
-  sortedTeams.forEach(([team, data]) => {
+  sortedTeams.forEach(([team, points]) => {
     const row = document.createElement("tr");
     row.innerHTML = `
-    <td class="standings-cell" style="font-weight: bold;">${team}</td>
-    <td class="standings-cell" style="font-weight: bold;">${data.total}</td>
+      <td class="standings-cell" style="font-weight: bold;">${team}</td>
+      <td class="standings-cell" style="font-weight: bold;">${points}</td>
     `;
     weeklyTable.appendChild(row);
   });
