@@ -1418,10 +1418,11 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Welcome to the 2025 Fantasy NASCAR Season!",
-        "📊 Check out the Preseason Power Rankings in Weekly Standings",
-        "🎯 Next Race: Daytona 500 - February 16, 2025",
-        "🏁 Good luck to all teams this season!"
+        "🏆Heather wins the first week.",
+        "👇 Dan's team crashes out early.",
+        "🏁 Emilia finishes second in debut race!"
+        "🎯 Next Race: Ambetter Health 400 - Feb. 23rd 2025 ",
+        
       ];
 
       // Create arrays for both types of updates
