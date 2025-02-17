@@ -1420,8 +1420,8 @@ async function createLiveNewsTicker() {
       const leagueUpdates = [
         "🏆Heather wins the first week.",
         "👇 Dan's team crashes out early.",
-        "🏁 Emilia finishes second in debut race!"
-        "🎯 Next Race: Ambetter Health 400 - Feb. 23rd 2025 ",
+        "🏁 Emilia finishes second in debut race!",
+        "🎯 Next Race: Ambetter Health 400 - Feb. 23rd 2025 "
         
       ];
 
