@@ -338,7 +338,7 @@ Object.entries(weekData.standings).forEach(([team,data]) => {
         console.error("Error generating preseason standings:", error);
       }
     }
-    return;
+  
   }
 
   // Show weekly content
