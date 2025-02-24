@@ -1241,10 +1241,7 @@ function populateWeekDropdown() {
     weekSelect.value = "1";
   }
 
-  // Single event listener for week changes
-  weekSelect.addEventListener("change", () => {
-    const selectedWeekNumber = parseInt(weekSelect.value, 10);
-    const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
+  
 
     // Only call loadWeeklyStandings and generateWeeklyRecap if weekData is valid
     if (weekData && weekData.standings) {
