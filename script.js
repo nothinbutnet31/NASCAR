@@ -1223,8 +1223,7 @@ function populateWeekDropdown() {
     return;
   }
 
-  // Clear existing options
-  weekSelect.innerHTML = "";
+ 
 
   // Add week options
   if (standingsData.weeks && standingsData.weeks.length > 0) {
