@@ -360,7 +360,7 @@ Object.entries(weekData.standings).forEach(([team,data]) => {
 
   if (!weekData || !weekData.standings) {
     console.error("No data for selected week");
-    return;
+    
   }
 
   try {
