@@ -1418,10 +1418,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆Heather wins the first week.",
-        "👇 Dan's team crashes out.",
-        "🏁 Emilia finishes second in debut race!",
-        "🎯 Next Race: Ambetter Health 400 - Feb. 23rd 2025 "
+        "🏆 Edmund domiantes week two and takes overall points lead.",
+        "👇 Dan's team crashes out two weeks in a row.",
+        "🏁 Ricky Stenhouse Jr. earns driver of the week!",
+        "🎯 Next Race: Focus Health 250 - March 1st, 2025 @ Circuit of the Americas"
         
       ];
 
