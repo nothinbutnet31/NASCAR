@@ -1318,32 +1318,8 @@ function openTab(tabName) {
 function init() {
   if (isDataLoaded) {
     populateWeekDropdown();
-
-    // Find the last scored week index
-    const lastScoredWeekIndex = standingsData.weeks
-      .map((week, index) => ({
-        index,
-        hasPoints: Object.values(week.standings || {}).some(team => team.total > 0)
-      }))
-      .filter(week => week.hasPoints)
-      .map(week => week.index)
-      .pop(); // Get the last index with points
-
-    // Set the week select to the last scored week
-    const weekSelect = document.getElementById("week-select");
-    if (weekSelect && lastScoredWeekIndex !== undefined) {
-      weekSelect.value = lastScoredWeekIndex + 1; // +1 because week numbers are 1-based
-    }
-
-    // Load the standings and recap for the selected week
-    if (lastScoredWeekIndex !== undefined) {
-      loadWeeklyStandings(); // This will now load the correct week
-      generateWeeklyRecap(); // Generate recap for the selected week
-    }
-
     loadOverallStandings();
     createLiveNewsTicker();
-    
     // Open weekly standings tab by default
     openTab('weekly');
   }
