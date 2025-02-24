@@ -1215,12 +1215,6 @@ function populateTeamDropdown() {
   loadTeamPage();
 }
 
-function populateWeekDropdown() {
-  const weekSelect = document.getElementById("week-select");
-  if (!weekSelect) {
-    console.warn("Week select element not found");
-    return;
-  }
 
   // Clear existing options
   weekSelect.innerHTML = "";
@@ -1309,7 +1303,7 @@ function openTab(tabName) {
 // Initialize the Page
 function init() {
   if (isDataLoaded) {
-    populateWeekDropdown();
+    populateWeekDropdown(); // Populate the dropdown
 
     // Manually set the week to start on a specific week (e.g., Week 3)
     const startWeekIndex = 2; // 0-based index for Week 3
@@ -1317,6 +1311,7 @@ function init() {
 
     if (weekSelect) {
       weekSelect.value = startWeekIndex + 1; // +1 for 1-based index
+      console.log("Dropdown set to week:", weekSelect.value); // Log the value
     }
 
     // Load standings for the selected week
@@ -1328,6 +1323,21 @@ function init() {
     // Open weekly standings tab by default
     openTab('weekly');
   }
+}
+
+function populateWeekDropdown() {
+  const weekSelect = document.getElementById("week-select");
+  weekSelect.innerHTML = ""; // Clear existing options
+
+  standingsData.weeks.forEach((week, index) => {
+    const option = document.createElement("option");
+    option.value = index + 1; // +1 for 1-based week number
+    option.textContent = `Week ${index + 1} - ${week.track}`;
+    weekSelect.appendChild(option);
+  });
+
+  // Log the options to verify they are populated correctly
+  console.log("Dropdown options populated:", weekSelect.innerHTML);
 }
 
 // Add CSS if it doesn't exist
