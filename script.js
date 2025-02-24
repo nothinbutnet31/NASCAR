@@ -381,7 +381,7 @@ Object.entries(weekData.standings).forEach(([team,data]) => {
   } catch (error) {
     console.error("Error generating weekly standings:", error);
   }
-}
+
 
 function calculateExpectedTeamPoints(teamDrivers) {
   if (!expectedDriverAverages || !teamDrivers) {
