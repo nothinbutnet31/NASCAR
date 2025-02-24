@@ -1215,7 +1215,6 @@ function populateTeamDropdown() {
   loadTeamPage();
 }
 
-// Populate Week Dropdown
 function populateWeekDropdown() {
   const weekSelect = document.getElementById("week-select");
   if (!weekSelect) {
@@ -1238,10 +1237,13 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default
-    weekSelect.value = "1";
+   
   }
 
-  
+  // Single event listener for week changes
+  weekSelect.addEventListener("change", () => {
+    const selectedWeekNumber = parseInt(weekSelect.value, 10);
+    const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
 
     // Only call loadWeeklyStandings and generateWeeklyRecap if weekData is valid
     if (weekData && weekData.standings) {
@@ -1250,12 +1252,12 @@ function populateWeekDropdown() {
     } else {
       console.log("No data available for the selected week.");
     }
-  };
+  });
 
   // Initial load
   loadWeeklyStandings();
   generateWeeklyRecap();
-
+}
 
 // Add this new function to handle track images
 function updateTrackImage() {
