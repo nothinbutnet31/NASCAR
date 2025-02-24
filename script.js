@@ -1246,7 +1246,19 @@ function populateTeamDropdown() {
 function populateWeekDropdown() {
   const weekSelect = document.getElementById("week-select");
   weekSelect.innerHTML = "";
+ standingsData.weeks.forEach((week, index) => {
+    const option = document.createElement("option");
+    option.value = index + 1; // +1 for 1-based week number
+    option.textContent = `Week ${index + 1} - ${week.track}`;
+    weekSelect.appendChild(option);
+  });
 
+  // Set the initial value to the first week
+  weekSelect.value = "1";
+
+  // Add change event listener to load standings for the selected week
+  weekSelect.addEventListener("change", loadWeeklyStandings);
+}
 
 // Add this new function to handle track images
 function updateTrackImage() {
@@ -1452,3 +1464,4 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+}
