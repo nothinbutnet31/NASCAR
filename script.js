@@ -1,3 +1,4 @@
+
 // Constants and Initial Data
 const sheetId = "19LbY1UwCkPXyVMMnvdu_KrYpyi6WhNcfuC6wjzxeBLI";
 const apiKey = "AIzaSyDWBrtpo54AUuVClU49k0FdrLl-IFPpMdY";
@@ -246,23 +247,13 @@ function loadOverallStandings() {
   });
 }
 
- function loadWeeklyStandings() {
+function loadWeeklyStandings() {
   // Get DOM elements
   const preseasonMessage = document.getElementById("preseason-message");
   const weekSelect = document.getElementById("week-select");
-  const selectedWeekIndex = parseInt(weekSelect.value, 10) - 1;
   const weeklyTable = document.querySelector("#weekly-standings tbody");
- 
   const weeklyContent = document.getElementById("weekly-content");
   const preseasonTable = document.getElementById("preseason-standings");
-
-if (selectedWeekIndex <0 || selectedWeekIndex >= standingsData.weeks.length) {
-  console.error("Invalid week selected", selectedWeekIndex);
-  return;
-}
-
-const weekData = standingsData.weeks[selectedWeekIndex];
-
 
   // Validate data exists
   if (!standingsData) {
@@ -279,16 +270,26 @@ const weekData = standingsData.weeks[selectedWeekIndex];
   // Clear existing content
   weeklyTable.innerHTML = "";
 
-Object.entries(weekData.standings).forEach(([team,data]) => {
-  const row = document.createElement("tr");
-  row.innerHTML = `
-    <td>${team}</td>
-    <td>${data.total} </td>
-    `;
-    weeklyTable.appendChild(row);
-    });
-  }
- 
+  // Check if we have any race results
+  const hasResults = standingsData.weeks && standingsData.weeks.some(week => 
+    week.standings && Object.values(week.standings).some(team => team.total > 0)
+  );
+
+  if (!hasResults) {
+    // Show preseason content
+    if (preseasonMessage) preseasonMessage.style.display = "block";
+    if (weeklyContent) weeklyContent.style.display = "none";
+
+    // Handle preseason standings
+    if (preseasonTable && standingsData.teams) {
+      const tbody = preseasonTable.querySelector("tbody");
+      if (!tbody) {
+        console.error("Preseason table tbody not found");
+        return;
+      }
+
+      // Clear existing preseason content
+      tbody.innerHTML = "";
 
       try {
         // Calculate expected points for each team
@@ -318,29 +319,21 @@ Object.entries(weekData.standings).forEach(([team,data]) => {
       } catch (error) {
         console.error("Error generating preseason standings:", error);
       }
-  
-  
- 
+    }
+    return;
+  }
 
   // Show weekly content
-  
+  if (preseasonMessage) preseasonMessage.style.display = "none";
+  if (weeklyContent) weeklyContent.style.display = "block";
 
   // Get selected week
-  const lastScoredWeekIndex = standingsData.weeks
-  .map((week, index) => ({
-    index,
-    hasPoints: Object.values(week.standings || {}).some(team => team.total > 0)
-  }))
-  .filter(week => week.hasPoints)
-  .map(week => week.index)
-  .pop() || 0;
-
-  const selectedWeek = lastScoredWeekIndex;
+  const selectedWeek = weekSelect.value ? parseInt(weekSelect.value) - 1 : 0;
   const weekData = standingsData.weeks[selectedWeek];
 
   if (!weekData || !weekData.standings) {
     console.error("No data for selected week");
-    
+    return;
   }
 
   try {
@@ -361,7 +354,7 @@ Object.entries(weekData.standings).forEach(([team,data]) => {
   } catch (error) {
     console.error("Error generating weekly standings:", error);
   }
-
+}
 
 function calculateExpectedTeamPoints(teamDrivers) {
   if (!expectedDriverAverages || !teamDrivers) {
@@ -1225,19 +1218,46 @@ function populateTeamDropdown() {
 // Populate Week Dropdown
 function populateWeekDropdown() {
   const weekSelect = document.getElementById("week-select");
+  if (!weekSelect) {
+    console.warn("Week select element not found");
+    return;
+  }
+
+  // Clear existing options
   weekSelect.innerHTML = "";
- standingsData.weeks.forEach((week, index) => {
-    const option = document.createElement("option");
-    option.value = index + 1; // +1 for 1-based week number
-    option.textContent = `Week ${index + 1} - ${week.track}`;
-    weekSelect.appendChild(option);
+
+  // Add week options
+  if (standingsData.weeks && standingsData.weeks.length > 0) {
+    standingsData.weeks.forEach((week, index) => {
+      if (week && week.track && week.track.trim() !== "") {
+        const option = document.createElement("option");
+        option.value = index + 1;
+        option.textContent = `Week ${index + 1} - ${week.track}`;
+        weekSelect.appendChild(option);
+      }
+    });
+
+    // Set to first week by default
+    weekSelect.value = "1";
+  }
+
+  // Single event listener for week changes
+  weekSelect.addEventListener("change", () => {
+    const selectedWeekNumber = parseInt(weekSelect.value, 10);
+    const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
+
+    // Only call loadWeeklyStandings and generateWeeklyRecap if weekData is valid
+    if (weekData && weekData.standings) {
+      loadWeeklyStandings();
+      generateWeeklyRecap();
+    } else {
+      console.log("No data available for the selected week.");
+    }
   });
 
-  // Set the initial value to the first week
-  weekSelect.value = "1";
-
-  // Add change event listener to load standings for the selected week
-  weekSelect.addEventListener("change", loadWeeklyStandings);
+  // Initial load
+  loadWeeklyStandings();
+  generateWeeklyRecap();
 }
 
 // Add this new function to handle track images
@@ -1444,4 +1464,3 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
-
