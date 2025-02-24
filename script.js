@@ -1222,7 +1222,8 @@ function populateWeekDropdown() {
     console.warn("Week select element not found");
     return;
   }
-
+ // Clear existing options
+  weekSelect.innerHTML = "";
  
 
   // Add week options
@@ -1237,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default
-    weekSelect.value = "1";
+    weekSelect.value = "2";
   }
 
   // Single event listener for week changes
