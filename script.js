@@ -1319,6 +1319,7 @@ function openTab(tabName) {
 function init() {
   if (isDataLoaded) {
     populateWeekDropdown();
+    
     const lastScoredWeekIndex = standingsData.weeks
       .map((week, index) => ({
         index,
@@ -1326,11 +1327,11 @@ function init() {
       }))
       .filter(week => week.hasPoints)
       .map(week => week.index)
-      .pop() || 0;
+      .pop();
 
     // Set the week select to the last scored week
     const weekSelect = document.getElementById("week-select");
-    if (weekSelect) {
+     if (weekSelect && lastScoredWeekIndex !== undefined) {
       weekSelect.value = lastScoredWeekIndex + 1; // +1 because week numbers are 1-based
     }
     loadOverallStandings();
