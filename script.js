@@ -1255,7 +1255,7 @@ function populateWeekDropdown() {
   // Initial load
   loadWeeklyStandings();
   generateWeeklyRecap();
-}
+
 
 // Add this new function to handle track images
 function updateTrackImage() {
