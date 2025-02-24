@@ -288,26 +288,7 @@ Object.entries(weekData.standings).forEach(([team,data]) => {
     weeklyTable.appendChild(row);
     });
   }
-  // Check if we have any race results
-  const hasResults = standingsData.weeks && standingsData.weeks.some(week => 
-    week.standings && Object.values(week.standings).some(team => team.total > 0)
-  );
-
-  if (!hasResults) {
-    // Show preseason content
-    if (preseasonMessage) preseasonMessage.style.display = "block";
-    if (weeklyContent) weeklyContent.style.display = "none";
-
-    // Handle preseason standings
-    if (preseasonTable && standingsData.teams) {
-      const tbody = preseasonTable.querySelector("tbody");
-      if (!tbody) {
-        console.error("Preseason table tbody not found");
-        
-      }
-
-      // Clear existing preseason content
-      tbody.innerHTML = "";
+ 
 
       try {
         // Calculate expected points for each team
@@ -342,8 +323,7 @@ Object.entries(weekData.standings).forEach(([team,data]) => {
   }
 
   // Show weekly content
-  if (preseasonMessage) preseasonMessage.style.display = "none";
-  if (weeklyContent) weeklyContent.style.display = "block";
+  
 
   // Get selected week
   const lastScoredWeekIndex = standingsData.weeks
