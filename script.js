@@ -104,7 +104,7 @@ async function fetchDataFromGoogleSheets() {
     console.log("Raw data from sheets:", data.values);
     processRaceData(data.values);
     isDataLoaded = true;
-    ();
+    init();
   } catch (error) {
     console.error("Error fetching data:", error);
     document.body.innerHTML = `<div class="error">Error loading data: ${error.message}</div>`;
