@@ -1315,6 +1315,7 @@ function openTab(tabName) {
   }
 }
 
+// Initialize the Page
 function init() {
   if (isDataLoaded) {
     populateWeekDropdown();
@@ -1324,6 +1325,7 @@ function init() {
     openTab('weekly');
   }
 }
+
 // Add CSS if it doesn't exist
 if (!document.getElementById('standings-styles')) {
   const styles = document.createElement('style');
