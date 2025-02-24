@@ -303,7 +303,7 @@ Object.entries(weekData.standings).forEach(([team,data]) => {
       const tbody = preseasonTable.querySelector("tbody");
       if (!tbody) {
         console.error("Preseason table tbody not found");
-        return;
+        
       }
 
       // Clear existing preseason content
