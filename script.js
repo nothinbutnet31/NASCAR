@@ -280,7 +280,7 @@ const weekData = standingsData.weeks[selectedWeekIndex];
   weeklyTable.innerHTML = "";
 
 Object.entries(weekData.standings).forEach(([team,data]) => {
-  const row =document.createElement('tr");
+  const row = document.createElement("tr");
   row.innerHTML = `
     <td>${team}</td>
     <td>${data.total} </td>
