@@ -1464,4 +1464,4 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
-}
+
