@@ -1306,7 +1306,7 @@ function init() {
     populateWeekDropdown(); // Populate the dropdown
 
     // Manually set the week to start on a specific week (e.g., Week 3)
-    const startWeekIndex = 2; // 0-based index for Week 3
+    const startWeekIndex = 1; // subtract 1 from week to get correct week
     const weekSelect = document.getElementById("week-select");
 
     if (weekSelect) {
