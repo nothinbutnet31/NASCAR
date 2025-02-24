@@ -361,7 +361,7 @@ function loadWeeklyStandings() {
   } catch (error) {
     console.error("Error generating weekly standings:", error);
   }
-}
+
 
 function calculateExpectedTeamPoints(teamDrivers) {
   if (!expectedDriverAverages || !teamDrivers) {
