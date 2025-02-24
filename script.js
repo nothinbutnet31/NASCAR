@@ -246,7 +246,7 @@ function loadOverallStandings() {
   });
 }
 
-function loadWeeklyStandings() {
+ function loadWeeklyStandings() {
   // Get DOM elements
   const preseasonMessage = document.getElementById("preseason-message");
   const weekSelect = document.getElementById("week-select");
@@ -269,32 +269,15 @@ function loadWeeklyStandings() {
   // Clear existing content
   weeklyTable.innerHTML = "";
 
-  // Find the last week with results
-  let lastCompletedWeek = 0;
-  for (let i = standingsData.weeks.length - 1; i >= 0; i--) {
-    const week = standingsData.weeks[i];
-    if (week.standings && Object.values(week.standings).some(team => team.total > 0)) {
-      lastCompletedWeek = i + 1; // Convert 0-based index to 1-based week number
-      break;
-    }
-  }
+  // Check if we have any race results
+  const hasResults = standingsData.weeks && standingsData.weeks.some(week => 
+    week.standings && Object.values(week.standings).some(team => team.total > 0)
+  );
 
-  // If no results exist, show preseason content
-  if (lastCompletedWeek === 0) {
+  if (!hasResults) {
+    // Show preseason content
     if (preseasonMessage) preseasonMessage.style.display = "block";
     if (weeklyContent) weeklyContent.style.display = "none";
-    return;
-  }
-
-  // Show weekly content
-  if (preseasonMessage) preseasonMessage.style.display = "none";
-  if (weeklyContent) weeklyContent.style.display = "block";
-
-  // Set week dropdown to last completed week
-  weekSelect.value = lastCompletedWeek;
-  
-  // Trigger change event to load the standings for the correct week
-  weekSelect.dispatchEvent(new Event("change"));
 
     // Handle preseason standings
     if (preseasonTable && standingsData.teams) {
@@ -343,6 +326,24 @@ function loadWeeklyStandings() {
   if (preseasonMessage) preseasonMessage.style.display = "none";
   if (weeklyContent) weeklyContent.style.display = "block";
 
+  // Get selected week
+  const lastScoredWeekIndex = standingsData.weeks
+  .map((week, index) => ({
+    index,
+    hasPoints: Object.values(week.standings || {}).some(team => team.total > 0)
+  }))
+  .filter(week => week.hasPoints)
+  .map(week => week.index)
+  .pop() || 0;
+
+  const selectedWeek = lastScoredWeekIndex;
+  const weekData = standingsData.weeks[selectedWeek];
+
+  if (!weekData || !weekData.standings) {
+    console.error("No data for selected week");
+    return;
+  }
+
   try {
     // Sort teams by points for the selected week
     const sortedTeams = Object.entries(weekData.standings)
@@ -361,7 +362,7 @@ function loadWeeklyStandings() {
   } catch (error) {
     console.error("Error generating weekly standings:", error);
   }
-
+}
 
 function calculateExpectedTeamPoints(teamDrivers) {
   if (!expectedDriverAverages || !teamDrivers) {
