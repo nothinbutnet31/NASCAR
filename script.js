@@ -1215,7 +1215,50 @@ function populateTeamDropdown() {
   loadTeamPage();
 }
 
+// Populate Week Dropdown
+function populateWeekDropdown() {
+  const weekSelect = document.getElementById("week-select");
+  if (!weekSelect) {
+    console.warn("Week select element not found");
+    return;
+  }
 
+  // Clear existing options
+  weekSelect.innerHTML = "";
+
+  // Add week options
+  if (standingsData.weeks && standingsData.weeks.length > 0) {
+    standingsData.weeks.forEach((week, index) => {
+      if (week && week.track && week.track.trim() !== "") {
+        const option = document.createElement("option");
+        option.value = index + 1;
+        option.textContent = `Week ${index + 1} - ${week.track}`;
+        weekSelect.appendChild(option);
+      }
+    });
+
+    // Set to first week by default
+    weekSelect.value = "1";
+  }
+
+  // Single event listener for week changes
+  weekSelect.addEventListener("change", () => {
+    const selectedWeekNumber = parseInt(weekSelect.value, 10);
+    const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
+
+    // Only call loadWeeklyStandings and generateWeeklyRecap if weekData is valid
+    if (weekData && weekData.standings) {
+      loadWeeklyStandings();
+      generateWeeklyRecap();
+    } else {
+      console.log("No data available for the selected week.");
+    }
+  });
+
+  // Initial load
+  loadWeeklyStandings();
+  generateWeeklyRecap();
+}
 
 // Add this new function to handle track images
 function updateTrackImage() {
@@ -1267,41 +1310,12 @@ function openTab(tabName) {
 // Initialize the Page
 function init() {
   if (isDataLoaded) {
-    populateWeekDropdown(); // Populate the dropdown
-
-    // Manually set the week to start on a specific week (e.g., Week 3)
-    const startWeekIndex = 1; // subtract 1 from week to get correct week
-    const weekSelect = document.getElementById("week-select");
-
-    if (weekSelect) {
-      weekSelect.value = startWeekIndex + 1; // +1 for 1-based index
-      console.log("Dropdown set to week:", weekSelect.value); // Log the value
-    }
-
-    // Load standings for the selected week
-    loadWeeklyStandings();
-    generateWeeklyRecap();
+    populateWeekDropdown();
     loadOverallStandings();
     createLiveNewsTicker();
-    
     // Open weekly standings tab by default
     openTab('weekly');
   }
-}
-
-function populateWeekDropdown() {
-  const weekSelect = document.getElementById("week-select");
-  weekSelect.innerHTML = ""; // Clear existing options
-
-  standingsData.weeks.forEach((week, index) => {
-    const option = document.createElement("option");
-    option.value = index + 1; // +1 for 1-based week number
-    option.textContent = `Week ${index + 1} - ${week.track}`;
-    weekSelect.appendChild(option);
-  });
-
-  // Log the options to verify they are populated correctly
-  console.log("Dropdown options populated:", weekSelect.innerHTML);
 }
 
 // Add CSS if it doesn't exist
