@@ -1315,11 +1315,11 @@ function openTab(tabName) {
   }
 }
 
-// Initialize the Page
 function init() {
   if (isDataLoaded) {
     populateWeekDropdown();
-    
+
+    // Find the last scored week index
     const lastScoredWeekIndex = standingsData.weeks
       .map((week, index) => ({
         index,
@@ -1327,22 +1327,27 @@ function init() {
       }))
       .filter(week => week.hasPoints)
       .map(week => week.index)
-      .pop();
+      .pop(); // Get the last index with points
 
     // Set the week select to the last scored week
     const weekSelect = document.getElementById("week-select");
-     if (weekSelect && lastScoredWeekIndex !== undefined) {
+    if (weekSelect && lastScoredWeekIndex !== undefined) {
       weekSelect.value = lastScoredWeekIndex + 1; // +1 because week numbers are 1-based
     }
+
+    // Load the standings and recap for the selected week
+    if (lastScoredWeekIndex !== undefined) {
+      loadWeeklyStandings(); // This will now load the correct week
+      generateWeeklyRecap(); // Generate recap for the selected week
+    }
+
     loadOverallStandings();
-     loadWeeklyStandings(); // Load the latest week's standings
-    generateWeeklyRecap(); // Generate recap for the latest week
     createLiveNewsTicker();
+    
     // Open weekly standings tab by default
     openTab('weekly');
   }
 }
-
 // Add CSS if it doesn't exist
 if (!document.getElementById('standings-styles')) {
   const styles = document.createElement('style');
