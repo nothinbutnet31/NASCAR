@@ -1250,7 +1250,7 @@ function populateWeekDropdown() {
     } else {
       console.log("No data available for the selected week.");
     }
-  });
+  };
 
   // Initial load
   loadWeeklyStandings();
