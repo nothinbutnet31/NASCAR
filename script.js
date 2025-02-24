@@ -343,15 +343,6 @@ function loadWeeklyStandings() {
   if (preseasonMessage) preseasonMessage.style.display = "none";
   if (weeklyContent) weeklyContent.style.display = "block";
 
-  // Get selected week
-  const selectedWeek = weekSelect.value ? parseInt(weekSelect.value) - 1 : 0;
-  const weekData = standingsData.weeks[selectedWeek];
-
-  if (!weekData || !weekData.standings) {
-    console.error("No data for selected week");
-    return;
-  }
-
   try {
     // Sort teams by points for the selected week
     const sortedTeams = Object.entries(weekData.standings)
