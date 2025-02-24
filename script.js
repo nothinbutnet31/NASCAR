@@ -250,9 +250,19 @@ function loadOverallStandings() {
   // Get DOM elements
   const preseasonMessage = document.getElementById("preseason-message");
   const weekSelect = document.getElementById("week-select");
+  const selectedWeekIndex = parseInt(weekSelect.value, 10) - 1;
   const weeklyTable = document.querySelector("#weekly-standings tbody");
+ 
   const weeklyContent = document.getElementById("weekly-content");
   const preseasonTable = document.getElementById("preseason-standings");
+
+if (selectedWeekIndex <0 || selectedWeekIndex >= standingsData.weeks.length) {
+  console.error("Invalid week selected", selectedWeekIndex);
+  return;
+}
+
+const weekData = standingsData.weeks[selectedWeekIndex];
+
 
   // Validate data exists
   if (!standingsData) {
@@ -269,6 +279,15 @@ function loadOverallStandings() {
   // Clear existing content
   weeklyTable.innerHTML = "";
 
+Object.entries(weekData.standings).forEach(([team,data]) => {
+  const row =document.createElement('tr");
+  row.innerHTML = `
+    <td>${team}</td>
+    <td>${data.total} </td>
+    `;
+    weeklyTable.appendChild(row);
+    });
+  }
   // Check if we have any race results
   const hasResults = standingsData.weeks && standingsData.weeks.some(week => 
     week.standings && Object.values(week.standings).some(team => team.total > 0)
@@ -1226,47 +1245,8 @@ function populateTeamDropdown() {
 // Populate Week Dropdown
 function populateWeekDropdown() {
   const weekSelect = document.getElementById("week-select");
-  if (!weekSelect) {
-    console.warn("Week select element not found");
-    return;
-  }
-
-  // Clear existing options
   weekSelect.innerHTML = "";
 
-  // Add week options
-  if (standingsData.weeks && standingsData.weeks.length > 0) {
-    standingsData.weeks.forEach((week, index) => {
-      if (week && week.track && week.track.trim() !== "") {
-        const option = document.createElement("option");
-        option.value = index + 1;
-        option.textContent = `Week ${index + 1} - ${week.track}`;
-        weekSelect.appendChild(option);
-      }
-    });
-
-    // Set to first week by default
-    weekSelect.value = "1";
-  }
-
-  // Single event listener for week changes
-  weekSelect.addEventListener("change", () => {
-    const selectedWeekNumber = parseInt(weekSelect.value, 10);
-    const weekData = standingsData.weeks.find((week) => week.week === selectedWeekNumber);
-
-    // Only call loadWeeklyStandings and generateWeeklyRecap if weekData is valid
-    if (weekData && weekData.standings) {
-      loadWeeklyStandings();
-      generateWeeklyRecap();
-    } else {
-      console.log("No data available for the selected week.");
-    }
-  });
-
-  // Initial load
-  loadWeeklyStandings();
-  generateWeeklyRecap();
-}
 
 // Add this new function to handle track images
 function updateTrackImage() {
