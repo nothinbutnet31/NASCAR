@@ -269,15 +269,32 @@ function loadWeeklyStandings() {
   // Clear existing content
   weeklyTable.innerHTML = "";
 
-  // Check if we have any race results
-  const hasResults = standingsData.weeks && standingsData.weeks.some(week => 
-    week.standings && Object.values(week.standings).some(team => team.total > 0)
-  );
+  // Find the last week with results
+  let lastCompletedWeek = 0;
+  for (let i = standingsData.weeks.length - 1; i >= 0; i--) {
+    const week = standingsData.weeks[i];
+    if (week.standings && Object.values(week.standings).some(team => team.total > 0)) {
+      lastCompletedWeek = i + 1; // Convert 0-based index to 1-based week number
+      break;
+    }
+  }
 
-  if (!hasResults) {
-    // Show preseason content
+  // If no results exist, show preseason content
+  if (lastCompletedWeek === 0) {
     if (preseasonMessage) preseasonMessage.style.display = "block";
     if (weeklyContent) weeklyContent.style.display = "none";
+    return;
+  }
+
+  // Show weekly content
+  if (preseasonMessage) preseasonMessage.style.display = "none";
+  if (weeklyContent) weeklyContent.style.display = "block";
+
+  // Set week dropdown to last completed week
+  weekSelect.value = lastCompletedWeek;
+  
+  // Trigger change event to load the standings for the correct week
+  weekSelect.dispatchEvent(new Event("change"));
 
     // Handle preseason standings
     if (preseasonTable && standingsData.teams) {
