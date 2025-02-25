@@ -21,7 +21,7 @@ let standingsData = {
   weeks: [],
   teams: {
     Midge: {
-      drivers: ["Denny Hamlin", "William Byron", "Ricky Stenhouse", "Ryan Preece", "Shane van Gisbergen"]
+      drivers: ["Denny Hamlin", "William Byron", "Ricky Stenhouse", "Ryan Preece", "Shane Van Gisbergen"]
     },
     Emilia: { 
       drivers: ["Austin Cindric", "Austin Dillon", "Kyle Larson", "AJ Allmendinger", "Alex Bowman"]
@@ -72,7 +72,7 @@ const expectedDriverAverages = {
   "Austin Dillon": 16,
   "Ryan Preece": 15,
   "Michael McDowell": 15,
-  "Shane van Gisbergen": 15,
+  "Shane Van Gisbergen": 15,
   // Development/Others (10-14 avg)
   "Josh Berry": 14,
   "Ricky Stenhouse": 13,
