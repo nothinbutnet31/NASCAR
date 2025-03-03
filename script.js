@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default
-    weekSelect.value = "2";
+    weekSelect.value = "3";
   }
 
   // Single event listener for week changes
@@ -1419,10 +1419,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Edmund domiantes week two and takes overall points lead.",
-        "👇 Dan's team crashes out two weeks in a row.",
-        "🏁 Ricky Stenhouse Jr. earns driver of the week!",
-        "🎯 Next Race: Focus Health 250 - March 1st, 2025 @ Circuit of the Americas"
+        "🏆 Heather wins week 3 and retakes overall lead.",
+        "👇 Emilia's team struggles to turn right",
+        "🏁 Noah Gragson scored 18 points over projected average!",
+        "🎯 Next Race: Shriners Children's 500 @ Phoenix Raceway, March 9th, 2025"
         
       ];
 
