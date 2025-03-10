@@ -1237,8 +1237,8 @@ function populateWeekDropdown() {
       }
     });
 
-    // Set to first week by default
-    weekSelect.value = "3";
+    // Set to first week by default (DROPDOWN START)
+    weekSelect.value = "4";
   }
 
   // Single event listener for week changes
@@ -1419,10 +1419,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Heather wins week 3 and retakes overall lead.",
-        "👇 Emilia's team struggles to turn right",
-        "🏁 Noah Gragson scored 18 points over projected average!",
-        "🎯 Next Race: Shriners Children's 500 @ Phoenix Raceway, March 9th, 2025"
+        "🏆 Emilia wins week 4!",
+        "👇 Edmund's team struggles despite Bell's hot streak.",
+        "🏁 Midge moves up to 2nd in standings, now only 40 points behind Heather!",
+        "🎯 Next Race: Pennzoil 400 @ Las Vegas Motor Speedway, March 16th, 2025"
         
       ];
 
