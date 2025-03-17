@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "4";
+    weekSelect.value = "5";
   }
 
   // Single event listener for week changes
@@ -1419,10 +1419,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Emilia wins week 4!",
-        "👇 Edmund's team struggles despite Bell's hot streak.",
-        "🏁 Midge moves up to 2nd in standings, now only 40 points behind Heather!",
-        "🎯 Next Race: Pennzoil 400 @ Las Vegas Motor Speedway, March 16th, 2025"
+        "🏆 Grace narrowly beats Emilia by 8 points for the win!",
+        "🔻 Edmund's team struggles again and now back to 5th in the standings.",
+        "⬆️ Emilia and Grace gain one spot each in the standings, Midge now only 16 points behind Heather for first!",
+        "🎯 Next Race: Straight Talk 400 @ Homestead-Miami Speedway, March 23th, 2025"
         
       ];
 
