@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "6";
+    weekSelect.value = "7";
   }
 
   // Single event listener for week changes
@@ -1419,10 +1419,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Emilia dominates at Miami, takes overall points lead!!",
-        "🔻 Edmund's team struggles third week in a row still 5th in the standings.",
-        "🤏 Top 3 in points standings only seperated by 32 points!",
-        "🎯 Next Race: Cook Out 400 @ Martinsville Speedway, March 30th, 2025"
+        "🏆 Grace wins Martinsville by a whisker!",
+        "🔻 Emilia falls back to 2nd in the standings.",
+        "🤏 Top 4 in weekly standings only seperated by 12 points!",
+        "🎯 Next Race: Goodyear 400 @ Darlington Speedway, April 6,  2025"
         
       ];
 
