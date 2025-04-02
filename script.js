@@ -1421,7 +1421,7 @@ async function createLiveNewsTicker() {
       const leagueUpdates = [
         "🏆 Grace wins Martinsville by a whisker!",
         "🔻 Emilia falls back to 2nd in the standings.",
-        "🤏 Top 4 in weekly standings only seperated by 12 points!",
+        "🤏 Top 3 in overall standings only seperated by 9 points!",
         "🎯 Next Race: Goodyear 400 @ Darlington Speedway, April 6,  2025"
         
       ];
