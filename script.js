@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "7";
+    weekSelect.value = "8";
   }
 
   // Single event listener for week changes
@@ -1419,10 +1419,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Grace wins Martinsville by a whisker!",
-        "🔻 Emilia falls back to 2nd in the standings.",
-        "🤏 Top 3 in overall standings only seperated by 9 points!",
-        "🎯 Next Race: Goodyear 400 @ Darlington Speedway, April 6,  2025"
+        "🏆 Byron's dominance, Hamlin's luck helps Midge edge out Heather for the win!",
+        "🔻 Emilia falls back to 3rd in the standings.",
+        "🤏 Top 2 in overall standings only seperated by 6 points!",
+        "🎯 Next Race: Food City 500 @ Bristol Motor Speedway, April 13,  2025"
         
       ];
 
