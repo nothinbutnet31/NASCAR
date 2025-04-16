@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "8";
+    weekSelect.value = "9";
   }
 
   // Single event listener for week changes
@@ -1419,10 +1419,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Byron's dominance, Hamlin's luck helps Midge edge out Heather for the win!",
-        "🔻 Emilia falls back to 3rd in the standings.",
-        "🤏 Top 2 in overall standings only seperated by 6 points!",
-        "🎯 Next Race: Food City 500 @ Bristol Motor Speedway, April 13,  2025"
+        "🏆 Edmund wins the week with 3 drivers finishing in the top 10!",
+        "🔻 Heather drops down to 2nd as Midge takes over the lead.",
+        "🤏 Top 3 in overall standings only seperated by 35 points!",
+        "🎯 Next Race: Jack Link's 500 @ Talladega Superspeedway, April 27, 2025"
         
       ];
 
