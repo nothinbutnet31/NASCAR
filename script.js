@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "9";
+    weekSelect.value = "10";
   }
 
   // Single event listener for week changes
@@ -1419,10 +1419,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Edmund wins the week with 3 drivers finishing in the top 10!",
-        "🔻 Heather drops down to 2nd as Midge takes over the lead.",
-        "🤏 Top 3 in overall standings only seperated by 35 points!",
-        "🎯 Next Race: Jack Link's 500 @ Talladega Superspeedway, April 27, 2025"
+        "🏆 Emilia wins the week and takes the overall lead!",
+        "🔻 Midge drops down to 3rd place overall.",
+        "🤏 Top 3 in overall standings only seperated by 27 points!",
+        "🎯 Next Race: Wurth 400 @ Texas Motor Speedway, May 4th, 2025"
         
       ];
 
