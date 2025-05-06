@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "10";
+    weekSelect.value = "11";
   }
 
   // Single event listener for week changes
@@ -1419,10 +1419,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Emilia wins the week and takes the overall lead!",
-        "🔻 Midge drops down to 3rd place overall.",
-        "🤏 Top 3 in overall standings only seperated by 27 points!",
-        "🎯 Next Race: Wurth 400 @ Texas Motor Speedway, May 4th, 2025"
+        "🏆 Edmund gets another win, keeps regular season title hopes alive!",
+        "🔻 Emilia drops down to 2nd place overall.",
+        "🤏 Top 3 in overall standings only seperated by 34 points!",
+        "🎯 Next Race: AdventHealth 400 @ Kansas Speedway, May 11th, 2025"
         
       ];
 
