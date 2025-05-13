@@ -1384,7 +1384,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "8";
+    weekSelect.value = "12";
   }
 
   // Single event listener for week changes
@@ -1572,10 +1572,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Byron's dominance, Hamlin's luck helps Midge edge out Heather for the win!",
-        "🔻 Emilia falls back to 3rd in the standings.",
-        "🤏 Top 2 in overall standings only seperated by 6 points!",
-        "🎯 Next Race: Food City 500 @ Bristol Motor Speedway, April 13,  2025"
+        "🏆 Emilia rides Larson's dominance to victory!",
+        "🔻 Heather falls back to 2nd in the standings.",
+        "🆓 Free Agency is open now during All-Star week!",
+        "🎯 Next Race: Coca Cola 600 @ Charlotte Motor Speedway, May 25, 2025"
         
       ];
 
