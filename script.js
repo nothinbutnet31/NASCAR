@@ -20,7 +20,7 @@ window.scoringSystem = {
 let standingsData = {
   weeks: [],
   teams: function(weekNumber) {
-    if (weekNumber <= 12) {
+    if (weekNumber <= 13) {
       return {
         Midge: {
           drivers: ["Denny Hamlin", "William Byron", "Ricky Stenhouse", "Ryan Preece", "Shane Van Gisbergen"]
@@ -44,7 +44,7 @@ let standingsData = {
     } else {
       return {
         Midge: {
-          drivers: ["Denny Hamlin", "William Byron", "Ricky Stenhouse", "Ryan Preece", "Shane Van Gisbergen"]
+          drivers: ["Denny Hamlin", "William Byron", "Ricky Stenhouse", "Ryan Preece", "Zane Smith"]
         },
         Emilia: { 
           drivers: ["Austin Cindric", "Austin Dillon", "Kyle Larson", "AJ Allmendinger", "Alex Bowman"]
@@ -53,13 +53,13 @@ let standingsData = {
           drivers: ["Kyle Busch", "Chase Elliott", "Erik Jones", "Tyler Reddick", "Michael McDowell"]
         },
         Dan: {
-          drivers: ["Brad Keselowski", "Chris Buescher", "Noah Gragson", "Joey Logano", "Cole Custer"]
+          drivers: ["Brad Keselowski", "Chris Buescher", "Noah Gragson", "Joey Logano", "John H Nemechek"]
         },
         Grace: {
           drivers: ["Ross Chastain", "Chase Briscoe", "Josh Berry", "Bubba Wallace", "Daniel Suarez"]
         },
         Edmund: {
-          drivers: ["Ryan Blaney", "Christopher Bell", "Riley Herbst", "Ty Gibbs", "Carson Hocevar"]
+          drivers: ["Ryan Blaney", "Christopher Bell", "Todd Gilliland", "Ty Gibbs", "Carson Hocevar"]
         }
       };
     }
@@ -1384,7 +1384,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "12";
+    weekSelect.value = "13";
   }
 
   // Single event listener for week changes
@@ -1572,10 +1572,11 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Emilia rides Larson's dominance to victory!",
-        "🔻 Heather falls back to 2nd in the standings.",
-        "🆓 Free Agency is open now during All-Star week!",
-        "🎯 Next Race: Coca Cola 600 @ Charlotte Motor Speedway, May 25, 2025"
+        "🏆 Midge wins week and is back in the championship battle!",
+        "🔻 Emilia falls back to 3rd in the standings.",
+        " 🤏 Three way battle for championship continues with only 14 points seperating 1st from 3rd!",
+        " 🆓Free agency sees Dan picks up John H. Nemechek, Edmund takes Todd Gilliland and Midge trusts Zane Smith over Van Gisbergen in the run to the championship",
+        "🎯 Next Race: Cracker Barrel 400 @ Nashville SuperSpeedway, June 1, 2025"
         
       ];
 
