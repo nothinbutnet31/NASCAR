@@ -1384,7 +1384,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "13";
+    weekSelect.value = "14";
   }
 
   // Single event listener for week changes
@@ -1572,11 +1572,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Midge wins week and is back in the championship battle!",
-        "🔻 Emilia falls back to 3rd in the standings.",
-        " 🤏 Three way battle for championship continues with only 14 points seperating 1st from 3rd!",
-        " 🆓Free agency sees Dan picks up John H. Nemechek, Edmund takes Todd Gilliland and Midge trusts Zane Smith over Van Gisbergen in the run to the championship",
-        "🎯 Next Race: Cracker Barrel 400 @ Nashville SuperSpeedway, June 1, 2025"
+        "🏆 Edmund wins week with top two finishers of the race!",
+        "⏫ Heather seperates herself from the pack as her lead is now 30 points.",
+        "🎯 Next Race: FireKeepers Casino 400 @ Michigan International Speedway, June 8, 2025"
         
       ];
 
