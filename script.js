@@ -1384,7 +1384,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "14";
+    weekSelect.value = "15";
   }
 
   // Single event listener for week changes
@@ -1572,9 +1572,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Edmund wins week with top two finishers of the race!",
-        "⏫ Heather seperates herself from the pack as her lead is now 30 points.",
-        "🎯 Next Race: FireKeepers Casino 400 @ Michigan International Speedway, June 8, 2025"
+        "🏆 Grace wins the week and overtakes 3rd place from Emilia!",
+        "⏫ Midge closes the gap for the lead to 12 points.",
+        "🎯 Next Race: Viva Mexico 250 @ Autódromo Hermanos Rodríguez, June 15, 2025"
         
       ];
 
