@@ -1384,7 +1384,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "15";
+    weekSelect.value = "17";
   }
 
   // Single event listener for week changes
@@ -1572,9 +1572,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Grace wins the week and overtakes 3rd place from Emilia!",
-        "⏫ Midge closes the gap for the lead to 12 points.",
-        "🎯 Next Race: Viva Mexico 250 @ Autódromo Hermanos Rodríguez, June 15, 2025"
+        "🏆 Dan wins the week!!!!",
+        "⏫ Grace continues impressive comeback and is now only 56 points from the lead.",
+        "⚔️ Heather and Midge continue to battle for first place as only 20 points seperate the two.",
+        "🎯 Next Race:  Quaker State 400 @ Echopark Speedway, June 28th, 2025"
         
       ];
 
