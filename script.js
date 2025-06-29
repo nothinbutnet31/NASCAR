@@ -1384,7 +1384,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "17";
+    weekSelect.value = "18";
   }
 
   // Single event listener for week changes
@@ -1572,10 +1572,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Dan wins the week!!!!",
-        "⏫ Grace continues impressive comeback and is now only 56 points from the lead.",
-        "⚔️ Heather and Midge continue to battle for first place as only 20 points seperate the two.",
-        "🎯 Next Race:  Quaker State 400 @ Echopark Speedway, June 28th, 2025"
+        "🏆 Heather dominates the week and increases her overall lead!",
+        "⏫ Emilia takes back 3rd place from Grace.",
+        "⚔️ Heather and Midge continue to battle for first place as only 71 points seperate the two.",
+        "🎯 Next Race:  Grant Park 165 @ Chicago Street Course, July 6th, 2025"
         
       ];
 
