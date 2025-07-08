@@ -1384,7 +1384,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "18";
+    weekSelect.value = "19";
   }
 
   // Single event listener for week changes
@@ -1572,10 +1572,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Heather dominates the week and increases her overall lead!",
-        "⏫ Emilia takes back 3rd place from Grace.",
-        "⚔️ Heather and Midge continue to battle for first place as only 71 points seperate the two.",
-        "🎯 Next Race:  Grant Park 165 @ Chicago Street Course, July 6th, 2025"
+        "🏆 Heather wins 2 weeks in a row and increases her overall lead!",
+        "⏫ Emilia seperating 3rd place from Grace.",
+        "⚔️ Heather and Midge continue to battle for first place as only 85 points seperate the two.",
+        "🎯 Next Race:  Save Mart 350 @ Sonoma Raceway, July 13th, 2025"
         
       ];
 
