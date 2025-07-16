@@ -1384,7 +1384,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "19";
+    weekSelect.value = "20";
   }
 
   // Single event listener for week changes
@@ -1572,10 +1572,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Heather wins 2 weeks in a row and increases her overall lead!",
-        "⏫ Emilia seperating 3rd place from Grace.",
-        "⚔️ Heather and Midge continue to battle for first place as only 85 points seperate the two.",
-        "🎯 Next Race:  Save Mart 350 @ Sonoma Raceway, July 13th, 2025"
+        "🏆 Heather wins 3 weeks in a row and increases her overall lead!",
+        "⏫ Grace closing in on Emilia for 3rd place.",
+        "⚔️ The fight for draft position is on in the final few races.",
+        "🎯 Next Race:  Autotrader EchoPark Automotive 400 @ Dover Motor Speedway, July 20th, 2025"
         
       ];
 
