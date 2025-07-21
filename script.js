@@ -1384,7 +1384,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "20";
+    weekSelect.value = "21";
   }
 
   // Single event listener for week changes
@@ -1572,10 +1572,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Heather wins 3 weeks in a row and increases her overall lead!",
-        "⏫ Grace closing in on Emilia for 3rd place.",
+        "🏆 Heather wins 4 weeks in a row and increases her overall lead!",
+        "⏫ Heather is close to winning the regular season championship up 160 points with only 5 races left.",
         "⚔️ The fight for draft position is on in the final few races.",
-        "🎯 Next Race:  Autotrader EchoPark Automotive 400 @ Dover Motor Speedway, July 20th, 2025"
+        "🎯 Next Race: Brickyard 400 @ Indianapolis Motor Speedway, July 27th, 2025"
         
       ];
 
