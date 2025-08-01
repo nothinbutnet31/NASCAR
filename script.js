@@ -1384,7 +1384,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "21";
+    weekSelect.value = "22";
   }
 
   // Single event listener for week changes
@@ -1572,10 +1572,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Heather wins 4 weeks in a row and increases her overall lead!",
-        "⏫ Heather is close to winning the regular season championship up 160 points with only 5 races left.",
+        "🏆 Edmund has dominant win and closes in on Grace for 4th place!",
+        "⏫ Midge closes gap to Heather down to 115 points with 4 races left.",
         "⚔️ The fight for draft position is on in the final few races.",
-        "🎯 Next Race: Brickyard 400 @ Indianapolis Motor Speedway, July 27th, 2025"
+        "🎯 Next Race: Iowa Corn 350 @ Iowa Speedway, August 3rd, 2025"
         
       ];
 
