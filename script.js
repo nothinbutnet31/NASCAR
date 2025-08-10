@@ -1384,7 +1384,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "23";
+    weekSelect.value = "24";
   }
 
   // Single event listener for week changes
@@ -1572,10 +1572,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Grace wins the week at Iowa!",
-        "⏫ Emilia closes gap to Midge down to 27 points with 3 races left.",
+        "🏆 Grace wins 2 weeks in a row!",
+        "⏫ Grace closes gap to Emilia down to 19 points with 2 races left.",
         "⚔️ The fight for draft position is on in the final few races.",
-        "🎯 Next Race: Go Bowling at the Glen @ Watkins Glen International, August 10th, 2025"
+        "🎯 Next Race: Cookout 400 @ Richmond Raceway, Sat. August 16th, 2025"
         
       ];
 
@@ -1617,4 +1617,5 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
