@@ -1574,7 +1574,7 @@ async function createLiveNewsTicker() {
       const leagueUpdates = [
         "🏆 Emilia dominates the week!",
         "⏫ Emilia takes over 2nd place and has a shot at winning the championship.",
-        "⚔️ The championship duel is with the last regular season race on the horizon.",
+        "⚔️ The championship duel is on with 3 within 71 points going into the last regular season race.",
         "🎯 Next Race: Coke Zero Sugar 400 @ Daytona International Speedway, Sat. August 23rd, 2025"
         
       ];
@@ -1617,6 +1617,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
