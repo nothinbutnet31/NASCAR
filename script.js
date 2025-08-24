@@ -1384,7 +1384,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "25";
+    weekSelect.value = "26";
   }
 
   // Single event listener for week changes
@@ -1572,10 +1572,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Emilia dominates the week!",
-        "⏫ Emilia takes over 2nd place and has a shot at winning the championship.",
-        "⚔️ The championship fight is on with 3 within 71 points going into the last regular season race.",
-        "🎯 Next Race: Coke Zero Sugar 400 @ Daytona International Speedway, Sat. August 23rd, 2025"
+        "🏆 Edmund wins Daytona week!, Heather wins the Regular Season Championship.",
+        "⏫ Grace almost gets 3rd missing by just 3 points.",
+        "⚔️ The draft is next to reset the teams for the playoffs.",
+        "🎯 Next Race: Cookout Souther 500 @ Darlington Raceway, Sun. August 31st, 2025"
         
       ];
 
@@ -1617,6 +1617,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
