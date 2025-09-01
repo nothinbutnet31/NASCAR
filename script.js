@@ -1419,10 +1419,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Heather wins Regular Season Championship",
-        "🔻 Drivers are picked for the playoffs",
-        "🤏 Top 3 in overall standings only seperated by 34 points!",
-        "🎯 Next Race: Southern 500 @ Darlington Raceway Aug. 31, 2025"
+        "🏆 Edmund takes early championship lead after first race",
+        "🔻 Grace has rough start and is last in standings",
+        "🤏 Top 3 in overall standings only seperated by 20 points!",
+        "🎯 Next Race: Enjoy Illinois 300 @ Gateway (WWT) Speedway, Sept. 7, 2025"
         
       ];
 
@@ -1464,6 +1464,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
