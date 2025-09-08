@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "1";
+    weekSelect.value = "2";
   }
 
   // Single event listener for week changes
@@ -1419,10 +1419,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Edmund takes early championship lead after first race",
-        "🔻 Grace has rough start and is last in standings",
-        "🤏 Top 3 in overall standings only seperated by 20 points!",
-        "🎯 Next Race: Enjoy Illinois 300 @ Gateway (WWT) Speedway, Sept. 7, 2025"
+        "🏆 Edmund takes early championship lead after two races",
+        "🔻Dan and Grace has rough start and are tied for last in standings",
+        "🤏 Top 2 in overall standings only seperated by 30 points!",
+        "🎯 Next Race: Bass Pro Shops Night Race @ Bristol Motor Speedway, Sept. 13, 2025"
         
       ];
 
@@ -1464,6 +1464,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
