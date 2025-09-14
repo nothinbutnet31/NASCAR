@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "2";
+    weekSelect.value = "3";
   }
 
   // Single event listener for week changes
@@ -1419,10 +1419,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Edmund takes early championship lead after two races",
-        "🔻Dan and Grace has rough start and are tied for last in standings",
-        "🤏 Top 2 in overall standings only seperated by 30 points!",
-        "🎯 Next Race: Bass Pro Shops Night Race @ Bristol Motor Speedway, Sept. 13, 2025"
+        "🏆 Dan wins the week! ",
+        "🔻Emilia drops to last in standings",
+        "🤏 Top 3 in overall standings only seperated by 45 points!",
+        "🎯 Next Race: Mobile 1 301 @ New Hampshire Motor Speedway , Sept. 21, 2025"
         
       ];
 
@@ -1464,6 +1464,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
