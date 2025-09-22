@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "3";
+    weekSelect.value = "4";
   }
 
   // Single event listener for week changes
@@ -1419,10 +1419,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Dan wins the week! ",
-        "🔻Emilia drops to last in standings",
-        "🤏 Top 3 in overall standings only seperated by 45 points!",
-        "🎯 Next Race: Mobile 1 301 @ New Hampshire Motor Speedway , Sept. 21, 2025"
+        "🏆 Dan wins 2 weeks in a row! ",
+        "🔻Grace drops to last in standings",
+        "🤏 Top 3 in overall standings only seperated by 63 points!",
+        "🎯 Next Race:Hollywood Casino 400 @ Kansas Speedway , Sept. 28, 2025"
         
       ];
 
@@ -1464,6 +1464,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
