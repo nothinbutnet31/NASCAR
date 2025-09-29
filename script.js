@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "4";
+    weekSelect.value = "5";
   }
 
   // Single event listener for week changes
@@ -1419,10 +1419,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Dan wins 2 weeks in a row! ",
-        "🔻Grace drops to last in standings",
-        "🤏 Top 3 in overall standings only seperated by 63 points!",
-        "🎯 Next Race:Hollywood Casino 400 @ Kansas Speedway , Sept. 28, 2025"
+        "🏆 Edmund wins the week! ",
+        "🔻Dan drops two spots in standings",
+        "🤏 Only 35 points seperate 3rd from last!",
+        "🎯 Next Race:Bank of America ROVAL 400 @ Charlotte Motor Speedway ROVAL , Oct. 4, 2025"
         
       ];
 
@@ -1464,6 +1464,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
