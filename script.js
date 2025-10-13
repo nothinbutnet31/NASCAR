@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "6";
+    weekSelect.value = "7";
   }
 
   // Single event listener for week changes
@@ -1419,10 +1419,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Heather wins the week and gets within 47 points! ",
-        "🔻Dan drops to last in standings",
-        "🤏 Only 22 points seperate 3rd from 4th!",
-        "🎯 Next Race SouthPoint 400 @ Las Vegas Motor Speedway, Oct. 12, 2025"
+        "🏆 Emilia wins the week! ",
+        "🔻Midge drops to 4th in standings",
+        "🎯 Next Race Yellawood 500 @ Talladega Superspeedway, Oct. 19, 2025"
         
       ];
 
@@ -1464,6 +1463,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
