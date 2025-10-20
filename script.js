@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "7";
+    weekSelect.value = "8";
   }
 
   // Single event listener for week changes
@@ -1419,9 +1419,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Emilia wins the week! ",
-        "🔻Midge drops to 4th in standings",
-        "🎯 Next Race Yellawood 500 @ Talladega Superspeedway, Oct. 19, 2025"
+        "🏆 Edmund wins the week again and now leads by 100 points! ",
+        "🔻 Heather is now 100 points behind",
+        "🎯 Next Race Xfinity 500 @ Martinsville Speedway, Oct. 26, 2025"
         
       ];
 
@@ -1463,6 +1463,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
