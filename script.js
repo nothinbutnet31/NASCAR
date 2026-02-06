@@ -1238,7 +1238,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "9";
+    weekSelect.value = "1";
   }
 
   // Single event listener for week changes
@@ -1419,9 +1419,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆Grace wins the week!  ",
-        "🔻 Heather is now 3rd place in points behind Emilia",
-        "🎯 Next Race NASCAR Cup Championship @ Phoenix International Speedway, Nov. 2, 2025"
+        "🏆 Can Emilia repeat as champion?  ",
+        "🏁 Who can conquer the new format? ",
+        "🎯 Next Race Daytona 500 @ Daytona International Super Speedway, Feb. 15, 2026"
         
       ];
 
@@ -1463,6 +1463,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
