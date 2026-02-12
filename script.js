@@ -21,22 +21,22 @@ let standingsData = {
   weeks: [],
   teams: {
     Midge: {
-      drivers: ["Christopher Bell", "Chris Buescher", "Austin Dillon", "John H Nemechek", "Shane Van Gisbergen"]
+      drivers: ["William Byron", "Denny Hamlin", "Ryan Blaney", "Ryan Preece", "Shane Van Gisbergen"]
     },
     Emilia: { 
-      drivers: ["Ross Chastain", "Ryan Preece", "Kyle Larson", "Erik Jones", "Todd Gilliland"]
+      drivers: ["Chase Elliott", "Chase Briscoe", "Chris Buescher", "Daniel Suarez", "Josh Berry"]
     },
     Heather: { 
-      drivers: ["Chase Briscoe", "Chase Elliott", "Alex Bowman", "Ty Gibbs", "AJ Allmendinger"]
+      drivers: ["William Byron", "Tyler Reddick", "Ryan Blaney", "Austin Dillon", "Kyle Busch"]
     },
     Dan: {
-      drivers: ["Brad Keselowski", "Ryan Blaney", "Austin Cindric", "Josh Berry", "Zane Smith"]
+      drivers: ["William Byron","Christopher Bell", "Ryan Blaney", "Austin Cindric", "Noah Gragson"]
     },
     Grace: {
-      drivers: ["William Byron", "Joey Logano", "Kyle Busch", "Justin Haley", "Daniel Suarez"]
+      drivers: ["Kyle Larson", "Bubba Wallace", "Kyle Busch", "Brad Keselowski", "Daniel Suarez"]
     },
     Edmund: {
-      drivers: ["Denny Hamlin", "Tyler Reddick", "Bubba Wallace", "Michael McDowell", "Carson Hocevar"]
+      drivers: ["Kyle Larson", "Christopher Bell", "Ryan Blaney", "Connor Zilisch", "Carson Hocevar"]
     }
   }
 };
@@ -44,30 +44,30 @@ let standingsData = {
 // Add this constant for expected averages
 const expectedDriverAverages = {
   // Top tier drivers (25+ avg)
-  "Kyle Larson": 23,
-  "William Byron": 23,
-  "Ryan Blaney": 21,
-  "Christopher Bell": 24,
-  "Denny Hamlin": 23,
+  "Kyle Larson": 30,
+  "William Byron": 29,
+  "Ryan Blaney": 26,
+  "Christopher Bell": 28,
+  "Denny Hamlin": 28,
 
 
   // Strong performers (20-24 avg)
-  "Tyler Reddick": 20,
-  "Ross Chastain": 20,
-  "Joey Logano": 19,
-  "Brad Keselowski": 16,
-  "Chase Elliott": 24,
-  "Chris Buescher": 22,
-  "Bubba Wallace": 17,
+  "Tyler Reddick": 27,
+  "Ross Chastain": 25,
+  "Joey Logano": 26,
+  "Brad Keselowski": 25,
+  "Chase Elliott": 27,
+  "Chris Buescher": 25,
+  "Bubba Wallace": 24,
 
   // Mid tier (15-19 avg)
-  "Kyle Busch": 18,
-  "Alex Bowman": 20,
-  "Daniel Suarez": 16,
-  "Chase Briscoe": 23,
+  "Kyle Busch": 25,
+  "Alex Bowman": 23,
+  "Daniel Suarez": 23,
+  "Chase Briscoe": 26,
   "Ty Gibbs": 18,
   "Austin Cindric": 17,
-  "Carson Hocevar": 13,
+  "Carson Hocevar": 16,
   "Erik Jones": 17,
   "Austin Dillon": 16,
   "Ryan Preece": 20,
@@ -81,9 +81,8 @@ const expectedDriverAverages = {
   "Cole Custer": 12,
   "Todd Gilliland": 14,
   "Justin Haley": 14,
-  "Harrison Burton": 11,
   "Noah Gragson": 10,
-  "Corey LaJoie": 10
+  "Connor Zilisch": 20
 };
 
 // Fetch data from Google Sheets
@@ -1463,6 +1462,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
