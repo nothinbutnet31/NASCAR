@@ -20,7 +20,7 @@ window.scoringSystem = {
 let standingsData = {
   weeks: [],
   teams: {
-    Midge: {
+    "Midge's Mighty Men": {
       drivers: ["William Byron", "Denny Hamlin", "Ryan Blaney", "Ryan Preece", "Shane Van Gisbergen"]
     },
     Emilia: { 
@@ -1462,6 +1462,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
