@@ -23,19 +23,19 @@ let standingsData = {
     "Midge's Mighty Men": {
       drivers: ["William Byron", "Denny Hamlin", "Ryan Blaney", "Ryan Preece", "Shane Van Gisbergen"]
     },
-    Emilia: { 
+    "Emilia's Speeder Blaze": { 
       drivers: ["Chase Elliott", "Chase Briscoe", "Chris Buescher", "Daniel Suarez", "Josh Berry"]
     },
-    Heather: { 
+    "Heathers Heroes": { 
       drivers: ["William Byron", "Tyler Reddick", "Ryan Blaney", "Austin Dillon", "Kyle Busch"]
     },
-    Dan: {
+    "Dans Sunday Drivers": {
       drivers: ["William Byron","Christopher Bell", "Ryan Blaney", "Austin Cindric", "Noah Gragson"]
     },
-    Grace: {
+    "Graces Stitch Swifties": {
       drivers: ["Kyle Larson", "Bubba Wallace", "Kyle Busch", "Brad Keselowski", "Daniel Suarez"]
     },
-    Edmund: {
+    "Edmunds Pet Pitcrew": {
       drivers: ["Kyle Larson", "Christopher Bell", "Ryan Blaney", "Connor Zilisch", "Carson Hocevar"]
     }
   }
@@ -1462,6 +1462,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
