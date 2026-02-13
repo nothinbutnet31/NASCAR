@@ -29,7 +29,7 @@ let standingsData = {
     "Heathers Heroes": { 
       drivers: ["William Byron", "Tyler Reddick", "Ryan Blaney", "Austin Dillon", "Kyle Busch"]
     },
-    "Dans Sunday Drivers": {
+    "Dannos Sunday Drivers": {
       drivers: ["William Byron","Christopher Bell", "Ryan Blaney", "Austin Cindric", "Noah Gragson"]
     },
     "Graces Stitch Swifties": {
@@ -1472,6 +1472,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
