@@ -20,10 +20,10 @@ window.scoringSystem = {
 let standingsData = {
   weeks: [],
   teams: {
-    "Midge's Mighty Men": {
+    "Midges Mighty Men": {
       drivers: ["William Byron", "Denny Hamlin", "Ryan Blaney", "Ryan Preece", "Shane Van Gisbergen"]
     },
-    "Emilia's Speeder Blaze": { 
+    "Emilias Speeder Blaze": { 
       drivers: ["Chase Elliott", "Chase Briscoe", "Chris Buescher", "Daniel Suarez", "Josh Berry"]
     },
     "Heathers Heroes": { 
@@ -181,7 +181,7 @@ function processRaceData(data) {
 }
 function insertApostrophe(name) {
   const firstSpace = name.indexOf(" ");
-  const insertPos = firstSpace - 2;
+  const insertPos = firstSpace - 1;
   return name.slice(0, insertPos) + "'" + name.slice(insertPos);
 }
 // Load Overall Standings
@@ -1467,6 +1467,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
