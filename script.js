@@ -179,7 +179,11 @@ function processRaceData(data) {
 
   console.log("Processed Race Data:", standingsData);
 }
-
+function insertApostrophe(name) {
+  const firstSpace = name.indexOf(" ");
+  const insertPos = firstSpace - 2;
+  return name.slice(0, insertPos) + "'" + name.slice(insertPos);
+}
 // Load Overall Standings
 function loadOverallStandings() {
   const overallTable = document.querySelector("#overall-standings tbody");
@@ -207,6 +211,7 @@ function loadOverallStandings() {
 
   // Generate table rows with position indicators and points behind
   sortedTeams.forEach(([team, points], index) => {
+    const displayName = insertApostrophe(team);
     const position = index + 1;
     let positionIcon = '';
     
@@ -239,7 +244,7 @@ function loadOverallStandings() {
     const row = document.createElement("tr");
     row.innerHTML = `
       <td class="standings-cell" style="font-weight: bold;">${position} ${positionIcon}</td>
-      <td class="standings-cell" style="font-weight: bold;">${team}</td>
+      <td class="standings-cell" style="font-weight: bold;">${displayName}</td>
       <td class="standings-cell" style="font-weight: bold;">${points}${pointsBehindDisplay}</td>
     `;
     overallTable.appendChild(row);
@@ -1462,6 +1467,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
