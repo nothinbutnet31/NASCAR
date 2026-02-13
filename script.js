@@ -312,10 +312,11 @@ function loadWeeklyStandings() {
 
         // Generate table rows
         sortedTeams.forEach(([team, points], index) => {
+          const displayName = insertApostrophe(team);
           const row = document.createElement("tr");
           row.innerHTML = `
             <td class="standings-cell">${index + 1}</td>
-            <td class="standings-cell">${team}</td>
+            <td class="standings-cell">${displayName}</td>
             <td class="standings-cell">${points.toFixed(1)}</td>
           `;
           tbody.appendChild(row);
@@ -347,10 +348,11 @@ function loadWeeklyStandings() {
 
     // Generate table rows
     sortedTeams.forEach(([team, data], index) => {
+      const displayName = insertApostrophe(team);
       const row = document.createElement("tr");
       row.innerHTML = `
         <td class="standings-cell">${index + 1}</td>
-        <td class="standings-cell">${team}</td>
+        <td class="standings-cell">${displayName}</td>
         <td class="standings-cell">${data.total}</td>
       `;
       weeklyTable.appendChild(row);
@@ -789,14 +791,16 @@ function generateWeeklyRecap() {
     <p><strong>${sortedDrivers[0].driver}</strong> led all drivers with ${sortedDrivers[0].points} points!</p>
     <ul>`;
   topDrivers.forEach(({ driver, team, points }) => {
-    recapText += `<li>${driver} (${team}) - ${points} points</li>`;
+    const displayName = insertApostrophe(team);
+    recapText += `<li>${driver} (${displayName}) - ${points} points</li>`;
   });
   recapText += `</ul>`;
 
   if (bottomDrivers.length > 0) {
     recapText += `<h4>📉 Struggling Drivers</h4><ul>`;
     bottomDrivers.forEach(({ driver, team, points }) => {
-      recapText += `<li>${driver} (${team}) - ${points} points</li>`;
+      const displayName = insertApostrophe(team);
+      recapText += `<li>${driver} (${displayName}) - ${points} points</li>`;
     });
     recapText += `</ul>`;
   }
@@ -854,8 +858,9 @@ function generateWeeklyRecap() {
         <h4>🔄 Championship Movement</h4>
         <ul>`;
       significantMovements.forEach(({ team, positionChange }) => {
+        const displayName = insertApostrophe(team);
         const direction = positionChange > 0 ? "up" : "down";
-        recapText += `<li>${team} moved ${direction} ${Math.abs(positionChange)} position${Math.abs(positionChange) > 1 ? 's' : ''}</li>`;
+        recapText += `<li>${displayName} moved ${direction} ${Math.abs(positionChange)} position${Math.abs(positionChange) > 1 ? 's' : ''}</li>`;
       });
       recapText += `</ul></div>`;
     }
@@ -1467,6 +1472,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
