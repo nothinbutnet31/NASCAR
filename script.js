@@ -638,7 +638,7 @@ function generateWeeklyRecap() {
         />
         <div>
           <p style="font-size: 1.2em; margin-bottom: 10px;">
-          const displayName = insertApostrophe(topTeam);
+         
             <strong>${topTeam[0]}</strong> with ${topTeam[1].total} points! 🌟
           </p>
           <p>Key performers:</p>
@@ -1473,6 +1473,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
