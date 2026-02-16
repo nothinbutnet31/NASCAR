@@ -1429,9 +1429,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Can Emilia repeat as champion?  ",
-        "🏁 Who can conquer the new format? ",
-        "🎯 Next Race Daytona 500 @ Daytona International Super Speedway, Feb. 15, 2026"
+        "🏆 Emilia starts out 2nd in new season  ",
+        "🏁 Grace wins the first week of the season ",
+        "🎯 Next Race AutoTrader 400 @ EchoPark Speedway, Feb. 22, 2026"
         
       ];
 
@@ -1473,6 +1473,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
