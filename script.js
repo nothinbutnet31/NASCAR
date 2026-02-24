@@ -1248,7 +1248,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "1";
+    weekSelect.value = "2";
   }
 
   // Single event listener for week changes
@@ -1429,9 +1429,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Emilia starts out 2nd in new season  ",
-        "🏁 Grace wins the first week of the season ",
-        "🎯 Next Race AutoTrader 400 @ EchoPark Speedway, Feb. 22, 2026"
+        "🏆 Emilia takes over 1st place for the season  ",
+        "🏁 Midge narrowly beats out Emilia to win the week! ",
+        "🎯 Next Race DuraMAX Grand Prix @ Circuit of the Americas, Mar. 1, 2026"
         
       ];
 
@@ -1473,6 +1473,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
