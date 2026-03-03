@@ -448,8 +448,8 @@ function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
 
       // Add stage, pole, and fastest lap points
       totalScore += (stageWins * 2 * 1.0); // Stage points weight
-      if (hadPole) totalScore += (1 * 0.8); // Qualifying bonus weight
-      if (hadFastestLap) totalScore += (1 * 0.8); // Fastest lap bonus weight
+      if (hadPole) totalScore += (1); // Qualifying bonus weight
+      if (hadFastestLap) totalScore += (1); // Fastest lap bonus weight
 
       // Calculate performance vs expectations
       const driverAverages = calculateDriverAverages(selectedWeekNumber);
@@ -1473,6 +1473,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
