@@ -1430,7 +1430,7 @@ async function createLiveNewsTicker() {
       // League updates first
       const leagueUpdates = [
         "🏆 Grace goes back into first place for the season!  ",
-        "🏁 Heather squeaks out the win for the week beating Midge by 3 points! ",
+        "🏁 Heather squeaks out the win for the week beating Midge by 2 points! ",
         "🎯 Next Race Straight Talk Wireless 400 @ Phoenix Raceway, Mar. 8, 2026"
         
       ];
@@ -1473,6 +1473,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
