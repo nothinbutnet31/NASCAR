@@ -470,8 +470,8 @@ function calculateDriverOfTheWeek(weekData, selectedWeekNumber) {
         basePoints: basePoints,
         totalScore: parseFloat(totalScore.toFixed(1)),
         details: {
-          stageWins: stageWins,
           hadPole: hadPole ? true : false,
+          stageWins: stageWins,
           hadFastestLap: hadFastestLap ? true : false,
           teamContribution: teamContribution.toFixed(1) + '%',
           vsExpected: performanceBonus.toFixed(1)
@@ -1473,6 +1473,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
