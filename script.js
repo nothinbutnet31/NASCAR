@@ -1248,7 +1248,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "2";
+    weekSelect.value = "3";
   }
 
   // Single event listener for week changes
@@ -1429,9 +1429,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Emilia takes over 1st place for the season  ",
-        "🏁 Midge narrowly beats out Emilia to win the week! ",
-        "🎯 Next Race DuraMAX Grand Prix @ Circuit of the Americas, Mar. 1, 2026"
+        "🏆 Grace goes back into first place for the season!  ",
+        "🏁 Heather squeaks out the win for the week beating Midge by 3 points! ",
+        "🎯 Next Race Straight Talk Wireless 400 @ Phoenix Raceway, Mar. 8, 2026"
         
       ];
 
@@ -1473,6 +1473,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
