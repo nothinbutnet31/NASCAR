@@ -1248,7 +1248,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "3";
+    weekSelect.value = "4";
   }
 
   // Single event listener for week changes
@@ -1429,9 +1429,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Grace goes back into first place for the season!  ",
-        "🏁 Heather squeaks out the win for the week beating Midge by 2 points! ",
-        "🎯 Next Race Straight Talk Wireless 400 @ Phoenix Raceway, Mar. 8, 2026"
+        "🏆 Midge takes over first place in season standings 4 points ahead of Heather!  ",
+        "🏁 Midge wins the week at Phoenix! ",
+        "🎯 Next Race South Point 400 @ Las Vegas Motor Speedway, Mar. 15, 2026"
         
       ];
 
@@ -1473,6 +1473,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
