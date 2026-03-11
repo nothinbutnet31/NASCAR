@@ -1431,7 +1431,7 @@ async function createLiveNewsTicker() {
       const leagueUpdates = [
         "🏆 Midge takes over first place in season standings 4 points ahead of Heather!  ",
         "🏁 Midge wins the week at Phoenix! ",
-        "🎯 Next Race South Point 400 @ Las Vegas Motor Speedway, Mar. 15, 2026"
+        "🎯 Next Race Pennzoil 400 @ Las Vegas Motor Speedway, Mar. 15, 2026"
         
       ];
 
@@ -1473,6 +1473,7 @@ setInterval(async () => {
   }
   await createLiveNewsTicker();
 }, 300000);
+
 
 
 
