@@ -1248,7 +1248,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "4";
+    weekSelect.value = "5";
   }
 
   // Single event listener for week changes
@@ -1429,9 +1429,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Midge takes over first place in season standings 4 points ahead of Heather!  ",
-        "🏁 Midge wins the week at Phoenix! ",
-        "🎯 Next Race Pennzoil 400 @ Las Vegas Motor Speedway, Mar. 15, 2026"
+        "🏁 Midge wins by 4 points over Emilia at Las Vegas! ",
+        "🏆 Championship standings stay the same after Las Vegas.  ",
+        "🎯 Next Race Goodyear 400 @ Darlington Raceway, Mar. 22, 2026"
         
       ];
 
