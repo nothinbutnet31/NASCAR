@@ -1248,7 +1248,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "5";
+    weekSelect.value = "7";
   }
 
   // Single event listener for week changes
@@ -1429,9 +1429,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏁 Midge wins by 4 points over Emilia at Las Vegas! ",
-        "🏆 Championship standings stay the same after Las Vegas.  ",
-        "🎯 Next Race Goodyear 400 @ Darlington Raceway, Mar. 22, 2026"
+        "🏁 Midge wins 4 weeks in a row! ",
+        "🏆 Midge extends her lead to 63 points over Heather.  ",
+        "🎯 Next Race Food City 500 @ Bristol Motor Speedway, April 12, 2026"
         
       ];
 
