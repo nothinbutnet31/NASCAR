@@ -1248,7 +1248,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "7";
+    weekSelect.value = "9";
   }
 
   // Single event listener for week changes
@@ -1429,9 +1429,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏁 Midge wins 4 weeks in a row! ",
-        "🏆 Midge extends her lead to 63 points over Heather.  ",
-        "🎯 Next Race Food City 500 @ Bristol Motor Speedway, April 12, 2026"
+        "🏁 Grace wins 2 weeks in a row! ",
+        "🏆 Midge has 58 point lead over Heather.  ",
+        "🎯 Next Race: Jack Link's 500 @ Talladega SuperSpeedway, April 26, 2026"
         
       ];
 
