@@ -1248,7 +1248,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "9";
+    weekSelect.value = "10";
   }
 
   // Single event listener for week changes
@@ -1429,9 +1429,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏁 Grace wins 2 weeks in a row! ",
-        "🏆 Midge has 58 point lead over Heather.  ",
-        "🎯 Next Race: Jack Link's 500 @ Talladega SuperSpeedway, April 26, 2026"
+        "🏁 Emilia wins at Talladega! ",
+        "🏆 Midge has 49 point lead over Heather. Emilia moves up to 3rd in the standings.  ",
+        "🎯 Next Race: Wurth 400 @ Texas Motor Speedway, May 2, 2026"
         
       ];
 
