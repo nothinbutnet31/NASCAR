@@ -1428,13 +1428,13 @@ async function createLiveNewsTicker() {
       ticker.id = 'news-ticker';
 
       // League updates first
-      const leagueUpdates = [
-        "🏁 Heather win Watkins Glen! ",
-        "🏆 Midge has 52 point lead over Heather after first half of regular season. ",
-        "Pick your secound half drivers here: https://form.jotform.com/240186539700052",
-        "🎯 Next Race: Coca-Cola 600 @ Charlotte Motor Speedway, May 24, 2026"
-        
-      ];
+  const leagueUpdates = [
+  "🏁 Heather win Watkins Glen! ",
+  "🏆 Midge has 52 point lead over Heather after first half of regular season. ",
+  `Pick your second half drivers here: <a href="https://form.jotform.com/240186539700052" target="_blank">Click Here</a>`,
+  "🎯 Next Race: Coca-Cola 600 @ Charlotte Motor Speedway, May 24, 2026"
+];
+
 
       // Create arrays for both types of updates
       const leagueItems = leagueUpdates.map(update => 
