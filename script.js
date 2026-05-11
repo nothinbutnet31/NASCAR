@@ -1248,7 +1248,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "10";
+    weekSelect.value = "12";
   }
 
   // Single event listener for week changes
@@ -1429,9 +1429,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏁 Emilia wins at Talladega! ",
-        "🏆 Midge has 49 point lead over Heather. Emilia moves up to 3rd in the standings.  ",
-        "🎯 Next Race: Wurth 400 @ Texas Motor Speedway, May 2, 2026"
+        "🏁 Heather win Watkins Glen! ",
+        "🏆 Midge has 52 point lead over Heather after first half of regular season. ",
+        "Pick your secound half drivers here: https://form.jotform.com/240186539700052",
+        "🎯 Next Race: Coca-Cola 600 @ Charlotte Motor Speedway, May 24, 2026"
         
       ];
 
