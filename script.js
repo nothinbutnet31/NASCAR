@@ -19,8 +19,10 @@ window.scoringSystem = {
 
 let standingsData = {
   weeks: [],
-  teams: {
-    "Midges Mighty Men": {
+  teams: function(weekNumber) {
+    if (weekNumber <= 13) {
+      return {
+      "Midges Mighty Men": {
       drivers: ["William Byron", "Denny Hamlin", "Ryan Blaney", "Ryan Preece", "Shane Van Gisbergen"]
     },
     "Emilias Speeder Blaze": { 
@@ -38,9 +40,31 @@ let standingsData = {
     "Edmunds Pet Pitcrew": {
       drivers: ["Kyle Larson", "Christopher Bell", "Ryan Blaney", "Connor Zilisch", "Carson Hocevar"]
     }
-  }
+  };
+}
+else {
+      return {"Midges Mighty Men": {
+      drivers: ["William Byron", "Denny Hamlin", "Ryan Blaney", "Austin Dillon", "Connor Zilisch"]
+    },
+    "Emilias Speeder Blaze": { 
+      drivers: ["Chase Elliott", "Chase Briscoe", "Ryan Preece", "Noah Gragson", "Riley Herbst"]
+    },
+    "Heathers Heroes": { 
+      drivers: ["William Byron", "Tyler Reddick", "Ryan Blaney", "Austin Dillon", "Erik Jones"]
+    },
+    "Dannos Sunday Drivers": {
+      drivers: ["Chase Elliott","Denny Hamlin", "Ryan Blaney", "Connor Zilisch", "Noah Gragson"]
+    },
+    "Graces Stitch Swifties": {
+      drivers: ["Chase Elliott", "Denny Hamlin", "AJ Allmendinger", "Brad Keselowski", "Josh Berry"]
+    },
+    "Edmunds Pet Pitcrew": {
+      drivers: ["Carson Hocevar", "Christopher Bell", "Ryan Blaney", "Zane Smith", "Alex Bowman"]
+    }
+  };
+}
+}
 };
-
 // Add this constant for expected averages
 const expectedDriverAverages = {
   // Top tier drivers (25+ avg)
@@ -1248,7 +1272,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "12";
+    weekSelect.value = "13";
   }
 
   // Single event listener for week changes
