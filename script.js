@@ -1569,10 +1569,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Byron's dominance, Hamlin's luck helps Midge edge out Heather for the win!",
-        "🔻 Emilia falls back to 3rd in the standings.",
-        "🤏 Top 2 in overall standings only seperated by 6 points!",
-        "🎯 Next Race: Food City 500 @ Bristol Motor Speedway, April 13,  2025"
+        "🏆 Edmund's Pet Pitcrew wins Coca Cola 600!",
+        "🔻 Emilia falls back to 5rd in the standings.",
+        "🤏 Top 2 in overall standings only seperated by 32 points!",
+        "🎯 Next Race: Cracker Barrel 400 @ Nashville SuperSpeedway, May 31, 2026"
         
       ];
 
