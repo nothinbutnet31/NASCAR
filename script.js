@@ -20,7 +20,7 @@ window.scoringSystem = {
 let standingsData = {
   weeks: [],
   teams: function(weekNumber) {
-    if (weekNumber <= 13) {
+    if (weekNumber <= 12) {
       return {
       "Midges Mighty Men": {
       drivers: ["William Byron", "Denny Hamlin", "Ryan Blaney", "Ryan Preece", "Shane Van Gisbergen"]
