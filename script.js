@@ -1381,7 +1381,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "13";
+    weekSelect.value = "14";
   }
 
   // Single event listener for week changes
@@ -1569,10 +1569,10 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Edmund's Pet Pitcrew wins Coca Cola 600!",
-        "🔻 Emilia falls back to 5rd in the standings.",
-        "🤏 Top 2 in overall standings only seperated by 32 points!",
-        "🎯 Next Race: Cracker Barrel 400 @ Nashville SuperSpeedway, May 31, 2026"
+        "🏆 Edmund's Pet Pitcrew wins 2 in a row!",
+        "🔻 Grace falls back to 5th in the standings.",
+        "🤏 Top 2 in overall standings only seperated by 17 points!",
+        "🎯 Next Race: Firekeeper Casino 400 @ Michigan International Speedway, June 7, 2026"
         
       ];
 
