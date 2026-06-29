@@ -1381,7 +1381,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "15";
+    weekSelect.value = "18";
   }
 
   // Single event listener for week changes
@@ -1569,9 +1569,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Grace wins at Michigan! ",
-       "🤏 Top 2 in overall standings only seperated by 19 points!",
-        "🎯 Next Race: Great American Getaway 400 @ Pocono Raceway, June 14, 2026"
+        "🏆 Edmund wins at Sonoma! ",
+       "🤏 Top 2 in overall standings only seperated by 29 points!",
+        "🎯 Next Race: eero 400 @ CHICAGOLAND, July 5, 2026"
         
       ];
 
