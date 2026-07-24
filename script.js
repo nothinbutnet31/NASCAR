@@ -1381,7 +1381,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "20";
+    weekSelect.value = "21";
   }
 
   // Single event listener for week changes
@@ -1569,9 +1569,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Heather wins at Echopark! ",
-       "🤏 Top 2 in overall standings only seperated by 15 points!",
-        "🎯 Next Race: 2026 Window World 450 @ North Wilksboro, July 19, 2026"
+        "🏆 Emilia wins at Wilksboro! ",
+       "🤏 Top 2 in overall standings only seperated by 32 points!",
+        "🎯 Next Race: Brickyard 400 @ Indianapolis Motor Speedway, July 26, 2026"
         
       ];
 
