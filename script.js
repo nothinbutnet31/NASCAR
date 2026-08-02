@@ -1381,7 +1381,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "21";
+    weekSelect.value = "22";
   }
 
   // Single event listener for week changes
@@ -1569,9 +1569,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Emilia wins at Wilksboro! ",
-       "🤏 Top 2 in overall standings only seperated by 32 points!",
-        "🎯 Next Race: Brickyard 400 @ Indianapolis Motor Speedway, July 26, 2026"
+        "🏆 Edmund wins at Indinapolis! ",
+       "🤏 Top 2 in overall standings only seperated by 30 points!",
+        "🎯 Next Race: Iowa Corn 250 @ Iowa Speedway, August 9, 2026"
         
       ];
 
