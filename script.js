@@ -1381,7 +1381,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "22";
+    weekSelect.value = "24";
   }
 
   // Single event listener for week changes
@@ -1569,9 +1569,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Edmund wins at Indinapolis! ",
-       "🤏 Top 2 in overall standings only seperated by 30 points!",
-        "🎯 Next Race: Iowa Corn 250 @ Iowa Speedway, August 9, 2026"
+        "🏆 Dan wins at Richmond! ",
+       "🫢 Midge expands her lead to 94 points with only 2 races left!",
+        "🎯 Next Race: Dollar Tree 301 @ New Hampshire Motor Speedway, August 23, 2026"
         
       ];
 
