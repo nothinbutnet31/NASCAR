@@ -1381,7 +1381,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "24";
+    weekSelect.value = "26";
   }
 
   // Single event listener for week changes
@@ -1569,9 +1569,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏆 Dan wins at Richmond! ",
-       "🫢 Midge expands her lead to 94 points with only 2 races left!",
-        "🎯 Next Race: Dollar Tree 301 @ New Hampshire Motor Speedway, August 23, 2026"
+        "🏁 Grace wins at Daytona! ",
+       "🏆 Midge wins the regular season!",
+        "🎯 Next Race: Cook Out Southern 500 @ Darlington Raceway, September 6, 2026"
         
       ];
 
