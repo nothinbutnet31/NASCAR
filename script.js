@@ -23,22 +23,22 @@ let standingsData = {
     if (weekNumber <= 12) {
       return {
       "Midges Mighty Men": {
-      drivers: ["William Byron", "Denny Hamlin", "Ryan Blaney", "Ryan Preece", "Shane Van Gisbergen"]
+      drivers: ["Chase Briscoe", "Denny Hamlin", "Daniel Suarez", "Austin Cindric", "Zane Smith"]
     },
     "Emilias Speeder Blaze": { 
-      drivers: ["Chase Elliott", "Chase Briscoe", "Chris Buescher", "Daniel Suarez", "Josh Berry"]
+      drivers: ["Chase Elliott", "Carson Hocevar", "Ross Chastain", "Austin Dillon", "John Nemechek"]
     },
     "Heathers Heroes": { 
-      drivers: ["William Byron", "Tyler Reddick", "Ryan Blaney", "Austin Dillon", "Kyle Busch"]
+      drivers: ["Kyle Larson", "Tyler Reddick", "Bubba Wallce", "Michael McDowell", "Erik Jones"]
     },
     "Dannos Sunday Drivers": {
-      drivers: ["William Byron","Christopher Bell", "Ryan Blaney", "Austin Cindric", "Noah Gragson"]
+      drivers: ["Joey Logano","Chris Buescher", "Ryan Preece", "Todd Gilliland", "Josh Berry"]
     },
     "Graces Stitch Swifties": {
-      drivers: ["Kyle Larson", "Bubba Wallace", "Kyle Busch", "Brad Keselowski", "Daniel Suarez"]
+      drivers: ["Christopher Bell", "William Byron", "Shane Van Gisbergen", "AJ Allmendinger", "Riley Herbst"]
     },
     "Edmunds Pet Pitcrew": {
-      drivers: ["Kyle Larson", "Christopher Bell", "Ryan Blaney", "Connor Zilisch", "Carson Hocevar"]
+      drivers: ["Ryan Blaney", "Ty Gibbs", "Brad Keselowski", "Connor Zilisch", "Alex Bowman"]
     }
   };
 }
@@ -1381,7 +1381,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "26";
+    weekSelect.value = "1";
   }
 
   // Single event listener for week changes
