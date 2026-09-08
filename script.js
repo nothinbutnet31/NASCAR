@@ -1569,9 +1569,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏁 Grace wins at Daytona! ",
-       "🏆 Midge wins the regular season!",
-        "🎯 Next Race: Cook Out Southern 500 @ Darlington Raceway, September 6, 2026"
+        "🏁 Dan wins first playoff race at Darlington! ",
+       "🏆 Top 3 only seperated by 13 points after first race for the championship!",
+        "🎯 Next Race: Enjoy Illinois 300 @ World Wide Technology Raceway, September 13, 2026"
         
       ];
 
