@@ -1381,7 +1381,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "1";
+    weekSelect.value = "2";
   }
 
   // Single event listener for week changes
@@ -1569,9 +1569,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏁 Dan wins first playoff race at Darlington! ",
-       "🏆 Top 3 only seperated by 13 points after first race for the championship!",
-        "🎯 Next Race: Enjoy Illinois 300 @ World Wide Technology Raceway, September 13, 2026"
+        "🏁 Edmund wins playoff race at Gateway! ",
+       "🏆 Top 3 only seperated by 14 points after second race for the championship!",
+        "🎯 Next Race: Bass Pro Shop Night Race @ Bristol Motor Speedway, September 19, 2026"
         
       ];
 
