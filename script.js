@@ -1381,7 +1381,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "2";
+    weekSelect.value = "3";
   }
 
   // Single event listener for week changes
@@ -1569,9 +1569,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏁 Edmund wins playoff race at Gateway! ",
-       "🏆 Top 3 only seperated by 14 points after second race for the championship!",
-        "🎯 Next Race: Bass Pro Shop Night Race @ Bristol Motor Speedway, September 19, 2026"
+        "🏁 Dan wins playoff race at Gateway! ",
+       "🏆 Top 2 only seperated by 10 points after third race for the championship!",
+        "🎯 Next Race: Hollywood Casino 400 @ Kansas Speedway, September 27, 2026"
         
       ];
 
