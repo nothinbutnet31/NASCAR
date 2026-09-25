@@ -29,7 +29,7 @@ let standingsData = {
       drivers: ["Chase Elliott", "Carson Hocevar", "Ross Chastain", "Austin Dillon", "John Nemechek"]
     },
     "Heathers Heroes": { 
-      drivers: ["Kyle Larson", "Tyler Reddick", "Bubba Wallce", "Michael McDowell", "Erik Jones"]
+      drivers: ["Kyle Larson", "Tyler Reddick", "Bubba Wallace", "Michael McDowell", "Erik Jones"]
     },
     "Dannos Sunday Drivers": {
       drivers: ["Joey Logano","Chris Buescher", "Ryan Preece", "Todd Gilliland", "Josh Berry"]
