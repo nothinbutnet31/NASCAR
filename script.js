@@ -1381,7 +1381,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "3";
+    weekSelect.value = "4";
   }
 
   // Single event listener for week changes
@@ -1569,9 +1569,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏁 Dan wins playoff race at Gateway! ",
-       "🏆 Top 2 only seperated by 10 points after third race for the championship!",
-        "🎯 Next Race: Hollywood Casino 400 @ Kansas Speedway, September 27, 2026"
+        "🏁 Midge wins playoff race at Kansas! ",
+       "🏆 Top 2 seperated by 60 points after fourth race for the championship!",
+        "🎯 Next Race: South Point 400 @ Las Vegas Motor Speedway, October 4, 2026"
         
       ];
 
