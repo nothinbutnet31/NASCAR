@@ -1381,7 +1381,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "4";
+    weekSelect.value = "5";
   }
 
   // Single event listener for week changes
@@ -1569,8 +1569,8 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏁 Midge wins playoff race at Kansas! ",
-       "🏆 Top 2 seperated by 60 points after fourth race for the championship!",
+        "🏁 Heather wins playoff race at Las Vegas! ",
+       "🏆 Top 2 seperated by 97 points after fifth race for the championship!",
         "🎯 Next Race: South Point 400 @ Las Vegas Motor Speedway, October 4, 2026"
         
       ];
