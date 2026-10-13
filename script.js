@@ -1381,7 +1381,7 @@ function populateWeekDropdown() {
     });
 
     // Set to first week by default (DROPDOWN START)
-    weekSelect.value = "5";
+    weekSelect.value = "6";
   }
 
   // Single event listener for week changes
@@ -1569,9 +1569,9 @@ async function createLiveNewsTicker() {
 
       // League updates first
       const leagueUpdates = [
-        "🏁 Heather wins playoff race at Las Vegas! ",
-       "🏆 Top 2 seperated by 97 points after fifth race for the championship!",
-        "🎯 Next Race: South Point 400 @ Las Vegas Motor Speedway, October 4, 2026"
+        "🏁 Midge wins playoff race at Roval! ",
+       "🏆 Top 2 seperated by 61 points after sixth race for the championship!",
+        "🎯 Next Race: Freeway Insurance 500 @ Phoenix Raceway, October 18th, 2026"
         
       ];
 
